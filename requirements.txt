@@ -1,0 +1,8 @@
+torch
+soundfile
+transformers
+pyyaml
+accelerate
+sounddevice
+python-sounddevice
+portaudio
