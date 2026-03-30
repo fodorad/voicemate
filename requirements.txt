@@ -6,3 +6,5 @@ accelerate
 sounddevice
 python-sounddevice
 portaudio
+openai-whisper
+TTS
