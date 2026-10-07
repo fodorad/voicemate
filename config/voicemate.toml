@@ -1,0 +1,94 @@
+# voicemate configuration. Paths starting with "~" are expanded at runtime;
+# relative paths are resolved against the repository root.
+# Override the location of this file with the VOICEMATE_CONFIG environment variable.
+
+data_dir = "data"
+# Keep raw utterance audio under data/audio (useful for ASR/VAD tuning). Off by default.
+save_audio = false
+
+[assistant]
+# Persona name: purely configuration, never referenced in code.
+name = "Ava"
+# How each TTS voice should pronounce the persona name.
+pronunciation = {}
+# Language until the user's language is detected, and the fallback voice: "en" or "hu".
+default_language = "en"
+
+[location]
+name = "Gyöngyös, Heves megye, Hungary"
+latitude = 47.7826
+longitude = 19.9281
+
+[llm]
+# One model does everything; pick a profile, or override per run: `make run PROFILE=gemma`.
+#   fast   gemma4:e4b       ~11 GB loaded, first token ~0.9 s, 16 tok/s   (default)
+#   gemma  gemma4:26b-mlx   ~24 GB loaded, first token ~1.0 s, 31 tok/s   (MoE, best quality/speed)
+#   qwen   qwen3.8:27b-mlx  ~27 GB loaded, first token ~2.9 s, 11 tok/s   (dense, slowest)
+# At startup the memory guard checks that the model fits next to the speech stack; if it does
+# not, it switches to fallback_profile and says so in the UI, because a model that does not fit
+# gets paged out and replies take 15+ s (docs/sdlc/spec.md §10).
+profile = "fast"
+fallback_profile = "fast"
+profiles = { fast = "gemma4:e4b", gemma = "gemma4:26b-mlx", qwen = "qwen3.8:27b-mlx" }
+memory_guard = true
+# GB kept free for ASR/TTS/embeddings (~3 GB), the UI process and the OS.
+reserve_gb = 5.0
+temperature = 0.6
+num_ctx = 32768
+keep_alive = "30m"
+max_tool_rounds = 6
+turn_timeout_s = 90.0
+
+[asr]
+model = "mlx-community/parakeet-tdt-0.6b-v3"
+# Seconds of new speech between live partial transcripts (UI feedback only).
+partial_interval_s = 1.0
+# "cpu" keeps the GPU for the LLM: with the 22 GB model, extra GPU work makes macOS page
+# GPU memory and every stage slows down (measured, see docs/sdlc/spec.md).
+device = "cpu"
+
+[tts.hu]
+engine = "piper"
+voice = "hu_HU-anna-medium"
+
+[tts.en]
+engine = "kokoro"
+voice = "af_heart"
+
+[vad]
+threshold = 0.5
+min_silence_ms = 700
+min_speech_ms = 250
+preroll_ms = 300
+# Stricter settings while the assistant is speaking, so its own echo does not interrupt it.
+barge_in_threshold = 0.8
+barge_in_min_speech_ms = 300
+
+[memory]
+embed_model = "BAAI/bge-m3"
+# "cpu" (about 50 ms per query), "mps" or "auto". CPU keeps the GPU for the LLM.
+embed_device = "cpu"
+search_cache_similarity = 0.86
+fact_min_similarity = 0.45
+recall_min_similarity = 0.55
+fact_dedupe_similarity = 0.9
+
+[search]
+# "ddgs" (DuckDuckGo, no setup) or "searxng" (self-hosted, set searxng_url).
+backend = "ddgs"
+searxng_url = "http://localhost:8888"
+max_results = 5
+
+[files]
+roots = ["~/Documents", "~/Downloads"]
+papers_dir = "~/Downloads/voicemate-papers"
+max_read_bytes = 200000
+
+[ui]
+host = "127.0.0.1"
+port = 8080
+# Requests with any other Host header are rejected (protects against DNS rebinding).
+# Add your machine's name here if you bind to another interface on purpose.
+allowed_hosts = ["127.0.0.1", "localhost"]
+# Let ?fake_mic=<file in data/fake_mic> replay a WAV as speech. Only for end-to-end tests.
+test_audio = false

@@ -1,6 +1,14 @@
 # project related
-data/
+# runtime state: memory DB, notes, checkpoints, logs, downloaded models
+data/*
+!data/.gitkeep
 .vscode/
+.idea/
+.DS_Store
+tmp/
+site/
+coverage_html/
+coverage.xml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -196,3 +204,8 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+# local planning / scratch artifacts
+temp/
+
+# generated docs
+docs/autoapi/

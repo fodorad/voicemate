@@ -1,0 +1,38 @@
+name: CD
+
+# NOT ACTIVE YET: there is no PyPI project, so this only runs when started by hand.
+# To turn it on, create the PyPI trusted publisher and the `cd` environment, then restore
+#   push:
+#     tags: ["v*"]
+# below, so it runs when release-please tags a version. It builds the package, publishes it
+# to PyPI via trusted publishing (OIDC, no token) and attaches the build to the release.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: cd
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      - name: Build package
+        run: uv build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Create GitHub Release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dist/*

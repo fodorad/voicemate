@@ -1,27 +1,141 @@
 [build-system]
-requires = ["hatchling", "hatch-requirements-txt"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "nexa"
-version = "0.0.1"
-description = "NEXA"
-keywords = ["STT", "TTS", "LLM"]
+name = "voicemate"
+version = "0.1.0"
+description = "Private, local, bilingual (Hungarian/English) voice assistant: streaming ASR, LangGraph agent on Ollama, memory, TTS and a browser UI."
+keywords = ["voice assistant", "ASR", "TTS", "LLM", "LangGraph", "Ollama", "RAG", "Hungarian"]
 authors = [
-  { name = "fodorad", email = "foauaai@inf.elte.hu" },
+  { name = "Ádám Fodor", email = "fodorad201@gmail.com" },
 ]
 readme = {"file" = "README.md", "content-type" = "text/markdown"}
-requires-python = ">=3.11"
-dynamic = ["dependencies"]
+license = "MIT"
+requires-python = ">=3.12"
 classifiers = [
-  "Programming Language :: Python :: 3",
-  "Operating System :: OS Independent",
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dependencies = [
+  # ── audio / speech ────────────────────────────────────────────────────────
+  "numpy>=2.0",
+  "soxr>=0.5",
+  "soundfile>=0.13",
+  "onnxruntime>=1.20",
+  # Only the bundled Silero ONNX model file is used; inference runs through onnxruntime.
+  "silero-vad>=6.0",
+  # Piper also provides the espeak-ng phonemizer used for Kokoro (see voicemate.tts.kokoro).
+  "piper-tts>=1.3",
+  "kokoro-onnx>=0.5",
+  # Parakeet runs on Apple MLX; on other platforms the ASR backend is unavailable.
+  "parakeet-mlx>=0.5; sys_platform == 'darwin'",
+  "lingua-language-detector>=2.0",
+  # ── memory ────────────────────────────────────────────────────────────────
+  "sentence-transformers>=5.0",
+  "torch>=2.6",
+  "lancedb>=0.20",
+  "pyarrow>=18.0",
+  # ── agent ─────────────────────────────────────────────────────────────────
+  "langgraph>=1.0",
+  "langchain-core>=1.0",
+  "langchain-ollama>=1.0",
+  "langgraph-checkpoint-sqlite>=3.0",
+  "aiosqlite>=0.21",
+  "ollama>=0.6",
+  # ── tools ─────────────────────────────────────────────────────────────────
+  "httpx>=0.28",
+  "ddgs>=9.0",
+  "trafilatura>=2.0",
+  "arxiv>=2.1",
+  "pypdf>=5.0",
+  "huggingface_hub>=0.30",
+  "psutil>=5.9",
+  # ── UI ────────────────────────────────────────────────────────────────────
+  "nicegui>=3.0",
 ]
 
-[project.urls]
-Documentation = "https://github.com/fodorad/nexa#readme"
-Issues = "https://github.com/fodorad/nexa/issues"
-Source = "https://github.com/fodorad/nexa"
+[project.optional-dependencies]
+bench = [
+  "jiwer>=3.0",
+  "mlx-whisper>=0.4; sys_platform == 'darwin'",
+]
+dev = [
+  "ruff",
+  "ty",
+  "coverage",
+  "pre-commit",
+]
+docs = [
+  "sphinx>=8.0",
+  "furo",
+  "sphinx-autoapi",
+  "myst-parser",
+  "sphinxcontrib-mermaid",
+]
 
-[tool.hatch.metadata.hooks.requirements_txt]
-files = ["requirements.txt"]
+[project.scripts]
+voicemate = "voicemate.__main__:main"
+
+[project.urls]
+Documentation = "https://fodorad.github.io/voicemate/"
+Issues = "https://github.com/fodorad/voicemate/issues"
+Source = "https://github.com/fodorad/voicemate"
+
+[tool.hatch.build.targets.wheel]
+packages = ["voicemate"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.ruff.lint]
+# TC (type-checking-only imports) is off: LangChain and dataclasses read annotations at runtime.
+select = ["E", "F", "I", "UP", "B", "ARG", "PIE", "D"]
+ignore = [
+  "D107",  # Missing docstring in __init__ (covered by class docstring)
+  "D203",  # Blank line before class (conflicts with D211)
+  "D213",  # Multi-line summary second line (conflicts with D212)
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["D104"]
+"tests/**" = ["D", "ARG"]
+"docs/conf.py" = ["D", "ARG"]
+# Tool docstrings are the descriptions the LLM reads; the injected RunnableConfig parameter
+# is intentionally not documented there.
+"voicemate/agent/tools/*.py" = ["D417"]
+
+[tool.coverage.run]
+source = ["voicemate"]
+omit = [
+  # Benchmarks only run on macOS with every model downloaded (`make bench`).
+  "voicemate/bench/*",
+]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+]
+
+[tool.coverage.html]
+directory = "coverage_html"
+
+[tool.ty.environment]
+python-version = "3.12"
