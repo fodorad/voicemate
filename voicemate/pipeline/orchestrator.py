@@ -453,13 +453,20 @@ class VoiceSession:
             return
         messages = snapshot.values.get("messages", []) if snapshot else []
         answered = {m.tool_call_id for m in messages if isinstance(m, ToolMessage)}
-        patch: list = [
-            ToolMessage(INTERRUPTED_TOOL_RESULT, tool_call_id=call["id"])
-            for m in messages
-            if isinstance(m, AIMessage)
-            for call in m.tool_calls
-            if call["id"] not in answered
-        ]
+        patch: list = []
+        for message in messages:
+            if not isinstance(message, AIMessage):
+                continue
+            open_calls = [c for c in message.tool_calls if c["id"] not in answered]
+            if open_calls:
+                # Re-add the call message with its results: a cancel that lands just before
+                # LangGraph commits the step can drop it, which would leave a tool result
+                # without a call (models reject that). Messages are matched by id, so when
+                # it is already stored this replaces it in place.
+                patch.append(message)
+                patch.extend(
+                    ToolMessage(INTERRUPTED_TOOL_RESULT, tool_call_id=c["id"]) for c in open_calls
+                )
         if partial:
             patch.append(AIMessage(f"{partial.strip()} {INTERRUPTED_MARK}"))
         if patch:
