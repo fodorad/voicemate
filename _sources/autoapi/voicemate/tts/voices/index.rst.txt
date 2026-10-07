@@ -1,0 +1,74 @@
+voicemate.tts.voices
+====================
+
+.. py:module:: voicemate.tts.voices
+
+.. autoapi-nested-parse::
+
+   Per-language voice selection.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.tts.voices.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.tts.voices.VoiceBank
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: VoiceBank(voices: collections.abc.Mapping[str, voicemate.tts.base.Synthesizer], pronunciation: collections.abc.Mapping[str, collections.abc.Mapping[str, str]] | None = None, default_lang: str = 'hu')
+
+   Routes text to the voice of its language and cleans it for speech first.
+
+   :param voices: Language code → synthesizer.
+   :param pronunciation: Language code → whole-word replacements applied before synthesis.
+   :param default_lang: Voice used for languages without their own voice.
+
+
+   .. py:attribute:: voices
+
+
+   .. py:attribute:: pronunciation
+
+
+   .. py:attribute:: default_lang
+      :value: 'hu'
+
+
+
+   .. py:method:: voice_for(lang: str) -> voicemate.tts.base.Synthesizer
+
+      The synthesizer for ``lang`` (falls back to the default language).
+
+
+
+   .. py:method:: synthesize(text: str, lang: str) -> tuple[numpy.ndarray, int]
+
+      Clean ``text`` and render it with the voice of ``lang``.
+
+      :returns: ``(audio, sample_rate)``; audio is empty when nothing speakable remains.
+
+
+
+   .. py:method:: from_config(config: voicemate.config.Config) -> VoiceBank
+      :classmethod:
+
+
+      Load the voices configured in ``[tts.*]``, downloading weights if missing.
+
+
+

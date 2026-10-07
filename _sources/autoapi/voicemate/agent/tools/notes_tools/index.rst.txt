@@ -1,0 +1,33 @@
+voicemate.agent.tools.notes_tools
+=================================
+
+.. py:module:: voicemate.agent.tools.notes_tools
+
+.. autoapi-nested-parse::
+
+   Notes, todos and reminders tools.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.notes_tools.format_notes
+   voicemate.agent.tools.notes_tools.build
+
+
+Module Contents
+---------------
+
+.. py:function:: format_notes(notes: list[voicemate.memory.notes.Note]) -> str
+
+   One line per note.
+
+
+.. py:function:: build(ctx: voicemate.agent.tools.base.ToolContext) -> list[langchain_core.tools.BaseTool]
+
+   Create ``add_note``, ``list_notes`` and ``complete_note``.
+
+

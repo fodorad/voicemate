@@ -1,0 +1,135 @@
+voicemate.runtime
+=================
+
+.. py:module:: voicemate.runtime
+
+.. autoapi-nested-parse::
+
+   Process-wide runtime: every model and store, loaded once and shared by all sessions.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.runtime.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.runtime.Runtime
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.runtime.use_offline_hub_if_cached
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: use_offline_hub_if_cached(repos: list[str]) -> bool
+
+   Switch Hugging Face Hub to offline mode when every repository is already cached.
+
+   Loading a cached model still sends metadata requests to huggingface.co; for a private
+   assistant nothing but explicit tool calls should leave the machine.
+
+   :returns: True when offline mode was enabled.
+
+
+.. py:class:: Runtime
+
+   Shared components.
+
+   :ivar config: Application configuration.
+   :ivar recognizer: Speech recognizer (``None`` for text-only use).
+   :ivar voices: TTS voices (``None`` for text-only use).
+   :ivar vad_factory: Creates a fresh VAD model per session (VAD is stateful).
+   :ivar graph: Compiled LangGraph agent.
+   :ivar model_choice: The chat model chosen by the memory guard (None in tests).
+   :ivar memory: Long-term memory store.
+   :ivar notes: Notes database.
+   :ivar langid: Language detector.
+   :ivar asr_executor: Single worker thread for ASR (MLX is not re-entrant).
+   :ivar tts_executor: Single worker thread for TTS.
+
+
+
+   .. py:attribute:: config
+      :type:  voicemate.config.Config
+
+
+   .. py:attribute:: recognizer
+      :type:  voicemate.asr.base.SpeechRecognizer | None
+
+
+   .. py:attribute:: voices
+      :type:  voicemate.tts.voices.VoiceBank | None
+
+
+   .. py:attribute:: vad_factory
+      :type:  collections.abc.Callable[[], voicemate.audio.vad.SpeechProbability]
+
+
+   .. py:attribute:: graph
+      :type:  Any
+
+
+   .. py:attribute:: memory
+      :type:  voicemate.memory.store.MemoryStore | None
+
+
+   .. py:attribute:: notes
+      :type:  voicemate.memory.notes.NotesStore | None
+
+
+   .. py:attribute:: langid
+      :type:  voicemate.asr.langid.LanguageDetector
+
+
+   .. py:attribute:: model_choice
+      :type:  voicemate.agent.model_select.ModelChoice | None
+      :value: None
+
+
+
+   .. py:attribute:: asr_executor
+      :type:  concurrent.futures.ThreadPoolExecutor
+
+
+   .. py:attribute:: tts_executor
+      :type:  concurrent.futures.ThreadPoolExecutor
+
+
+   .. py:method:: aclose() -> None
+      :async:
+
+
+      Release executors, the HTTP client, the checkpointer and databases.
+
+
+
+   .. py:method:: load(config: voicemate.config.Config, speech: bool = True) -> Runtime
+      :classmethod:
+
+      :async:
+
+
+      Load every model and open every store.
+
+      :param config: Application configuration.
+      :param speech: Load ASR and TTS (False for the text-only ``chat`` command).
+
+
+

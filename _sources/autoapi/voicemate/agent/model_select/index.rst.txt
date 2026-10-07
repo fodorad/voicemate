@@ -1,0 +1,122 @@
+voicemate.agent.model_select
+============================
+
+.. py:module:: voicemate.agent.model_select
+
+.. autoapi-nested-parse::
+
+   Choose the chat model so the whole pipeline fits into memory.
+
+   Each profile in ``[llm.profiles]`` is one Ollama model used for everything. On a 32 GB Mac a
+   model that does not fit next to the speech stack and the user's apps gets paged out, and a
+   reply then takes 15+ s instead of about 1 s (docs/sdlc/spec.md §10). At startup the preferred
+   profile is therefore checked against free memory and, if it does not fit, the fallback profile
+   is used and the user is told why.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.model_select.logger
+   voicemate.agent.model_select.LOAD_FACTOR
+   voicemate.agent.model_select.LOAD_OVERHEAD_GB
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.agent.model_select.ModelChoice
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.model_select.normalize_name
+   voicemate.agent.model_select.estimated_load_gb
+   voicemate.agent.model_select.choose_model
+   voicemate.agent.model_select.probe_and_choose
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: LOAD_FACTOR
+   :type:  float
+   :value: 1.5
+
+
+.. py:data:: LOAD_OVERHEAD_GB
+   :type:  float
+   :value: 1.0
+
+
+.. py:class:: ModelChoice
+
+   The model the runtime will use.
+
+   :ivar profile: Profile name the model belongs to.
+   :ivar model: Ollama model tag.
+   :ivar fits: Whether the estimate says it fits into free memory (False also when unknown).
+   :ivar fell_back: True when the preferred profile was not used.
+   :ivar reason: Human-readable explanation, shown in the log and the UI.
+
+
+
+   .. py:attribute:: profile
+      :type:  str
+
+
+   .. py:attribute:: model
+      :type:  str
+
+
+   .. py:attribute:: fits
+      :type:  bool
+
+
+   .. py:attribute:: fell_back
+      :type:  bool
+
+
+   .. py:attribute:: reason
+      :type:  str
+
+
+.. py:function:: normalize_name(model: str) -> str
+
+   Ollama tags without an explicit version mean ``:latest``.
+
+
+.. py:function:: estimated_load_gb(disk_gb: float) -> float
+
+   Estimated memory of a loaded model from its size on disk.
+
+
+.. py:function:: choose_model(llm: voicemate.config.LLMConfig, installed: dict[str, float], available_gb: float) -> ModelChoice
+
+   Pick the preferred profile, or the fallback when it is missing or does not fit.
+
+   :param llm: LLM configuration (profiles, preferred and fallback profile, reserve).
+   :param installed: Installed Ollama models (normalized tag → size on disk in GB).
+   :param available_gb: Memory available for the model: free RAM plus memory of models Ollama
+                        would unload.
+
+   :returns: The chosen model with an explanation.
+
+   :raises ValueError: If a configured profile name does not exist.
+
+
+.. py:function:: probe_and_choose(llm: voicemate.config.LLMConfig) -> ModelChoice
+
+   Query Ollama and the OS, then :func:`choose_model`.
+
+

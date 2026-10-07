@@ -1,0 +1,397 @@
+voicemate.events
+================
+
+.. py:module:: voicemate.events
+
+.. autoapi-nested-parse::
+
+   Events flowing from the voice pipeline to the UI, and a small asyncio pub/sub bus.
+
+   The UI renders one *lane* per pipeline stage. Several lanes can be active at the same time
+   (the LLM keeps generating while earlier sentences are synthesized and spoken), so the status
+   model is per lane rather than a single exclusive state.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.events.ToolSource
+   voicemate.events.Event
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.events.Lane
+   voicemate.events.LaneState
+   voicemate.events.StatusEvent
+   voicemate.events.TranscriptEvent
+   voicemate.events.TokenEvent
+   voicemate.events.ReplyEvent
+   voicemate.events.ToolEvent
+   voicemate.events.AudioEvent
+   voicemate.events.InterruptEvent
+   voicemate.events.ErrorEvent
+   voicemate.events.ReminderEvent
+   voicemate.events.ConfirmEvent
+   voicemate.events.HoldEvent
+   voicemate.events.NotesChangedEvent
+   voicemate.events.MetricsEvent
+   voicemate.events.EventBus
+
+
+Module Contents
+---------------
+
+.. py:class:: Lane
+
+   Bases: :py:obj:`enum.StrEnum`
+
+
+   Pipeline stage shown as one status lane in the UI.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: LISTENING
+      :value: 'listening'
+
+
+
+   .. py:attribute:: TRANSCRIBING
+      :value: 'transcribing'
+
+
+
+   .. py:attribute:: RECALLING
+      :value: 'recalling'
+
+
+
+   .. py:attribute:: THINKING
+      :value: 'thinking'
+
+
+
+   .. py:attribute:: TOOL
+      :value: 'tool'
+
+
+
+   .. py:attribute:: GENERATING
+      :value: 'generating'
+
+
+
+   .. py:attribute:: SYNTHESIZING
+      :value: 'synthesizing'
+
+
+
+   .. py:attribute:: SPEAKING
+      :value: 'speaking'
+
+
+
+.. py:class:: LaneState
+
+   Bases: :py:obj:`enum.StrEnum`
+
+
+   State of a lane.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: IDLE
+      :value: 'idle'
+
+
+
+   .. py:attribute:: ACTIVE
+      :value: 'active'
+
+
+
+   .. py:attribute:: DONE
+      :value: 'done'
+
+
+
+.. py:data:: ToolSource
+
+.. py:class:: StatusEvent
+
+   A lane changed state.
+
+   :ivar lane: The pipeline stage.
+   :ivar state: Its new state.
+   :ivar detail: Optional detail, e.g. the tool name.
+   :ivar ts: Unix timestamp.
+
+
+
+   .. py:attribute:: lane
+      :type:  Lane
+
+
+   .. py:attribute:: state
+      :type:  LaneState
+
+
+   .. py:attribute:: detail
+      :type:  str
+      :value: ''
+
+
+
+   .. py:attribute:: ts
+      :type:  float
+
+
+.. py:class:: TranscriptEvent
+
+   Recognized user speech (or typed text).
+
+   :ivar text: The transcript.
+   :ivar final: False for live partial transcripts while the user is still speaking.
+   :ivar lang: Detected language code (``"hu"`` or ``"en"``).
+   :ivar merged: True when this text continues the previous, cut-off question and replaces it.
+
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: final
+      :type:  bool
+
+
+   .. py:attribute:: lang
+      :type:  str
+      :value: ''
+
+
+
+   .. py:attribute:: merged
+      :type:  bool
+      :value: False
+
+
+
+.. py:class:: TokenEvent
+
+   A streamed piece of the assistant reply.
+
+   :ivar text: The new text.
+
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+.. py:class:: ReplyEvent
+
+   The complete assistant reply of a turn.
+
+   :ivar text: Full reply text.
+   :ivar interrupted: True when the user barged in before the reply finished.
+
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: interrupted
+      :type:  bool
+      :value: False
+
+
+
+.. py:class:: ToolEvent
+
+   A tool call started or finished.
+
+   :ivar name: Tool name.
+   :ivar phase: ``"start"`` or ``"end"``.
+   :ivar args: Tool arguments.
+   :ivar source: Where the result came from (only meaningful at ``"end"``).
+   :ivar summary: Short human-readable description (e.g. the query sent to the web).
+
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: phase
+      :type:  Literal['start', 'end']
+
+
+   .. py:attribute:: args
+      :type:  dict[str, Any]
+
+
+   .. py:attribute:: source
+      :type:  ToolSource
+      :value: 'local'
+
+
+
+   .. py:attribute:: summary
+      :type:  str
+      :value: ''
+
+
+
+.. py:class:: AudioEvent
+
+   A chunk of synthesized speech for the browser to play.
+
+   :ivar pcm: Mono signed 16-bit little-endian PCM.
+   :ivar sample_rate: Sample rate of ``pcm`` in Hz.
+
+
+
+   .. py:attribute:: pcm
+      :type:  bytes
+
+
+   .. py:attribute:: sample_rate
+      :type:  int
+
+
+.. py:class:: InterruptEvent
+
+   The user barged in: stop playback immediately.
+
+
+.. py:class:: ErrorEvent
+
+   Something failed in a way the user should know about.
+
+   :ivar message: Human-readable error.
+
+
+
+   .. py:attribute:: message
+      :type:  str
+
+
+.. py:class:: ReminderEvent
+
+   A reminder became due.
+
+   :ivar note_id: Notes-store id.
+   :ivar text: Reminder text.
+
+
+
+   .. py:attribute:: note_id
+      :type:  int
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+.. py:class:: ConfirmEvent
+
+   The agent needs the user's permission (human-in-the-loop) or no longer does.
+
+   :ivar question: The question; empty when the confirmation was answered.
+   :ivar open: True while waiting for the answer.
+
+
+
+   .. py:attribute:: question
+      :type:  str
+
+
+   .. py:attribute:: open
+      :type:  bool
+      :value: True
+
+
+
+.. py:class:: HoldEvent
+
+   The user started or ended "hold until I'm finished".
+
+   :ivar holding: True while pauses do not end the user's turn.
+
+
+
+   .. py:attribute:: holding
+      :type:  bool
+
+
+.. py:class:: NotesChangedEvent
+
+   The notes store changed; the UI should refresh its notes panel.
+
+
+.. py:class:: MetricsEvent
+
+   Latency metrics of a finished turn.
+
+   :ivar metrics: Mapping of metric name to value (seconds or counts).
+
+
+
+   .. py:attribute:: metrics
+      :type:  dict[str, Any]
+
+
+.. py:data:: Event
+
+.. py:class:: EventBus(maxsize: int = 1000)
+
+   Fan-out pub/sub over asyncio queues.
+
+   Publishing never blocks: when a subscriber falls behind, its oldest event is dropped.
+
+   :param maxsize: Per-subscriber queue capacity.
+
+
+   .. py:property:: subscriber_count
+      :type: int
+
+
+      Number of active subscribers.
+
+
+   .. py:method:: subscribe() -> asyncio.Queue[Event]
+
+      Register a new subscriber queue.
+
+
+
+   .. py:method:: unsubscribe(queue: asyncio.Queue[Event]) -> None
+
+      Remove a subscriber queue (no-op if unknown).
+
+
+
+   .. py:method:: publish(event: Event) -> None
+
+      Deliver ``event`` to every subscriber without blocking.
+
+
+
+   .. py:method:: listen() -> collections.abc.AsyncIterator[Event]
+      :async:
+
+
+      Iterate over events until the consuming task is cancelled.
+
+
+

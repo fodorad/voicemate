@@ -1,0 +1,53 @@
+voicemate.agent.tools.clock_calc
+================================
+
+.. py:module:: voicemate.agent.tools.clock_calc
+
+.. autoapi-nested-parse::
+
+   Local utility tools: current time and a safe calculator.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.clock_calc.MAX_EXPONENT
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.clock_calc.safe_eval
+   voicemate.agent.tools.clock_calc.build
+
+
+Module Contents
+---------------
+
+.. py:data:: MAX_EXPONENT
+   :type:  int
+   :value: 1000
+
+
+.. py:function:: safe_eval(expression: str) -> float | int
+
+   Evaluate an arithmetic expression without ``eval``.
+
+   Supports numbers, ``+ - * / // % **``, parentheses, ``pi``, ``e`` and
+   ``abs round min max sqrt log exp``. A trailing ``%`` after a number means percent
+   when no operand follows it (``17% * 340``); ``10 % 3`` stays modulo. ``×``, ``÷`` and
+   ``^`` are accepted as ``*``, ``/`` and ``**``.
+
+   :raises ToolError: For anything else (names, attributes, huge exponents, syntax errors).
+
+
+.. py:function:: build(ctx: voicemate.agent.tools.base.ToolContext) -> list[langchain_core.tools.BaseTool]
+
+   Create the time and calculator tools.
+
+

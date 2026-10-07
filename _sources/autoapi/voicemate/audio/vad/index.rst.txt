@@ -1,0 +1,215 @@
+voicemate.audio.vad
+===================
+
+.. py:module:: voicemate.audio.vad
+
+.. autoapi-nested-parse::
+
+   Voice activity detection and utterance segmentation (endpointing).
+
+   :class:`Segmenter` turns a continuous 16 kHz microphone stream into utterances. It is
+   independent of the speech-probability model: :class:`SileroVAD` is used at runtime and the
+   deterministic :class:`EnergyVAD` is handy for tests and as a dependency-free fallback.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.audio.vad.NEGATIVE_MARGIN
+   voicemate.audio.vad.TAIL_KEEP_MS
+   voicemate.audio.vad.SegmentEvent
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.audio.vad.SpeechProbability
+   voicemate.audio.vad.EnergyVAD
+   voicemate.audio.vad.SileroVAD
+   voicemate.audio.vad.SpeechStart
+   voicemate.audio.vad.SpeechEnd
+   voicemate.audio.vad.Segmenter
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.audio.vad.silero_model_path
+
+
+Module Contents
+---------------
+
+.. py:data:: NEGATIVE_MARGIN
+   :type:  float
+   :value: 0.15
+
+
+.. py:data:: TAIL_KEEP_MS
+   :type:  int
+   :value: 100
+
+
+.. py:class:: SpeechProbability
+
+   Bases: :py:obj:`Protocol`
+
+
+   A frame-level speech probability model.
+
+
+   .. py:attribute:: frame_size
+      :type:  int
+
+
+   .. py:method:: reset() -> None
+
+      Clear recurrent state between independent streams.
+
+
+
+.. py:class:: EnergyVAD(reference_rms: float = 0.05, frame_size: int = 512)
+
+   RMS-energy speech probability. Deterministic; no model needed.
+
+   :param reference_rms: RMS level mapped to probability 1.0.
+   :param frame_size: Samples per frame.
+
+
+   .. py:attribute:: reference_rms
+      :value: 0.05
+
+
+
+   .. py:attribute:: frame_size
+      :value: 512
+
+
+
+   .. py:method:: reset() -> None
+
+      Stateless; nothing to reset.
+
+
+
+.. py:function:: silero_model_path() -> pathlib.Path
+
+   Locate the ONNX model shipped in the ``silero-vad`` wheel without importing it.
+
+   Importing the package would pull in torch, which costs seconds and is not needed here.
+
+
+.. py:class:: SileroVAD
+
+   Silero VAD v6 run directly with onnxruntime (16 kHz, 512-sample frames).
+
+   The ONNX file is the one bundled with the ``silero-vad`` package.
+
+
+   .. py:attribute:: frame_size
+      :type:  int
+      :value: 512
+
+
+
+   .. py:method:: reset() -> None
+
+      Clear the recurrent state and the audio context.
+
+
+
+.. py:class:: SpeechStart
+
+   The user started speaking.
+
+
+.. py:class:: SpeechEnd
+
+   The user finished an utterance.
+
+   :ivar audio: The utterance (16 kHz float32) including pre-roll and a short tail.
+
+
+
+   .. py:attribute:: audio
+      :type:  numpy.ndarray
+
+
+.. py:data:: SegmentEvent
+
+.. py:class:: Segmenter(vad: SpeechProbability, config: voicemate.config.VADConfig, max_utterance_s: float = 30.0)
+
+   Endpointing state machine: idle → candidate → speech → idle.
+
+   :param vad: Frame-level speech probability model.
+   :param config: Thresholds and durations.
+   :param max_utterance_s: Utterances longer than this are force-ended.
+
+
+   .. py:attribute:: vad
+
+
+   .. py:attribute:: config
+
+
+   .. py:attribute:: max_samples
+      :value: 0
+
+
+
+   .. py:attribute:: strict
+      :value: False
+
+
+
+   .. py:property:: in_speech
+      :type: bool
+
+
+      True between :class:`SpeechStart` and :class:`SpeechEnd`.
+
+
+   .. py:property:: current_audio
+      :type: numpy.ndarray
+
+
+      Audio of the utterance in progress (empty when idle).
+
+
+   .. py:property:: speech_seconds
+      :type: float
+
+
+      Duration of the utterance in progress.
+
+
+   .. py:method:: reset() -> None
+
+      Drop any utterance in progress and reset the model state.
+
+
+
+   .. py:method:: flush() -> SpeechEnd | None
+
+      End the input now (the microphone was turned off).
+
+      :returns: The utterance in progress, or None when there was no speech (a blip that never
+                reached ``min_speech_ms`` is dropped). The segmenter is reset either way.
+
+
+
+   .. py:method:: feed(audio: numpy.ndarray) -> list[SegmentEvent]
+
+      Consume a chunk of 16 kHz float32 audio of any length.
+
+      :returns: Events triggered by this chunk, in order.
+
+
+

@@ -1,0 +1,84 @@
+voicemate.tts.kokoro
+====================
+
+.. py:module:: voicemate.tts.kokoro
+
+.. autoapi-nested-parse::
+
+   Kokoro-82M (ONNX) English voices.
+
+   ``kokoro-onnx`` normally phonemizes through ``phonemizer`` + ``espeakng-loader``, whose
+   bundled espeak-ng ignores the data path on macOS and aborts the process. Piper ships a
+   working espeak-ng bridge producing the same IPA, so phonemes are generated with it and
+   passed to Kokoro directly (see docs/sdlc/spec.md §6).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.tts.kokoro.KOKORO_SAMPLE_RATE
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.tts.kokoro.KokoroSynthesizer
+
+
+Module Contents
+---------------
+
+.. py:data:: KOKORO_SAMPLE_RATE
+   :type:  int
+   :value: 24000
+
+
+.. py:class:: KokoroSynthesizer(model_path: pathlib.Path, voices_path: pathlib.Path, voice: str = 'af_heart', espeak_voice: str = 'en-us', speed: float = 1.0)
+
+   A Kokoro voice.
+
+   :param model_path: ``kokoro-v1.0.onnx``.
+   :param voices_path: ``voices-v1.0.bin``.
+   :param voice: Voice style name, e.g. ``af_heart``.
+   :param espeak_voice: espeak-ng language used for phonemes (``en-us`` or ``en-gb``).
+   :param speed: Speaking rate multiplier.
+
+
+   .. py:attribute:: voice
+      :value: 'af_heart'
+
+
+
+   .. py:attribute:: espeak_voice
+      :value: 'en-us'
+
+
+
+   .. py:attribute:: speed
+      :value: 1.0
+
+
+
+   .. py:attribute:: sample_rate
+      :type:  int
+      :value: 24000
+
+
+
+   .. py:method:: phonemize(text: str) -> str
+
+      IPA phonemes for ``text``, restricted to Kokoro's vocabulary.
+
+
+
+   .. py:method:: synthesize(text: str) -> numpy.ndarray
+
+      Render ``text``; returns an empty array when there is nothing to say.
+
+
+

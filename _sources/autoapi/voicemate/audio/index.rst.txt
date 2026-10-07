@@ -1,0 +1,16 @@
+voicemate.audio
+===============
+
+.. py:module:: voicemate.audio
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/voicemate/audio/codec/index
+   /autoapi/voicemate/audio/vad/index
+
+

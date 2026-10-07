@@ -1,0 +1,33 @@
+voicemate.agent.tools.memory_tools
+==================================
+
+.. py:module:: voicemate.agent.tools.memory_tools
+
+.. autoapi-nested-parse::
+
+   Explicit memory tools: store a durable fact, search everything remembered.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.memory_tools.format_recall
+   voicemate.agent.tools.memory_tools.build
+
+
+Module Contents
+---------------
+
+.. py:function:: format_recall(recall: voicemate.memory.store.Recall) -> str
+
+   Render a :class:`Recall` with dates, grouped by kind.
+
+
+.. py:function:: build(ctx: voicemate.agent.tools.base.ToolContext) -> list[langchain_core.tools.BaseTool]
+
+   Create ``remember`` and ``recall_memory``.
+
+

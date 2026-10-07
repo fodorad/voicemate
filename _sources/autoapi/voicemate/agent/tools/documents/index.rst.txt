@@ -1,0 +1,37 @@
+voicemate.agent.tools.documents
+===============================
+
+.. py:module:: voicemate.agent.tools.documents
+
+.. autoapi-nested-parse::
+
+   Text extraction from HTML pages and PDF files.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.documents.html_to_text
+   voicemate.agent.tools.documents.pdf_to_text
+
+
+Module Contents
+---------------
+
+.. py:function:: html_to_text(html: str, url: str | None = None) -> str
+
+   Main-content text of an HTML page (boilerplate, menus and ads removed).
+
+   :returns: Extracted text, or an empty string when nothing readable was found.
+
+
+.. py:function:: pdf_to_text(data: bytes) -> tuple[str, int]
+
+   Text of a PDF.
+
+   :returns: ``(text, page_count)``; pages are separated by blank lines.
+
+

@@ -1,0 +1,75 @@
+voicemate.asr.langid
+====================
+
+.. py:module:: voicemate.asr.langid
+
+.. autoapi-nested-parse::
+
+   Hungarian/English language identification for transcripts.
+
+   Parakeet does not report the spoken language, and generic detectors misclassify Hungarian
+   sentences that are full of English technical terms ("Keress rá a transformer
+   architecture-ökre"). The grammar words decide which language a sentence is in, so this
+   detector scores function words and Hungarian-only letters first and only asks lingua when
+   those signals tie.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.asr.langid.LANGUAGES
+   voicemate.asr.langid.HU_WORDS
+   voicemate.asr.langid.EN_WORDS
+   voicemate.asr.langid.HU_LETTERS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.asr.langid.LanguageDetector
+
+
+Module Contents
+---------------
+
+.. py:data:: LANGUAGES
+   :type:  tuple[str, str]
+   :value: ('hu', 'en')
+
+
+.. py:data:: HU_WORDS
+   :type:  frozenset[str]
+
+.. py:data:: EN_WORDS
+   :type:  frozenset[str]
+
+.. py:data:: HU_LETTERS
+   :type:  frozenset[str]
+
+.. py:class:: LanguageDetector(default: str = 'en')
+
+   Decide between Hungarian and English for one utterance.
+
+   :param default: Language returned when there is no signal at all.
+
+
+   .. py:attribute:: default
+      :value: 'en'
+
+
+
+   .. py:method:: detect(text: str, previous: str | None = None) -> str
+
+      Return ``"hu"`` or ``"en"`` for ``text``.
+
+      :param text: Transcript.
+      :param previous: Language of the previous turn; short utterances without a clear signal
+                       (e.g. "ok") keep it.
+
+
+

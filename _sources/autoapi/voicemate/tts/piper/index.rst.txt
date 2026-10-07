@@ -1,0 +1,39 @@
+voicemate.tts.piper
+===================
+
+.. py:module:: voicemate.tts.piper
+
+.. autoapi-nested-parse::
+
+   Piper VITS voices (fast CPU inference; the Hungarian voices are the best local option).
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.tts.piper.PiperSynthesizer
+
+
+Module Contents
+---------------
+
+.. py:class:: PiperSynthesizer(model_path: pathlib.Path)
+
+   A Piper voice loaded from a local ``.onnx`` file (with ``.onnx.json`` next to it).
+
+   :param model_path: Path to the voice model.
+
+
+   .. py:attribute:: sample_rate
+      :type:  int
+
+
+   .. py:method:: synthesize(text: str) -> numpy.ndarray
+
+      Render ``text``; returns an empty array when there is nothing to say.
+
+
+

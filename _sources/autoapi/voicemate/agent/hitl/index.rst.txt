@@ -1,0 +1,76 @@
+voicemate.agent.hitl
+====================
+
+.. py:module:: voicemate.agent.hitl
+
+.. autoapi-nested-parse::
+
+   Human-in-the-loop confirmation for risky tool actions.
+
+   A tool calls :func:`ask_user`, which pauses the LangGraph run with
+   :func:`langgraph.types.interrupt`. The voice session notices the pending interrupt, shows the
+   question in the UI and speaks it, and resumes the graph with whatever the user answers (a
+   button click or speech). The tool receives the user's own words, so a reply like "no, save
+   it as summary2.md" reaches the model instead of a bare yes/no.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.hitl.YES_WORDS
+   voicemate.agent.hitl.NO_WORDS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.agent.hitl.Confirmation
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.hitl.is_affirmative
+   voicemate.agent.hitl.ask_user
+
+
+Module Contents
+---------------
+
+.. py:data:: YES_WORDS
+   :type:  frozenset[str]
+
+.. py:data:: NO_WORDS
+   :type:  frozenset[str]
+
+.. py:class:: Confirmation
+
+   A question the agent is waiting on.
+
+   :ivar question: What the user is asked (spoken and shown in the UI).
+
+
+
+   .. py:attribute:: question
+      :type:  str
+
+
+.. py:function:: is_affirmative(answer: str) -> bool
+
+   True when ``answer`` clearly agrees (a yes word and no negation).
+
+
+.. py:function:: ask_user(question: str) -> str
+
+   Pause the graph until the user answers ``question``; returns their answer text.
+
+   Must be called inside a LangGraph run with a checkpointer (e.g. from a tool).
+
+

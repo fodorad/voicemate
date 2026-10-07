@@ -1,0 +1,19 @@
+voicemate.tts
+=============
+
+.. py:module:: voicemate.tts
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/voicemate/tts/base/index
+   /autoapi/voicemate/tts/kokoro/index
+   /autoapi/voicemate/tts/normalize/index
+   /autoapi/voicemate/tts/piper/index
+   /autoapi/voicemate/tts/voices/index
+
+

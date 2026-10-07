@@ -1,0 +1,134 @@
+voicemate.agent.tools.files
+===========================
+
+.. py:module:: voicemate.agent.tools.files
+
+.. autoapi-nested-parse::
+
+   Sandboxed file tools: list, find, read and write inside the configured roots.
+
+   Safety rules (docs/sdlc/spec.md §7):
+
+   * every path is resolved (``~``, ``..`` and symlinks) *before* the root check, so neither
+     traversal nor a symlink pointing outside can escape the sandbox;
+   * hidden files and directories are never listed, read or written;
+   * replacing an existing file always asks the user first (human-in-the-loop via
+     :func:`voicemate.agent.hitl.ask_user`), so a prompt injection cannot overwrite documents;
+   * there is no delete tool.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.files.MAX_WRITE_CHARS
+   voicemate.agent.tools.files.MAX_ENTRIES
+   voicemate.agent.tools.files.MAX_SCANNED
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.files.Sandbox
+   voicemate.agent.tools.files.FileOperations
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.files.build
+
+
+Module Contents
+---------------
+
+.. py:data:: MAX_WRITE_CHARS
+   :type:  int
+   :value: 1000000
+
+
+.. py:data:: MAX_ENTRIES
+   :type:  int
+   :value: 200
+
+
+.. py:data:: MAX_SCANNED
+   :type:  int
+   :value: 50000
+
+
+.. py:class:: Sandbox(roots: list[pathlib.Path])
+
+   Resolves user-supplied paths and enforces the allowed roots.
+
+   :param roots: Allowed directories; relative paths are interpreted inside the first one.
+
+
+   .. py:attribute:: roots
+
+
+   .. py:method:: resolve(path: str) -> pathlib.Path
+
+      Absolute, symlink-free path inside a root.
+
+      :raises ToolError: If the path escapes every root or touches a hidden component.
+
+
+
+.. py:class:: FileOperations(sandbox: Sandbox, max_read: int)
+
+   The blocking file operations behind the tools (run in worker threads).
+
+   :param sandbox: Path policy.
+   :param max_read: Maximum characters returned by one read.
+
+
+   .. py:attribute:: sandbox
+
+
+   .. py:attribute:: max_read
+
+
+   .. py:method:: listing(path: str) -> str
+
+      Folders first, then files; hidden entries are skipped.
+
+
+
+   .. py:method:: find(pattern: str, path: str) -> str
+
+      Case-insensitive name search; a plain fragment matches anywhere in the name.
+
+
+
+   .. py:method:: read(path: str) -> str
+
+      Text or PDF content, truncated to ``max_read`` characters.
+
+
+
+   .. py:method:: target(path: str, content: str) -> tuple[pathlib.Path, bool]
+
+      Validate a write; returns the resolved file and whether it already exists.
+
+
+
+   .. py:method:: write(file: pathlib.Path, content: str) -> str
+      :staticmethod:
+
+
+      Write ``content`` (creating parent folders).
+
+
+
+.. py:function:: build(ctx: voicemate.agent.tools.base.ToolContext) -> list[langchain_core.tools.BaseTool]
+
+   Create ``list_files``, ``find_files``, ``read_file`` and ``write_file``.
+
+

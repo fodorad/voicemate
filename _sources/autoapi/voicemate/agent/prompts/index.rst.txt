@@ -1,0 +1,54 @@
+voicemate.agent.prompts
+=======================
+
+.. py:module:: voicemate.agent.prompts
+
+.. autoapi-nested-parse::
+
+   Prompts for the voice assistant.
+
+   Latency depends on Ollama reusing its KV cache for the prompt prefix: with all tool schemas
+   bound, a cold prefix costs about 5 s to the first token, a reused one 0.3-1.4 s (measured on
+   the M4). Therefore the system prompt is completely static and everything that changes per
+   turn (time, reply language, recalled memories) goes into a context block attached to the
+   newest user message only.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.prompts.LANGUAGE_NAMES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.prompts.system_prompt
+   voicemate.agent.prompts.turn_context
+
+
+Module Contents
+---------------
+
+.. py:data:: LANGUAGE_NAMES
+   :type:  dict[str, str]
+
+.. py:function:: system_prompt(config: voicemate.config.Config) -> str
+
+   The static system prompt (identical for every turn, so its KV cache is reused).
+
+
+.. py:function:: turn_context(lang: str, now: datetime.datetime, recall: str = '') -> str
+
+   The per-turn context block prepended to the newest user message.
+
+   :param lang: Reply language code.
+   :param now: Current local time.
+   :param recall: Pre-formatted relevant memories (may be empty).
+
+

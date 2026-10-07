@@ -1,0 +1,287 @@
+voicemate.pipeline.orchestrator
+===============================
+
+.. py:module:: voicemate.pipeline.orchestrator
+
+.. autoapi-nested-parse::
+
+   Full-duplex voice session: listen, transcribe, think, speak and get interrupted.
+
+   One :class:`VoiceSession` exists per browser tab. Microphone PCM arrives via
+   :meth:`VoiceSession.feed_audio`; everything the UI needs, including synthesized audio,
+   leaves through :attr:`VoiceSession.bus`.
+
+   Concurrency: the VAD runs inline (well under 1 ms per frame); ASR and TTS run on their
+   single-thread executors; each turn is one asyncio task in which the LLM stream feeds a
+   sentence chunker whose output is synthesized by a parallel TTS worker, so speech starts
+   while the model is still generating. At most one turn runs at a time: speaking (or typing)
+   while a turn is active cancels it (barge-in) before the new one starts.
+
+   "Hold until I'm finished" (:meth:`VoiceSession.hold`) suspends endpointing: utterances are
+   transcribed and collected, and :meth:`VoiceSession.release` sends them as one question, so
+   the user can pause to think without the assistant jumping in.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.pipeline.orchestrator.logger
+   voicemate.pipeline.orchestrator.FILLERS
+   voicemate.pipeline.orchestrator.APOLOGIES
+   voicemate.pipeline.orchestrator.INTERRUPTED_MARK
+   voicemate.pipeline.orchestrator.INTERRUPTED_TOOL_RESULT
+   voicemate.pipeline.orchestrator.MERGE_WINDOW_S
+   voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S
+   voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.pipeline.orchestrator.ChatLine
+   voicemate.pipeline.orchestrator.VoiceSession
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.pipeline.orchestrator.turns_log_path
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: FILLERS
+   :type:  dict[str, str]
+
+.. py:data:: APOLOGIES
+   :type:  dict[str, str]
+
+.. py:data:: INTERRUPTED_MARK
+   :type:  str
+   :value: '[interrupted by the user]'
+
+
+.. py:data:: INTERRUPTED_TOOL_RESULT
+   :type:  str
+   :value: 'Cancelled: the user interrupted before this finished.'
+
+
+.. py:data:: MERGE_WINDOW_S
+   :type:  float
+   :value: 20.0
+
+
+.. py:data:: PARTIAL_WINDOW_S
+   :type:  float
+   :value: 8.0
+
+
+.. py:data:: REMINDER_INTERVAL_S
+   :type:  float
+   :value: 30.0
+
+
+.. py:class:: ChatLine
+
+   One message of the conversation as the user saw it (for re-rendering a page).
+
+   :ivar role: ``"user"`` or ``"assistant"``.
+   :ivar text: What was said, without internal markers.
+   :ivar interrupted: The user cut this reply off.
+
+
+
+   .. py:attribute:: role
+      :type:  str
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: interrupted
+      :type:  bool
+      :value: False
+
+
+
+.. py:class:: VoiceSession(runtime: voicemate.runtime.Runtime, thread_id: str | None = None)
+
+   One conversation with one browser tab.
+
+   :param runtime: Shared models and stores.
+   :param thread_id: Conversation id for the checkpointer (a new one per session by default).
+
+
+   .. py:attribute:: runtime
+
+
+   .. py:attribute:: config
+
+
+   .. py:attribute:: thread_id
+      :value: 'session-000000000000'
+
+
+
+   .. py:attribute:: bus
+
+
+   .. py:attribute:: segmenter
+
+
+   .. py:attribute:: lang
+
+
+   .. py:attribute:: holding
+      :value: False
+
+
+
+   .. py:attribute:: confirmation
+      :type:  voicemate.agent.hitl.Confirmation | None
+      :value: None
+
+
+
+   .. py:method:: start() -> None
+
+      Start background duties (reminder watcher).
+
+
+
+   .. py:method:: close() -> None
+      :async:
+
+
+      Cancel everything this session is doing.
+
+
+
+   .. py:method:: wait_idle() -> None
+      :async:
+
+
+      Wait until no utterance, turn or follow-up task is in progress.
+
+
+
+   .. py:property:: busy
+      :type: bool
+
+
+      True while a turn is being processed or its audio is playing.
+
+
+   .. py:method:: emit(event: voicemate.events.Event) -> None
+
+      Publish an event; tool events also drive the TOOL lane.
+
+
+
+   .. py:method:: feed_audio(pcm: bytes) -> None
+      :async:
+
+
+      Consume one frame of 16 kHz mono PCM16 microphone audio.
+
+
+
+   .. py:method:: submit_text(text: str) -> None
+      :async:
+
+
+      Handle typed input like a spoken utterance (no ASR, never merged).
+
+
+
+   .. py:method:: answer_confirmation(answer: str) -> None
+      :async:
+
+
+      Answer the pending human-in-the-loop question (e.g. from a UI button).
+
+
+
+   .. py:method:: interrupt() -> None
+      :async:
+
+
+      Barge-in: stop the current turn and tell the browser to stop playback.
+
+
+
+   .. py:method:: playback_started() -> None
+
+      The browser started playing assistant audio.
+
+
+
+   .. py:method:: playback_ended() -> None
+
+      The browser finished playing all queued audio.
+
+
+
+   .. py:method:: microphone_stopped() -> None
+
+      The user turned the microphone off: answer what was heard so far.
+
+      A sentence still in progress is ended here, and a hold is released, because turning
+      the microphone off means "I'm done talking".
+
+
+
+   .. py:method:: hold() -> None
+      :async:
+
+
+      Keep listening until :meth:`release`; pauses no longer end the user's turn.
+
+      A running answer is stopped first: the user wants the floor.
+
+
+
+   .. py:method:: release() -> None
+      :async:
+
+
+      The user is finished: send everything said (or typed) during the hold.
+
+
+
+   .. py:method:: restore() -> list[ChatLine]
+      :async:
+
+
+      Pick up this thread where it stopped (a reopened page).
+
+      Reopens a question the agent is still waiting on and returns what was said so far.
+
+
+
+   .. py:method:: check_reminders() -> int
+      :async:
+
+
+      Announce due reminders once; returns how many were announced.
+
+      A reminder is always shown in the UI; it is also spoken when the assistant is idle.
+
+
+
+.. py:function:: turns_log_path(data_path: pathlib.Path) -> pathlib.Path
+
+   Location of the per-turn metrics log.
+
+

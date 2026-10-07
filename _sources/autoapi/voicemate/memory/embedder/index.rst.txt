@@ -1,0 +1,68 @@
+voicemate.memory.embedder
+=========================
+
+.. py:module:: voicemate.memory.embedder
+
+.. autoapi-nested-parse::
+
+   Text embeddings for long-term memory.
+
+   Embeddings run in-process rather than through Ollama: loading an embedding model in Ollama
+   next to the 22 GB chat model makes Ollama evict the chat model (12 s reload), measured in the
+   design spikes (docs/sdlc/spec.md §1).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.memory.embedder.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.memory.embedder.Embedder
+   voicemate.memory.embedder.SentenceTransformerEmbedder
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: Embedder
+
+   Bases: :py:obj:`Protocol`
+
+
+   Maps texts to L2-normalized float32 vectors of shape ``(len(texts), dim)``.
+
+
+   .. py:method:: embed(texts: list[str]) -> numpy.ndarray
+
+      Embed ``texts``.
+
+
+
+.. py:class:: SentenceTransformerEmbedder(model: str = 'BAAI/bge-m3', device: str = 'cpu')
+
+   A sentence-transformers model (default ``BAAI/bge-m3``) on MPS when available.
+
+   Calls are serialized with a lock because the model is shared across threads.
+
+   :param model: Hugging Face model id.
+   :param device: ``"cpu"``, ``"mps"`` or ``"auto"`` (MPS when available). CPU is the default:
+                  the GPU is kept for the LLM, and a query embeds in about 50 ms on the CPU.
+
+
+   .. py:method:: embed(texts: list[str]) -> numpy.ndarray
+
+      Embed ``texts`` (normalized).
+
+
+

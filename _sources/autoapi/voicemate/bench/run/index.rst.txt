@@ -1,0 +1,61 @@
+voicemate.bench.run
+===================
+
+.. py:module:: voicemate.bench.run
+
+.. autoapi-nested-parse::
+
+   Benchmark runners (ASR, TTS round trip, LLM tool calling). macOS + downloaded models only.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.bench.run.logger
+   voicemate.bench.run.HU_VOICES
+   voicemate.bench.run.TOOL_CASES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.bench.run.bench_asr
+   voicemate.bench.run.bench_tts
+   voicemate.bench.run.bench_llm
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: bench_asr(config: voicemate.config.Config) -> dict
+
+   WER and real-time factor of the configured ASR per language.
+
+
+.. py:function:: bench_tts(config: voicemate.config.Config) -> dict
+
+   Speed and round-trip intelligibility (TTS → ASR → WER) per voice, plus a listening page.
+
+
+.. py:data:: HU_VOICES
+   :type:  tuple[str, ...]
+   :value: ('hu_HU-anna-medium', 'hu_HU-berta-medium', 'hu_HU-imre-medium')
+
+
+.. py:data:: TOOL_CASES
+   :type:  tuple[tuple[str, tuple[str | None, ...]], ...]
+   :value: (('Hány óra van most?', ('get_time', None)), ('What time is it?', ('get_time', None)), ('Milyen...
+
+
+.. py:function:: bench_llm(config: voicemate.config.Config) -> dict
+
+   Tool-choice accuracy and first-token latency of the configured Ollama model.
+
+

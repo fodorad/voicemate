@@ -1,0 +1,128 @@
+voicemate.memory.notes
+======================
+
+.. py:module:: voicemate.memory.notes
+
+.. autoapi-nested-parse::
+
+   Notes, todos and reminders in a small SQLite database.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.memory.notes.KINDS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.memory.notes.Note
+   voicemate.memory.notes.NotesStore
+
+
+Module Contents
+---------------
+
+.. py:data:: KINDS
+   :type:  tuple[str, ...]
+   :value: ('note', 'todo', 'reminder')
+
+
+.. py:class:: Note
+
+   One note, todo or reminder.
+
+   :ivar id: Primary key.
+   :ivar text: Content.
+   :ivar kind: ``note``, ``todo`` or ``reminder``.
+   :ivar due: ISO-8601 local due time (reminders/todos), if any.
+   :ivar done: Completed flag.
+   :ivar created: ISO-8601 creation time.
+
+
+
+   .. py:attribute:: id
+      :type:  int
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: kind
+      :type:  str
+
+
+   .. py:attribute:: due
+      :type:  str | None
+
+
+   .. py:attribute:: done
+      :type:  bool
+
+
+   .. py:attribute:: created
+      :type:  str
+
+
+.. py:class:: NotesStore(path: pathlib.Path)
+
+   Thread-safe notes database.
+
+   :param path: SQLite file (created if missing).
+
+
+   .. py:method:: close() -> None
+
+      Close the database connection.
+
+
+
+   .. py:method:: add(text: str, kind: str = 'note', due: str | None = None) -> Note
+
+      Create a note.
+
+      :param text: Content.
+      :param kind: One of :data:`KINDS`.
+      :param due: ISO-8601 local date/time.
+
+      :raises ValueError: On an unknown kind or unparseable due date.
+
+
+
+   .. py:method:: entries(kind: str | None = None, include_done: bool = False) -> list[Note]
+
+      Notes in creation order, optionally filtered.
+
+
+
+   .. py:method:: search(text: str) -> list[Note]
+
+      Open notes containing ``text`` (case-insensitive).
+
+
+
+   .. py:method:: complete(note_id: int) -> bool
+
+      Mark a note done; returns False if it does not exist.
+
+
+
+   .. py:method:: due_reminders(now: datetime.datetime | None = None) -> list[Note]
+
+      Open, not yet notified reminders whose due time has passed.
+
+
+
+   .. py:method:: mark_notified(note_id: int) -> None
+
+      Record that a reminder was announced.
+
+
+

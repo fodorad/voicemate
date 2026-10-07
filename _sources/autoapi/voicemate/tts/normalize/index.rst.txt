@@ -1,0 +1,36 @@
+voicemate.tts.normalize
+=======================
+
+.. py:module:: voicemate.tts.normalize
+
+.. autoapi-nested-parse::
+
+   Turn LLM output into text a TTS voice can read aloud.
+
+   The LLM is asked to answer in plain spoken style, but markdown, URLs and emoji still slip
+   through; reading "asterisk asterisk" or a URL aloud is useless, so they are stripped here.
+   The full text (with links) is still shown in the UI.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.tts.normalize.speakable
+
+
+Module Contents
+---------------
+
+.. py:function:: speakable(text: str, pronunciation: collections.abc.Mapping[str, str] | None = None) -> str
+
+   Strip markup from ``text`` and apply pronunciation replacements.
+
+   :param text: Raw LLM output (possibly markdown).
+   :param pronunciation: Whole-word replacements, e.g. ``{"Ava": "Éva"}``.
+
+   :returns: Single-line plain text.
+
+

@@ -1,0 +1,72 @@
+voicemate.agent.tools.netguard
+==============================
+
+.. py:module:: voicemate.agent.tools.netguard
+
+.. autoapi-nested-parse::
+
+   Outbound URL guard against server-side request forgery.
+
+   The model reads untrusted web content, so a page could instruct it to fetch
+   ``http://localhost:11434/...`` (Ollama), the voicemate UI, a router admin page or a
+   link-local metadata address. Every URL a tool fetches on the model's behalf must therefore
+   resolve to public addresses only, and redirects are followed manually so each hop is checked
+   again. (DNS rebinding between the check and the connection remains a residual risk.)
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.netguard.MAX_REDIRECTS
+   voicemate.agent.tools.netguard.MAX_BODY_BYTES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.netguard.check_url
+   voicemate.agent.tools.netguard.safe_get
+
+
+Module Contents
+---------------
+
+.. py:data:: MAX_REDIRECTS
+   :type:  int
+   :value: 5
+
+
+.. py:data:: MAX_BODY_BYTES
+   :type:  int
+   :value: 20000000
+
+
+.. py:function:: check_url(url: str, allowed_hosts: frozenset[str] = frozenset()) -> None
+   :async:
+
+
+   Reject URLs that are not http(s) or that resolve to a non-public address.
+
+   :param url: The URL to check.
+   :param allowed_hosts: Host names exempt from the address check (tests, explicit config).
+
+   :raises ToolError: If the URL is not allowed.
+
+
+.. py:function:: safe_get(http: httpx.AsyncClient, url: str, allowed_hosts: frozenset[str] = frozenset(), max_redirects: int = MAX_REDIRECTS, max_bytes: int = MAX_BODY_BYTES) -> httpx.Response
+   :async:
+
+
+   GET ``url``, checking the target and every redirect hop with :func:`check_url`.
+
+   The body is streamed and the download stops at ``max_bytes``.
+
+   :raises ToolError: On a blocked hop, too many redirects or an oversized body.
+   :raises httpx.HTTPError: On network or HTTP status errors.
+
+

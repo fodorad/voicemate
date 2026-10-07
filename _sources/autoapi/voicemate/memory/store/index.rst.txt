@@ -1,0 +1,225 @@
+voicemate.memory.store
+======================
+
+.. py:module:: voicemate.memory.store
+
+.. autoapi-nested-parse::
+
+   Long-term memory on LanceDB: facts, conversation episodes and the research cache.
+
+   Tables (one vector column each, cosine similarity):
+
+   * ``facts``: durable facts about the user ("Adam is looking for ML jobs in Budapest").
+   * ``episodes``: every finished exchange (user text + assistant reply).
+   * ``searches``: past web/arXiv searches keyed by the *query* embedding, so a repeated question
+     is answered from memory instead of hitting the web again.
+   * ``documents``: text chunks of fetched pages, abstracts and downloaded papers.
+
+   Research rows carry a ``ttl_days`` freshness budget; expired rows are ignored by every query.
+   All methods are synchronous; async callers wrap them with :func:`asyncio.to_thread`.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.memory.store.DAY
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.memory.store.MemoryHit
+   voicemate.memory.store.CachedSearch
+   voicemate.memory.store.Recall
+   voicemate.memory.store.MemoryStore
+
+
+Module Contents
+---------------
+
+.. py:data:: DAY
+   :type:  float
+   :value: 86400.0
+
+
+.. py:class:: MemoryHit
+
+   One retrieved memory.
+
+   :ivar text: Stored text.
+   :ivar similarity: Cosine similarity to the query (1 = identical).
+   :ivar created: Unix timestamp when it was stored.
+   :ivar meta: Table-specific extra fields (e.g. ``url``, ``title``, ``thread_id``).
+
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: similarity
+      :type:  float
+
+
+   .. py:attribute:: created
+      :type:  float
+
+
+   .. py:attribute:: meta
+      :type:  dict[str, Any]
+
+
+.. py:class:: CachedSearch
+
+   A reusable past search.
+
+   :ivar query: The original query.
+   :ivar results: The stored result list.
+   :ivar retrieved_at: Unix timestamp of the original web request.
+   :ivar similarity: Similarity between the new and the stored query.
+
+
+
+   .. py:attribute:: query
+      :type:  str
+
+
+   .. py:attribute:: results
+      :type:  list[dict[str, Any]]
+
+
+   .. py:attribute:: retrieved_at
+      :type:  float
+
+
+   .. py:attribute:: similarity
+      :type:  float
+
+
+.. py:class:: Recall
+
+   Everything memory knows that is relevant to one user message.
+
+   :ivar facts: Matching user facts.
+   :ivar episodes: Matching past exchanges.
+   :ivar documents: Matching research chunks.
+
+
+
+   .. py:attribute:: facts
+      :type:  list[MemoryHit]
+      :value: []
+
+
+
+   .. py:attribute:: episodes
+      :type:  list[MemoryHit]
+      :value: []
+
+
+
+   .. py:attribute:: documents
+      :type:  list[MemoryHit]
+      :value: []
+
+
+
+   .. py:property:: is_empty
+      :type: bool
+
+
+      True when nothing relevant was found.
+
+
+.. py:class:: MemoryStore(path: pathlib.Path, embedder: voicemate.memory.embedder.Embedder, config: voicemate.config.MemoryConfig, clock: collections.abc.Callable[[], float] = time.time)
+
+   LanceDB-backed memory.
+
+   :param path: Database directory.
+   :param embedder: Text embedder.
+   :param config: Similarity thresholds.
+   :param clock: Time source (injectable for tests).
+
+
+   .. py:attribute:: embedder
+
+
+   .. py:attribute:: config
+
+
+   .. py:attribute:: clock
+
+
+   .. py:method:: add_fact(text: str) -> bool
+
+      Store a fact, replacing a near-duplicate.
+
+      :returns: True when an existing fact was replaced.
+
+
+
+   .. py:method:: search_facts(query: str, limit: int = 5) -> list[MemoryHit]
+
+      Facts relevant to ``query``.
+
+
+
+   .. py:method:: add_episode(user: str, assistant: str, lang: str, thread_id: str) -> None
+
+      Store one finished exchange.
+
+
+
+   .. py:method:: search_episodes(query: str, limit: int = 3) -> list[MemoryHit]
+
+      Past exchanges relevant to ``query``.
+
+
+
+   .. py:method:: store_search(query: str, kind: str, results: list[dict[str, Any]], ttl_days: float) -> None
+
+      Remember the results of a web or arXiv search.
+
+
+
+   .. py:method:: cached_search(query: str, kind: str) -> CachedSearch | None
+
+      A fresh stored search whose query is similar enough to ``query``, if any.
+
+
+
+   .. py:method:: add_documents(chunks: list[str], url: str, title: str, source: str, ttl_days: float) -> None
+
+      Store text chunks of one document (page, abstract or paper).
+
+
+
+   .. py:method:: documents_for_url(url: str) -> list[MemoryHit]
+
+      Fresh stored chunks of ``url`` in document order (newest copy first).
+
+
+
+   .. py:method:: search_documents(query: str, limit: int = 4) -> list[MemoryHit]
+
+      Fresh research chunks relevant to ``query``.
+
+
+
+   .. py:method:: recall(query: str) -> Recall
+
+      Facts, episodes and research relevant to ``query`` (one embedding pass).
+
+
+
+   .. py:method:: stats() -> dict[str, int]
+
+      Row count per table.
+
+
+

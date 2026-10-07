@@ -1,0 +1,138 @@
+voicemate.agent.tools.base
+==========================
+
+.. py:module:: voicemate.agent.tools.base
+
+.. autoapi-nested-parse::
+
+   Shared plumbing for agent tools.
+
+   Tools are plain async functions turned into LangChain tools. Each one receives the LangGraph
+   :class:`~langchain_core.runnables.RunnableConfig` (injected, invisible to the model) and uses
+   the ``emit`` callback stored under ``configurable`` to report :class:`ToolEvent` s, so the UI
+   can show whether data came from the web (left the machine), memory, or local state.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.base.USER_AGENT
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.base.ToolError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.base.ToolContext
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.base.emitter
+   voicemate.agent.tools.base.report
+   voicemate.agent.tools.base.format_date
+   voicemate.agent.tools.base.display_path
+
+
+Module Contents
+---------------
+
+.. py:data:: USER_AGENT
+   :type:  str
+   :value: 'voicemate/0.1 (+https://github.com/fodorad/voicemate; personal assistant)'
+
+
+.. py:exception:: ToolError
+
+   Bases: :py:obj:`Exception`
+
+
+   A tool failed in a way the model should be told about (returned as the tool result).
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:class:: ToolContext
+
+   Dependencies shared by all tools.
+
+   :ivar config: Application configuration.
+   :ivar memory: Long-term memory store.
+   :ivar notes: Notes database.
+   :ivar search: Web search backend.
+   :ivar http: Shared async HTTP client.
+   :ivar now: Clock returning the current local time (injectable for tests).
+   :ivar allowed_private_hosts: Hosts exempt from the SSRF guard (only for tests).
+   :ivar offered_urls: Addresses that search results listed. ``fetch_page`` opens these
+                       without asking; any other address could carry private data out in its path or
+                       query, so it needs the user's permission first.
+
+
+
+   .. py:attribute:: config
+      :type:  voicemate.config.Config
+
+
+   .. py:attribute:: memory
+      :type:  voicemate.memory.store.MemoryStore
+
+
+   .. py:attribute:: notes
+      :type:  voicemate.memory.notes.NotesStore
+
+
+   .. py:attribute:: search
+      :type:  voicemate.agent.tools.search.SearchBackend
+
+
+   .. py:attribute:: http
+      :type:  httpx.AsyncClient
+
+
+   .. py:attribute:: now
+      :type:  collections.abc.Callable[[], datetime.datetime]
+
+
+   .. py:attribute:: allowed_private_hosts
+      :type:  frozenset[str]
+
+
+   .. py:attribute:: offered_urls
+      :type:  set[str]
+
+
+.. py:function:: emitter(config: langchain_core.runnables.RunnableConfig | None) -> collections.abc.Callable[[voicemate.events.Event], None]
+
+   The event callback stored in ``config["configurable"]["emit"]`` (no-op if absent).
+
+
+.. py:function:: report(config: langchain_core.runnables.RunnableConfig | None, name: str, args: dict[str, Any], source: voicemate.events.ToolSource, summary: str = '') -> None
+
+   Emit the ``end`` :class:`ToolEvent` of a tool call with its data source.
+
+
+.. py:function:: format_date(timestamp: float) -> str
+
+   Unix timestamp → ``YYYY-MM-DD`` (local time).
+
+
+.. py:function:: display_path(path: pathlib.Path) -> str
+
+   Show paths under the home directory as ``~/...`` (keeps absolute paths out of replies).
+
+

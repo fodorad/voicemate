@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Cyberpunk voice assistant icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0a1f"/>
+      <stop offset="1" stop-color="#1d0b3a"/>
+    </linearGradient>
+    <radialGradient id="aura" cx="0.5" cy="0.45" r="0.55">
+      <stop offset="0" stop-color="#ff2bd6" stop-opacity="0.55"/>
+      <stop offset="0.6" stop-color="#7a2cff" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#7a2cff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff3fd8"/>
+      <stop offset="0.55" stop-color="#9b3dff"/>
+      <stop offset="1" stop-color="#3b2bff"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6dbe9"/>
+      <stop offset="1" stop-color="#d9b2d2"/>
+    </linearGradient>
+    <linearGradient id="suit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b1b3d"/>
+      <stop offset="1" stop-color="#0c0c24"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="tile"><rect width="512" height="512" rx="104"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#tile)">
+    <rect width="512" height="512" fill="url(#bg)"/>
+    <!-- faint city grid -->
+    <g stroke="#38e8ff" stroke-opacity="0.07" stroke-width="2">
+      <path d="M0 96H512M0 192H512M0 288H512M0 384H512M0 480H512"/>
+      <path d="M64 0V512M160 0V512M256 0V512M352 0V512M448 0V512"/>
+    </g>
+    <circle cx="256" cy="250" r="250" fill="url(#aura)"/>
+
+    <!-- shoulders and collar -->
+    <path d="M70 512C78 440 140 410 214 398L298 398C372 410 434 440 442 512Z" fill="url(#suit)" stroke="#38e8ff" stroke-width="3" stroke-opacity="0.8"/>
+    <path d="M214 398L256 452L298 398" fill="none" stroke="#ff2bd6" stroke-width="5" stroke-linejoin="round" filter="url(#glow)"/>
+    <path d="M120 470H190M322 470H392" stroke="#38e8ff" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+
+    <!-- neck -->
+    <path d="M228 340H284V404Q256 424 228 404Z" fill="#c79ac3"/>
+
+    <!-- back hair: asymmetric bob, longer on the left -->
+    <path d="M118 300C98 140 184 84 262 84C350 84 414 150 396 300L388 372L338 340L174 340L128 408Z" fill="url(#hair)"/>
+
+    <!-- face -->
+    <ellipse cx="256" cy="268" rx="92" ry="110" fill="url(#skin)"/>
+
+    <!-- fringe -->
+    <path d="M150 262C150 150 238 118 322 134C374 146 372 214 364 262C336 214 290 192 232 214C204 226 176 240 150 262Z" fill="url(#hair)"/>
+    <path d="M196 150C230 128 290 124 330 142" fill="none" stroke="#38e8ff" stroke-width="5" stroke-linecap="round" opacity="0.9"/>
+    <path d="M142 330L150 392M360 322L366 358" stroke="#38e8ff" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+
+    <!-- visor with a voice waveform -->
+    <rect x="164" y="244" width="184" height="48" rx="24" fill="#08142b" fill-opacity="0.82" stroke="#38e8ff" stroke-width="5" filter="url(#glow)"/>
+    <g stroke="#38e8ff" stroke-width="6" stroke-linecap="round" filter="url(#glow)">
+      <path d="M192 268V268M208 258V278M224 250V286M240 260V276M256 254V282M272 246V290M288 258V278M304 252V284M320 262V274"/>
+    </g>
+
+    <!-- mouth and cheek circuit -->
+    <path d="M238 334Q256 346 274 334" fill="none" stroke="#ff2bd6" stroke-width="6" stroke-linecap="round" filter="url(#glow)"/>
+    <path d="M176 302L190 322H214" fill="none" stroke="#38e8ff" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+    <circle cx="214" cy="322" r="4" fill="#38e8ff"/>
+
+    <!-- headset: band and ear cups -->
+    <path d="M160 268C146 120 366 120 352 268" fill="none" stroke="#38e8ff" stroke-width="8" stroke-linecap="round" filter="url(#glow)"/>
+    <rect x="140" y="256" width="30" height="76" rx="15" fill="#15153a" stroke="#ff2bd6" stroke-width="5" filter="url(#glow)"/>
+    <rect x="342" y="256" width="30" height="76" rx="15" fill="#15153a" stroke="#ff2bd6" stroke-width="5" filter="url(#glow)"/>
+    <path d="M356 332Q372 356 336 372" fill="none" stroke="#ff2bd6" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="334" cy="372" r="8" fill="#ff2bd6" filter="url(#glow)"/>
+
+    <!-- sound waves -->
+    <g fill="none" stroke="#38e8ff" stroke-linecap="round" stroke-width="7" filter="url(#glow)">
+      <path d="M398 232Q416 294 398 356" opacity="0.95"/>
+      <path d="M426 206Q456 294 426 382" opacity="0.6"/>
+      <path d="M452 184Q494 294 452 404" opacity="0.3"/>
+    </g>
+
+    <!-- glitch slices -->
+    <g fill="#38e8ff" opacity="0.85">
+      <rect x="112" y="190" width="38" height="5" rx="2.5"/>
+      <rect x="124" y="204" width="22" height="5" rx="2.5"/>
+      <rect x="372" y="168" width="30" height="5" rx="2.5"/>
+    </g>
+  </g>
+  <rect x="3" y="3" width="506" height="506" rx="101" fill="none" stroke="#ff2bd6" stroke-opacity="0.55" stroke-width="3"/>
+</svg>

@@ -1,0 +1,40 @@
+voicemate.tts.base
+==================
+
+.. py:module:: voicemate.tts.base
+
+.. autoapi-nested-parse::
+
+   Text-to-speech interface shared by all engines.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.tts.base.Synthesizer
+
+
+Module Contents
+---------------
+
+.. py:class:: Synthesizer
+
+   Bases: :py:obj:`Protocol`
+
+
+   A TTS voice that renders one chunk of text at a time.
+
+
+   .. py:attribute:: sample_rate
+      :type:  int
+
+
+   .. py:method:: synthesize(text: str) -> numpy.ndarray
+
+      Render ``text`` to mono float32 audio at :attr:`sample_rate`.
+
+
+

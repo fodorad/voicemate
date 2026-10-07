@@ -1,0 +1,108 @@
+voicemate.report
+================
+
+.. py:module:: voicemate.report
+
+.. autoapi-nested-parse::
+
+   Summaries of the per-turn metrics log (``make report``).
+
+   This is the Stage-6 feedback loop: when a budget from docs/sdlc/intent.md is breached, the
+   report says so, and the finding goes back into the intent as new work.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.report.BUDGETS
+   voicemate.report.MAX_ERROR_RATE
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.report.Report
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.report.summarize
+
+
+Module Contents
+---------------
+
+.. py:data:: BUDGETS
+   :type:  dict[str, float]
+
+.. py:data:: MAX_ERROR_RATE
+   :type:  float
+   :value: 0.05
+
+
+.. py:class:: Report
+
+   Aggregated turn metrics.
+
+   :ivar turns: Number of turns.
+   :ivar chat_first_audio: p50/p95 first-audio latency of turns without tools.
+   :ivar tool_first_audio: p50/p95 first-audio latency of turns with tools.
+   :ivar error_rate: Share of failed turns.
+   :ivar tool_counts: Calls per tool.
+   :ivar breaches: Human-readable budget violations.
+
+
+
+   .. py:attribute:: turns
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: chat_first_audio
+      :type:  tuple[float, float] | None
+      :value: None
+
+
+
+   .. py:attribute:: tool_first_audio
+      :type:  tuple[float, float] | None
+      :value: None
+
+
+
+   .. py:attribute:: error_rate
+      :type:  float
+      :value: 0.0
+
+
+
+   .. py:attribute:: tool_counts
+      :type:  dict[str, int]
+
+
+   .. py:attribute:: breaches
+      :type:  list[str]
+      :value: []
+
+
+
+   .. py:method:: render() -> str
+
+      Plain-text summary.
+
+
+
+.. py:function:: summarize(log_path: pathlib.Path) -> Report
+
+   Aggregate ``turns.jsonl``; a missing file yields an empty report.
+
+

@@ -1,0 +1,16 @@
+voicemate.pipeline
+==================
+
+.. py:module:: voicemate.pipeline
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/voicemate/pipeline/chunker/index
+   /autoapi/voicemate/pipeline/orchestrator/index
+
+

@@ -1,0 +1,57 @@
+voicemate.agent.tools
+=====================
+
+.. py:module:: voicemate.agent.tools
+
+.. autoapi-nested-parse::
+
+   Agent tools. :func:`build_tools` assembles every tool for one :class:`ToolContext`.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/voicemate/agent/tools/arxiv_tools/index
+   /autoapi/voicemate/agent/tools/base/index
+   /autoapi/voicemate/agent/tools/clock_calc/index
+   /autoapi/voicemate/agent/tools/documents/index
+   /autoapi/voicemate/agent/tools/fetch/index
+   /autoapi/voicemate/agent/tools/files/index
+   /autoapi/voicemate/agent/tools/memory_tools/index
+   /autoapi/voicemate/agent/tools/netguard/index
+   /autoapi/voicemate/agent/tools/notes_tools/index
+   /autoapi/voicemate/agent/tools/search/index
+   /autoapi/voicemate/agent/tools/weather/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.EGRESS_TOOLS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.build_tools
+
+
+Package Contents
+----------------
+
+.. py:data:: EGRESS_TOOLS
+   :type:  frozenset[str]
+
+.. py:function:: build_tools(ctx: base.ToolContext) -> list[langchain_core.tools.BaseTool]
+
+   All tools, in the order they are presented to the model.
+
+

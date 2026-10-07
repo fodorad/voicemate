@@ -1,0 +1,109 @@
+voicemate.agent.tools.arxiv_tools
+=================================
+
+.. py:module:: voicemate.agent.tools.arxiv_tools
+
+.. autoapi-nested-parse::
+
+   arXiv search and paper download.
+
+   Downloaded papers are saved as PDFs under ``[files] papers_dir`` (default
+   ``~/Downloads/voicemate-papers``) so Adam can open them, and their text is indexed into
+   research memory so later questions are answered without re-downloading.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.arxiv_tools.Paper
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.arxiv_tools.normalize_id
+   voicemate.agent.tools.arxiv_tools.slugify
+   voicemate.agent.tools.arxiv_tools.paper_filename
+   voicemate.agent.tools.arxiv_tools.format_papers
+   voicemate.agent.tools.arxiv_tools.build
+
+
+Module Contents
+---------------
+
+.. py:class:: Paper
+
+   arXiv metadata.
+
+   :ivar arxiv_id: Short id such as ``2401.01234v2``.
+   :ivar title: Paper title.
+   :ivar authors: Author names (first few).
+   :ivar published: Publication date ``YYYY-MM-DD``.
+   :ivar summary: Abstract.
+   :ivar pdf_url: Direct PDF link.
+
+
+
+   .. py:attribute:: arxiv_id
+      :type:  str
+
+
+   .. py:attribute:: title
+      :type:  str
+
+
+   .. py:attribute:: authors
+      :type:  list[str]
+
+
+   .. py:attribute:: published
+      :type:  str
+
+
+   .. py:attribute:: summary
+      :type:  str
+
+
+   .. py:attribute:: pdf_url
+      :type:  str
+
+
+   .. py:property:: abs_url
+      :type: str
+
+
+      Abstract page URL.
+
+
+.. py:function:: normalize_id(text: str) -> str
+
+   Extract an arXiv id from free text or a URL.
+
+   :raises ToolError: If no id can be found.
+
+
+.. py:function:: slugify(title: str, max_len: int = 60) -> str
+
+   File-name-safe slug of a title.
+
+
+.. py:function:: paper_filename(paper: Paper) -> str
+
+   ``<id>-<slug>.pdf``.
+
+
+.. py:function:: format_papers(papers: list[dict[str, Any]], header: str) -> str
+
+   Numbered paper list for the model.
+
+
+.. py:function:: build(ctx: voicemate.agent.tools.base.ToolContext) -> list[langchain_core.tools.BaseTool]
+
+   Create ``arxiv_search`` and ``download_paper``.
+
+

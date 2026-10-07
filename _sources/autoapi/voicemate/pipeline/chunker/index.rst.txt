@@ -1,0 +1,74 @@
+voicemate.pipeline.chunker
+==========================
+
+.. py:module:: voicemate.pipeline.chunker
+
+.. autoapi-nested-parse::
+
+   Split streamed LLM text into speakable chunks for incremental TTS.
+
+   A chunk is emitted as soon as a sentence boundary is certain, so the first sentence is
+   spoken while the model is still generating the rest. The very first chunk of a turn may be
+   cut earlier at a clause boundary (comma, semicolon, colon) to reduce time-to-first-audio.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.pipeline.chunker.ABBREVIATIONS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.pipeline.chunker.SpeechChunker
+
+
+Module Contents
+---------------
+
+.. py:data:: ABBREVIATIONS
+   :type:  frozenset[str]
+
+.. py:class:: SpeechChunker(min_first_chars: int = 40, max_chars: int = 250)
+
+   Incremental sentence splitter.
+
+   :param min_first_chars: The first chunk of a turn may end at a clause boundary once it is
+                           at least this long.
+   :param max_chars: Chunks longer than this are cut at the last space.
+
+
+   .. py:attribute:: min_first_chars
+      :value: 40
+
+
+
+   .. py:attribute:: max_chars
+      :value: 250
+
+
+
+   .. py:method:: reset() -> None
+
+      Forget buffered text; the next chunk counts as the first of a new turn.
+
+
+
+   .. py:method:: feed(text: str) -> list[str]
+
+      Add streamed text and return any chunks that are now complete.
+
+
+
+   .. py:method:: flush() -> list[str]
+
+      Return the remaining text as final chunk(s) at the end of a turn.
+
+
+

@@ -1,0 +1,143 @@
+voicemate.agent.graph
+=====================
+
+.. py:module:: voicemate.agent.graph
+
+.. autoapi-nested-parse::
+
+   The LangGraph agent: ``recall → agent ⇄ tools``.
+
+   * ``recall`` embeds the user message, loads matching facts, past exchanges and research, and
+     builds the per-turn context block (about 30-50 ms, so no speculation is needed).
+   * The system prompt is static and the context is attached only to the newest user message,
+     so Ollama can reuse its KV cache for the long, tool-laden prompt prefix (see prompts.py).
+   * ``agent`` calls the chat model with all tools bound. After ``max_tool_rounds`` tool rounds
+     the tools are unbound so the model has to answer.
+   * ``tools`` runs the requested tools; exceptions become error messages the model can read.
+
+   Conversation history is persisted per ``thread_id`` by the checkpointer. Events for the UI
+   are sent through the ``emit`` callback in ``config["configurable"]``.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.graph.HISTORY_MESSAGES
+   voicemate.agent.graph.ANSWER_NUDGE
+   voicemate.agent.graph.NO_MORE_TOOLS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.agent.graph.AgentState
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.graph.make_chat_model
+   voicemate.agent.graph.recent_history
+   voicemate.agent.graph.with_context
+   voicemate.agent.graph.warm_up
+   voicemate.agent.graph.build_graph
+
+
+Module Contents
+---------------
+
+.. py:data:: HISTORY_MESSAGES
+   :type:  int
+   :value: 24
+
+
+.. py:data:: ANSWER_NUDGE
+   :type:  str
+   :value: "You have the tool results now: answer the user's question in full."
+
+
+.. py:data:: NO_MORE_TOOLS
+   :type:  str
+   :value: 'Tool budget for this turn is used up: answer now with what you have.'
+
+
+.. py:class:: AgentState
+
+   Bases: :py:obj:`TypedDict`
+
+
+   Graph state.
+
+   :ivar messages: Conversation history (appended through the ``add_messages`` reducer).
+   :ivar lang: Reply language of the current turn.
+   :ivar context: Per-turn context block (time, language, memories) for the newest message.
+   :ivar tool_rounds: Tool rounds used in the current turn.
+
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: messages
+      :type:  Annotated[list[langchain_core.messages.AnyMessage], langgraph.graph.message.add_messages]
+
+
+   .. py:attribute:: lang
+      :type:  str
+
+
+   .. py:attribute:: context
+      :type:  str
+
+
+   .. py:attribute:: tool_rounds
+      :type:  int
+
+
+.. py:function:: make_chat_model(config: voicemate.config.LLMConfig, model: str | None = None) -> langchain_core.language_models.BaseChatModel
+
+   The Ollama chat model with thinking disabled (latency matters more for voice).
+
+   :param config: LLM settings.
+   :param model: Model tag; defaults to the preferred profile's model.
+
+
+.. py:function:: recent_history(messages: collections.abc.Sequence[langchain_core.messages.AnyMessage], limit: int = HISTORY_MESSAGES) -> list
+
+   The last ``limit`` messages, starting at a user message.
+
+   Starting at a user message keeps tool results together with the call that produced them.
+
+
+.. py:function:: with_context(messages: list[langchain_core.messages.AnyMessage], context: str) -> list[langchain_core.messages.AnyMessage]
+
+   Copy of ``messages`` whose newest user message is prefixed with ``context``.
+
+
+.. py:function:: warm_up(llm: langchain_core.language_models.BaseChatModel, tools: list[langchain_core.tools.BaseTool], config: voicemate.config.Config) -> None
+   :async:
+
+
+   Prefill the static prompt prefix so the first real turn hits Ollama's KV cache.
+
+
+.. py:function:: build_graph(llm: langchain_core.language_models.BaseChatModel, tools: list[langchain_core.tools.BaseTool], config: voicemate.config.Config, memory: voicemate.memory.store.MemoryStore | None = None, checkpointer: Any = None, now: collections.abc.Callable[[], datetime.datetime] = lambda: datetime.now().astimezone()) -> Any
+
+   Compile the agent graph.
+
+   :param llm: Chat model supporting tool calling.
+   :param tools: Tools to bind.
+   :param config: Application config.
+   :param memory: Long-term memory used by the recall node (skipped when None).
+   :param checkpointer: LangGraph checkpointer for per-thread history.
+   :param now: Clock for the turn context.
+
+   :returns: The compiled graph.
+
+

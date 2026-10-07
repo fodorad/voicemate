@@ -1,0 +1,18 @@
+voicemate.memory
+================
+
+.. py:module:: voicemate.memory
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/voicemate/memory/embedder/index
+   /autoapi/voicemate/memory/notes/index
+   /autoapi/voicemate/memory/store/index
+   /autoapi/voicemate/memory/text/index
+
+

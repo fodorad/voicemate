@@ -1,0 +1,17 @@
+voicemate.asr
+=============
+
+.. py:module:: voicemate.asr
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/voicemate/asr/base/index
+   /autoapi/voicemate/asr/langid/index
+   /autoapi/voicemate/asr/parakeet/index
+
+

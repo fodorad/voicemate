@@ -1,0 +1,66 @@
+voicemate.asr.parakeet
+======================
+
+.. py:module:: voicemate.asr.parakeet
+
+.. autoapi-nested-parse::
+
+   NVIDIA Parakeet TDT 0.6B v3 on Apple MLX (25 European languages incl. Hungarian).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.asr.parakeet.logger
+   voicemate.asr.parakeet.DEFAULT_MODEL
+   voicemate.asr.parakeet.MIN_SAMPLES
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.asr.parakeet.ParakeetRecognizer
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: DEFAULT_MODEL
+   :type:  str
+   :value: 'mlx-community/parakeet-tdt-0.6b-v3'
+
+
+.. py:data:: MIN_SAMPLES
+   :type:  int
+   :value: 1600
+
+
+.. py:class:: ParakeetRecognizer(model: str = DEFAULT_MODEL, device: str = 'cpu')
+
+   Speech recognizer backed by ``parakeet-mlx``.
+
+   MLX computations must stay on one thread, so call :meth:`transcribe_text` from a single
+   worker thread (the voice session uses a dedicated executor).
+
+   :param model: Hugging Face repository of the MLX checkpoint.
+   :param device: ``"cpu"`` or ``"gpu"``. CPU is the default because the GPU is shared with
+                  the LLM (about 280 ms instead of 160 ms for a 4 s utterance).
+
+
+   .. py:method:: transcribe_text(audio: numpy.ndarray) -> str
+
+      Transcribe 16 kHz mono float32 audio.
+
+      :param audio: Samples in ``[-1, 1]``.
+
+      :returns: The transcript (empty for silence or too-short input).
+
+
+

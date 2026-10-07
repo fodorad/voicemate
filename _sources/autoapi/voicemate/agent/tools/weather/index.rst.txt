@@ -1,0 +1,65 @@
+voicemate.agent.tools.weather
+=============================
+
+.. py:module:: voicemate.agent.tools.weather
+
+.. autoapi-nested-parse::
+
+   Weather forecasts from Open-Meteo (free, no API key).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.weather.FORECAST_URL
+   voicemate.agent.tools.weather.GEOCODING_URL
+   voicemate.agent.tools.weather.WMO_CODES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.weather.describe
+   voicemate.agent.tools.weather.format_forecast
+   voicemate.agent.tools.weather.build
+
+
+Module Contents
+---------------
+
+.. py:data:: FORECAST_URL
+   :type:  str
+   :value: 'https://api.open-meteo.com/v1/forecast'
+
+
+.. py:data:: GEOCODING_URL
+   :type:  str
+   :value: 'https://geocoding-api.open-meteo.com/v1/search'
+
+
+.. py:data:: WMO_CODES
+   :type:  dict[int, str]
+
+.. py:function:: describe(code: int | None) -> str
+
+   Human-readable description of a WMO weather code.
+
+
+.. py:function:: format_forecast(data: dict[str, Any], place: str) -> str
+
+   Render an Open-Meteo response as compact text for the model.
+
+   :param data: JSON with ``current`` and ``daily`` blocks.
+   :param place: Location name to mention.
+
+
+.. py:function:: build(ctx: voicemate.agent.tools.base.ToolContext) -> list[langchain_core.tools.BaseTool]
+
+   Create the weather tool.
+
+

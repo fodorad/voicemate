@@ -1,0 +1,86 @@
+voicemate.audio.codec
+=====================
+
+.. py:module:: voicemate.audio.codec
+
+.. autoapi-nested-parse::
+
+   PCM conversion, resampling and the binary audio frame format used on the WebSocket.
+
+   Browser → server frames are raw mono PCM16 at :data:`SAMPLE_RATE`. Server → browser frames
+   carry their sample rate in a 4-byte little-endian header because the TTS voices differ
+   (Piper 22.05 kHz, Kokoro 24 kHz).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.audio.codec.SAMPLE_RATE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.audio.codec.pcm16_to_float32
+   voicemate.audio.codec.float32_to_pcm16
+   voicemate.audio.codec.resample
+   voicemate.audio.codec.pack_audio_frame
+   voicemate.audio.codec.unpack_audio_frame
+
+
+Module Contents
+---------------
+
+.. py:data:: SAMPLE_RATE
+   :type:  int
+   :value: 16000
+
+
+.. py:function:: pcm16_to_float32(pcm: bytes) -> numpy.ndarray
+
+   Convert little-endian signed 16-bit PCM bytes to float32 samples in ``[-1, 1]``.
+
+   :param pcm: Raw PCM bytes (even length).
+
+   :returns: 1-D float32 array.
+
+   :raises ValueError: If the byte count is odd.
+
+
+.. py:function:: float32_to_pcm16(audio: numpy.ndarray) -> bytes
+
+   Convert float samples to little-endian signed 16-bit PCM, clipping to ``[-1, 1]``.
+
+   :param audio: 1-D float array.
+
+   :returns: Raw PCM bytes.
+
+
+.. py:function:: resample(audio: numpy.ndarray, rate_in: int, rate_out: int) -> numpy.ndarray
+
+   Resample mono audio with a high-quality polyphase resampler.
+
+   :param audio: 1-D float array.
+   :param rate_in: Input sample rate (Hz).
+   :param rate_out: Output sample rate (Hz).
+
+   :returns: Float32 array at ``rate_out`` (the input object itself when rates match).
+
+
+.. py:function:: pack_audio_frame(pcm: bytes, sample_rate: int) -> bytes
+
+   Prefix PCM16 bytes with their sample rate for the browser player.
+
+
+.. py:function:: unpack_audio_frame(frame: bytes) -> tuple[int, bytes]
+
+   Split a packed frame into ``(sample_rate, pcm)``.
+
+   :raises ValueError: If the frame is shorter than its header.
+
+

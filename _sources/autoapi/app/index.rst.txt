@@ -1,0 +1,260 @@
+app
+===
+
+.. py:module:: app
+
+.. autoapi-nested-parse::
+
+   NiceGUI front end: one page per conversation plus the ``/ws/audio`` WebSocket.
+
+   The page renders the pipeline rail (one station per :class:`~voicemate.events.Lane`), the
+   conversation, an activity trace that marks every request that left the machine, the notes
+   panel and, when a tool needs permission, a confirmation dialog. Microphone and speaker audio
+   travel over a plain WebSocket so the binary stream stays out of NiceGUI's own socket.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   app.logger
+   app.STATIC_DIR
+   app.RAIL
+   app.BADGES
+   app.MIC_SHORTCUT
+   app.HOLD_SHORTCUT
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   app.ConversationPage
+   app.Server
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   app.asset_version
+   app.handle_control_message
+   app.serve_audio
+   app.register
+   app.serve
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: STATIC_DIR
+   :type:  pathlib.Path
+
+.. py:data:: RAIL
+   :type:  tuple[tuple[voicemate.events.Lane, str, str], ...]
+
+.. py:data:: BADGES
+   :type:  dict[str, str]
+
+.. py:data:: MIC_SHORTCUT
+   :type:  str
+   :value: 'Ctrl+M'
+
+
+.. py:data:: HOLD_SHORTCUT
+   :type:  str
+   :value: 'Ctrl+H'
+
+
+.. py:function:: asset_version() -> str
+
+   Cache-busting token that changes whenever any static asset changes.
+
+   NiceGUI serves static files as immutable for a year, so edited assets need new URLs.
+
+
+.. py:function:: handle_control_message(session: voicemate.pipeline.orchestrator.VoiceSession, text: str) -> None
+
+   Apply a JSON control message from the browser; malformed messages are ignored.
+
+
+.. py:function:: serve_audio(websocket: fastapi.WebSocket, session: voicemate.pipeline.orchestrator.VoiceSession) -> None
+   :async:
+
+
+   Bridge one browser's audio WebSocket and its session until it disconnects.
+
+
+.. py:class:: ConversationPage(session: voicemate.pipeline.orchestrator.VoiceSession, config: voicemate.config.Config, on_new_conversation: collections.abc.Callable[[], object] | None = None)
+
+   Widgets of one browser tab and the event pump that updates them.
+
+   :param session: The tab's voice session.
+   :param config: Application configuration.
+   :param on_new_conversation: Starts a fresh conversation thread (the page then reloads).
+
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: config
+
+
+   .. py:attribute:: on_new_conversation
+      :value: None
+
+
+
+   .. py:attribute:: stations
+      :type:  dict[voicemate.events.Lane, tuple[nicegui.ui.element, nicegui.ui.label, nicegui.ui.label]]
+
+
+   .. py:attribute:: started
+      :type:  dict[voicemate.events.Lane, float]
+
+
+   .. py:attribute:: reply
+      :type:  nicegui.ui.label | None
+      :value: None
+
+
+
+   .. py:attribute:: last_user
+      :type:  nicegui.ui.label | None
+      :value: None
+
+
+
+   .. py:attribute:: mic_on
+      :value: False
+
+
+
+   .. py:method:: notes_view() -> None
+
+      Open notes, todos and reminders with a checkbox to complete them.
+
+
+
+   .. py:method:: show_history(lines: list[voicemate.pipeline.orchestrator.ChatLine]) -> None
+
+      Render the earlier messages of a reopened conversation.
+
+
+
+   .. py:method:: send() -> None
+      :async:
+
+
+      Submit the text box as a turn.
+
+
+
+   .. py:method:: answer(text: str) -> None
+      :async:
+
+
+      Answer the pending confirmation (dialog buttons).
+
+
+
+   .. py:method:: pump() -> None
+      :async:
+
+
+      Apply every session event to the page until the page goes away.
+
+
+
+   .. py:method:: apply(event: voicemate.events.Event) -> None
+
+      Render one event (events without a handler, such as audio, are ignored).
+
+
+
+.. py:class:: Server(config: voicemate.config.Config, runtime: voicemate.runtime.Runtime | None = None)
+
+   Holds the runtime and the live sessions of this process.
+
+   :param config: Application configuration.
+   :param runtime: An already loaded runtime (tests); otherwise loaded at startup.
+
+
+   .. py:attribute:: config
+
+
+   .. py:attribute:: runtime
+      :value: None
+
+
+
+   .. py:attribute:: sessions
+      :type:  dict[str, voicemate.pipeline.orchestrator.VoiceSession]
+
+
+   .. py:method:: thread_id() -> str
+
+      The current conversation; it survives page reloads and server restarts.
+
+
+
+   .. py:method:: new_conversation() -> str
+
+      Start a fresh conversation thread (long-term memory is kept).
+
+
+
+   .. py:method:: open_session() -> tuple[str, voicemate.pipeline.orchestrator.VoiceSession]
+      :async:
+
+
+      A session for a new page, continuing the current conversation.
+
+
+
+   .. py:method:: startup() -> None
+      :async:
+
+
+      Load every model before the first page is served.
+
+
+
+   .. py:method:: shutdown() -> None
+      :async:
+
+
+      Close sessions and release the runtime.
+
+
+
+   .. py:method:: fake_mic_name(requested: str | None) -> str | None
+
+      The ``?fake_mic=`` file to replay, if test audio is enabled and the name is safe.
+
+
+
+   .. py:method:: build_page(fake_mic: str | None = None) -> ConversationPage | None
+      :async:
+
+
+      Build the conversation page for the current client (the ``/`` route).
+
+
+
+.. py:function:: register(server: Server) -> None
+
+   Attach middleware, routes, static files and the page to the NiceGUI app.
+
+
+.. py:function:: serve(config: voicemate.config.Config, open_browser: bool = True) -> None
+
+   Run the web UI (blocks until Ctrl+C).
+
+

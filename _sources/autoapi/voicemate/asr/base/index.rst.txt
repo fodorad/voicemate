@@ -1,0 +1,64 @@
+voicemate.asr.base
+==================
+
+.. py:module:: voicemate.asr.base
+
+.. autoapi-nested-parse::
+
+   Speech recognition interface shared by all ASR backends.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.asr.base.Transcript
+   voicemate.asr.base.SpeechRecognizer
+
+
+Module Contents
+---------------
+
+.. py:class:: Transcript
+
+   Result of transcribing one utterance.
+
+   :ivar text: Recognized text (stripped).
+   :ivar lang: Language code (``"hu"`` or ``"en"``).
+   :ivar audio_seconds: Duration of the input audio.
+   :ivar latency_seconds: Wall-clock time the recognition took.
+
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: lang
+      :type:  str
+
+
+   .. py:attribute:: audio_seconds
+      :type:  float
+
+
+   .. py:attribute:: latency_seconds
+      :type:  float
+
+
+.. py:class:: SpeechRecognizer
+
+   Bases: :py:obj:`Protocol`
+
+
+   Anything that turns 16 kHz mono float32 audio into text.
+
+
+   .. py:method:: transcribe_text(audio: numpy.ndarray) -> str
+
+      Return the raw transcript of ``audio``.
+
+
+

@@ -1,0 +1,62 @@
+voicemate.memory.text
+=====================
+
+.. py:module:: voicemate.memory.text
+
+.. autoapi-nested-parse::
+
+   Text utilities for the research memory: chunking and freshness classification.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.memory.text.CHUNK_CHARS
+   voicemate.memory.text.TIME_SENSITIVE
+   voicemate.memory.text.TTL_DAYS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.memory.text.ttl_days_for
+   voicemate.memory.text.chunk_text
+
+
+Module Contents
+---------------
+
+.. py:data:: CHUNK_CHARS
+   :type:  int
+   :value: 1200
+
+
+.. py:data:: TIME_SENSITIVE
+   :type:  frozenset[str]
+
+.. py:data:: TTL_DAYS
+   :type:  dict[str, int]
+
+.. py:function:: ttl_days_for(query: str, source: str) -> int
+
+   How long a research result stays fresh.
+
+   :param query: The search query (time-sensitive words shorten web freshness to 1 day).
+   :param source: ``web``, ``page``, ``arxiv`` or ``paper``.
+
+
+.. py:function:: chunk_text(text: str, max_chars: int = CHUNK_CHARS) -> list[str]
+
+   Split text into chunks of at most ``max_chars``, preferring paragraph and sentence ends.
+
+   :param text: Document text.
+   :param max_chars: Maximum chunk length.
+
+   :returns: Non-empty chunks in document order.
+
+

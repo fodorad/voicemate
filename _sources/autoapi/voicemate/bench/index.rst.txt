@@ -1,0 +1,78 @@
+voicemate.bench
+===============
+
+.. py:module:: voicemate.bench
+
+.. autoapi-nested-parse::
+
+   Benchmarks behind ``make bench``: ASR, TTS and LLM measurements (see docs/sdlc/spec.md §6).
+
+   Results are written to ``temp/bench/`` (gitignored). Test clips are generated with the macOS
+   ``say`` command, so benchmarks run on macOS only.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/voicemate/bench/run/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.bench.BENCH_DIR
+   voicemate.bench.HU_SENTENCES
+   voicemate.bench.EN_SENTENCES
+   voicemate.bench.SAY_VOICES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.bench.normalize
+   voicemate.bench.corpus
+   voicemate.bench.make_clips
+
+
+Package Contents
+----------------
+
+.. py:data:: BENCH_DIR
+   :type:  pathlib.Path
+
+.. py:data:: HU_SENTENCES
+   :type:  tuple[str, ...]
+   :value: ('Ava, mennyi az idő most?', 'Milyen idő lesz holnap Gyöngyösön?', 'Keress rá a legújabb...
+
+
+.. py:data:: EN_SENTENCES
+   :type:  tuple[str, ...]
+   :value: ('Ava, what time is it right now?', 'What will the weather be like tomorrow?', 'Search for the...
+
+
+.. py:data:: SAY_VOICES
+   :type:  dict[str, str]
+
+.. py:function:: normalize(text: str) -> str
+
+   Lower-case, strip punctuation and collapse whitespace (for WER).
+
+
+.. py:function:: corpus() -> list[tuple[str, str]]
+
+   ``(lang, sentence)`` pairs.
+
+
+.. py:function:: make_clips(folder: pathlib.Path) -> list[tuple[str, str, pathlib.Path]]
+
+   Render the corpus to 16 kHz WAV files with ``say`` (cached).
+
+

@@ -1,0 +1,31 @@
+voicemate
+=========
+
+.. py:module:: voicemate
+
+.. autoapi-nested-parse::
+
+   voicemate: a private, local, bilingual (Hungarian/English) voice assistant.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/voicemate/agent/index
+   /autoapi/voicemate/asr/index
+   /autoapi/voicemate/audio/index
+   /autoapi/voicemate/bench/index
+   /autoapi/voicemate/config/index
+   /autoapi/voicemate/events/index
+   /autoapi/voicemate/memory/index
+   /autoapi/voicemate/models/index
+   /autoapi/voicemate/pipeline/index
+   /autoapi/voicemate/report/index
+   /autoapi/voicemate/runtime/index
+   /autoapi/voicemate/tts/index
+
+
