@@ -364,3 +364,9 @@ prompt.
   the SSRF guard only blocks private addresses. Now `fetch_page` asks the user before
   opening any URL that a search did not list (`ToolContext.offered_urls`). A denied request
   never contacts the site.
+- **Orphaned tool result after an interruption (found by a flaky CI run).** If the user
+  interrupted just before LangGraph committed the step that held a tool call, closing the
+  turn added the "cancelled" tool result but the call message was gone, and models reject a
+  result without a call. Closing a turn now re-adds the call message with its results (the
+  `add_messages` reducer replaces by id, so nothing is duplicated). Reproduced at about 1 in
+  8 under CPU load; 0 in 40 after the fix.

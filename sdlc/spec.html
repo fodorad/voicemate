@@ -968,6 +968,12 @@ fetched page could instruct the model to open <code class="docutils literal notr
 the SSRF guard only blocks private addresses. Now <code class="docutils literal notranslate"><span class="pre">fetch_page</span></code> asks the user before
 opening any URL that a search did not list (<code class="docutils literal notranslate"><span class="pre">ToolContext.offered_urls</span></code>). A denied request
 never contacts the site.</p></li>
+<li><p><strong>Orphaned tool result after an interruption (found by a flaky CI run).</strong> If the user
+interrupted just before LangGraph committed the step that held a tool call, closing the
+turn added the “cancelled” tool result but the call message was gone, and models reject a
+result without a call. Closing a turn now re-adds the call message with its results (the
+<code class="docutils literal notranslate"><span class="pre">add_messages</span></code> reducer replaces by id, so nothing is duplicated). Reproduced at about 1 in
+8 under CPU load; 0 in 40 after the fix.</p></li>
 </ul>
 </section>
 </section>
