@@ -103,6 +103,7 @@ class TestFetchPage(ToolTestCase):
         self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
         self.url = f"http://127.0.0.1:{self.server.server_address[1]}/lora"
+        self.ctx.offered_urls.add(self.url)  # as if a search had listed it
 
     async def asyncTearDown(self):
         await asyncio.to_thread(self.server.shutdown)  # blocks ~0.5 s; keep the loop free

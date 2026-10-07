@@ -133,6 +133,7 @@ def build(ctx: ToolContext) -> list[BaseTool]:
         """
         cached = await asyncio.to_thread(ctx.memory.cached_search, query, "web")
         if cached is not None:
+            ctx.offered_urls.update(r.get("url", "") for r in cached.results)
             report(config, "web_search", {"query": query}, "memory", cached.query)
             header = (
                 f"[from memory, retrieved {format_date(cached.retrieved_at)} "
@@ -144,6 +145,7 @@ def build(ctx: ToolContext) -> list[BaseTool]:
         except Exception as exc:  # network / rate limit: tell the model, don't crash the turn
             raise ToolError(f"Web search failed: {exc}") from exc
         results = [asdict(h) for h in hits]
+        ctx.offered_urls.update(h.url for h in hits)
         ttl = ttl_days_for(query, "web")
         await asyncio.to_thread(ctx.memory.store_search, query, "web", results, ttl)
         for hit in hits:

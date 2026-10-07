@@ -1,4 +1,7 @@
+import asyncio
+import http.server
 import tempfile
+import threading
 import unittest
 from datetime import datetime
 from pathlib import Path
@@ -163,6 +166,75 @@ class TestHumanInTheLoop(GraphTestCase):
         self.assertEqual(self.target.read_text(), "old")
         tool_result = next(m for m in final["messages"] if isinstance(m, ToolMessage))
         self.assertIn("no, call it summary2", tool_result.content)
+
+
+class TestUnlistedUrls(GraphTestCase):
+    """A page the model was talked into opening could carry private data in its address."""
+
+    async def asyncSetUp(self):
+        await super().asyncSetUp()
+        _PageHandler.requests = 0
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _PageHandler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        self.url = f"http://127.0.0.1:{self.server.server_address[1]}/?d=private-note"
+
+    async def asyncTearDown(self):
+        await asyncio.to_thread(self.server.shutdown)
+        self.server.server_close()
+        await super().asyncTearDown()
+
+    async def ask(self, reply="Done."):
+        graph = self.graph([tool_call("fetch_page", {"url": self.url}), reply])
+        await self.turn(graph, "Look at that page", lang="en")
+        return graph, await graph.aget_state(self.run_config())
+
+    async def test_unlisted_url_pauses_and_nothing_is_requested_yet(self):
+        _, state = await self.ask()
+        self.assertEqual(len(state.interrupts), 1)
+        question = state.interrupts[0].value["question"]
+        self.assertIn("127.0.0.1", question)
+        self.assertNotIn("private-note", question)  # the question stays short enough to speak
+        self.assertEqual(_PageHandler.requests, 0)
+
+    async def test_no_never_contacts_the_site(self):
+        graph, _ = await self.ask("Okay, I did not open it.")
+        final = await graph.ainvoke(Command(resume="no"), self.run_config())
+        self.assertEqual(_PageHandler.requests, 0)
+        tool_result = next(m for m in final["messages"] if isinstance(m, ToolMessage))
+        self.assertIn("did not approve", tool_result.content)
+
+    async def test_yes_opens_the_page(self):
+        graph, _ = await self.ask("It says hello.")
+        final = await graph.ainvoke(Command(resume="yes please"), self.run_config())
+        self.assertEqual(_PageHandler.requests, 1)
+        self.assertEqual(final["messages"][-1].content.strip(), "It says hello.")
+
+    async def test_url_from_a_search_result_needs_no_question(self):
+        self.ctx.offered_urls.add(self.url)
+        _, state = await self.ask()
+        self.assertEqual(state.interrupts, ())
+        self.assertEqual(_PageHandler.requests, 1)
+
+    async def test_search_results_are_offered(self):
+        graph = self.graph([tool_call("web_search", {"query": "moe survey"}), "Found it."])
+        await self.turn(graph, "search", lang="en")
+        self.assertIn("https://example.org/moe", self.ctx.offered_urls)
+
+
+class _PageHandler(http.server.BaseHTTPRequestHandler):
+    requests = 0
+
+    def do_GET(self):  # noqa: N802
+        type(self).requests += 1
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.end_headers()
+        self.wfile.write(
+            b"<html><body><article><p>Hello from the page.</p></article></body></html>"
+        )
+
+    def log_message(self, *args):
+        pass
 
 
 class TestToolErrors(GraphTestCase):

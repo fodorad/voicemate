@@ -127,6 +127,9 @@ def build(ctx: ToolContext) -> list[BaseTool]:
         """
         cached = await asyncio.to_thread(ctx.memory.cached_search, query, "arxiv")
         if cached is not None:
+            ctx.offered_urls.update(
+                f"https://arxiv.org/abs/{r.get('arxiv_id', '')}" for r in cached.results
+            )
             report(config, "arxiv_search", {"query": query}, "memory", cached.query)
             header = f"[from memory, retrieved {format_date(cached.retrieved_at)}]"
             return format_papers(cached.results, header)
@@ -137,6 +140,7 @@ def build(ctx: ToolContext) -> list[BaseTool]:
         except Exception as exc:
             raise ToolError(f"arXiv search failed: {exc}") from exc
         rows = [asdict(p) for p in papers]
+        ctx.offered_urls.update(p.abs_url for p in papers)
         ttl = ttl_days_for(query, "arxiv")
         await asyncio.to_thread(ctx.memory.store_search, query, "arxiv", rows, ttl)
         for paper in papers:

@@ -359,3 +359,8 @@ prompt.
   conversation was lost. The current thread id is now stored in `data/conversation.json`.
   A reopened page shows the history and reopens a pending confirmation. History sent to
   the model is still capped at the last 24 messages.
+- **Exfiltration through `fetch_page` (found by the automated security review).** A
+  fetched page could instruct the model to open `https://evil.example/?d=<private data>`;
+  the SSRF guard only blocks private addresses. Now `fetch_page` asks the user before
+  opening any URL that a search did not list (`ToolContext.offered_urls`). A denied request
+  never contacts the site.

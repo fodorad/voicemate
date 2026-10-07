@@ -51,6 +51,8 @@ All UI state flows through `events.EventBus`.
   resumes the graph with the user's words (`VoiceSession.answer_confirmation`).
 - UI tests build `ConversationPage` in an offline NiceGUI `Client` (set `core.loop`);
   NiceGUI's `user_simulation` only works under pytest.
+- Egress needs a listed address: `fetch_page` asks (`ask_user`) before opening a URL that
+  no search returned (`ToolContext.offered_urls`); data could leave in the path or query.
 - Every session task goes through `VoiceSession._spawn` (the loop keeps only weak refs).
 - Diagnostics: `kill -USR1 <pid>` dumps thread stacks, `kill -USR2 <pid>` dumps asyncio
   tasks (server only).
