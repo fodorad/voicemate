@@ -6,4 +6,4 @@ try:
     #: Installed package version.
     __version__: str = version("voicemate")
 except PackageNotFoundError:  # pragma: no cover - only when running from a bare checkout
-    __version__ = "0.0.0"
+    __version__ = "1.0.0"

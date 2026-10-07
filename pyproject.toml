@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "voicemate"
-version = "0.1.0"
+version = "1.0.0"
 description = "Private, local, bilingual (Hungarian/English) voice assistant: streaming ASR, LangGraph agent on Ollama, memory, TTS and a browser UI."
 keywords = ["voice assistant", "ASR", "TTS", "LLM", "LangGraph", "Ollama", "RAG", "Hungarian"]
 authors = [
