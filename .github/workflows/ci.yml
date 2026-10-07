@@ -1,0 +1,75 @@
+name: CI
+
+# The app targets Apple Silicon (MLX speech recognition), so CI runs on macOS arm64 runners.
+# Ubuntu will be added later. Unit tests need no models: tests that need Ollama, downloaded
+# weights or the network are skipped unless VOICEMATE_INTEGRATION is set (run them locally
+# with `make test-integration`). Every step is a Makefile target, so local and remote agree.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A newer push to the same branch makes the older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: check (${{ matrix.python-version }})
+    runs-on: macos-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: |
+          uv venv --python ${{ matrix.python-version }} .venv
+          uv pip install --python .venv/bin/python -e ".[dev,docs]"
+
+      - name: Audit dependencies for vulnerabilities
+        run: uvx pip-audit
+        continue-on-error: true  # a warning, not a gate
+
+      - name: Lint
+        run: make lint
+
+      - name: Type check
+        run: make type-check
+
+      - name: Test with coverage
+        run: make test
+
+      - name: Build docs
+        if: matrix.python-version == '3.13'
+        run: make docs
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.13'
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          fail_ci_if_error: false
+
+      - name: Upload coverage HTML
+        if: always() && matrix.python-version == '3.13'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage_html/

@@ -1,0 +1,196 @@
+/* voicemate UI. System fonts only: a private assistant must not fetch web fonts. */
+:root {
+  --paper: #e9ece6;         /* lichen grey */
+  --panel: #f4f6f2;
+  --ink: #1e2a2b;           /* slate teal */
+  --ink-soft: #5a6766;
+  --rule: #c9d0c8;
+  --listen: #3c7a5a;        /* moss: the ear side of the pipeline */
+  --think: #4b4e9e;         /* indigo: reasoning and tools */
+  --speak: #8c2d3a;         /* wine: the mouth side */
+  --egress: #b7791f;        /* amber: data left this machine */
+  --font-ui: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-text: ui-serif, "New York", "Iowan Old Style", Georgia, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #151b1c;
+    --panel: #1c2425;
+    --ink: #dde3dc;
+    --ink-soft: #93a09d;
+    --rule: #2f3a3b;
+    --listen: #6fb892;
+    --think: #9a9ce6;
+    --speak: #e0798a;
+    --egress: #e0a64a;
+  }
+}
+
+body, .q-page, .nicegui-content { background: var(--paper) !important; color: var(--ink); }
+body { font-family: var(--font-ui); }
+.nicegui-content { padding: 0 !important; }
+
+.vm-shell {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr) 20rem;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+  width: 100%;
+}
+.vm-top {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+.vm-name { font-size: 1.35rem; font-weight: 650; letter-spacing: -0.01em; }
+.vm-lang {
+  font-size: 0.8rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--ink-soft);
+}
+.vm-spacer { flex: 1; }
+.vm-btn {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  border: 1px solid var(--rule);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.35rem 0.95rem;
+  cursor: pointer;
+}
+.vm-btn:focus-visible, .vm-input:focus-visible { outline: 2px solid var(--think); outline-offset: 2px; }
+.vm-btn.q-btn, .vm-btn.q-btn .q-btn__content { color: var(--ink) !important; text-transform: none; }
+.vm-btn.q-btn.is-on .q-btn__content { color: #fff !important; }
+.vm-btn.is-on, .vm-btn.q-btn.is-on { background: var(--listen); border-color: var(--listen); color: #fff !important; }
+
+/* ── the pipeline rail: ear → mouth ─────────────────────────────────────── */
+.vm-rail {
+  padding: 1.5rem 1rem 1rem 1.5rem;
+  border-right: 1px solid var(--rule);
+  overflow-y: auto;
+}
+.vm-station {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.25rem 1fr auto;
+  align-items: center;
+  column-gap: 0.6rem;
+  min-height: 2.6rem;
+  color: var(--ink-soft);
+  transition: color 160ms ease;
+}
+.vm-station::before {            /* the line between stations */
+  content: "";
+  position: absolute;
+  left: calc(0.625rem - 1px);
+  top: 50%;
+  height: 2.6rem;
+  width: 2px;
+  background: var(--rule);
+}
+.vm-station.is-last::before { display: none; }
+.vm-dot {
+  position: relative;
+  z-index: 1;
+  width: 0.8rem;
+  height: 0.8rem;
+  margin-left: 0.225rem;
+  border-radius: 50%;
+  border: 2px solid var(--rule);
+  background: var(--paper);
+}
+.vm-station[data-phase="listen"] { --phase: var(--listen); }
+.vm-station[data-phase="think"] { --phase: var(--think); }
+.vm-station[data-phase="speak"] { --phase: var(--speak); }
+.vm-station.is-active { color: var(--ink); font-weight: 600; }
+.vm-station.is-active .vm-dot {
+  border-color: var(--phase);
+  background: var(--phase);
+  box-shadow: 0 0 0 0 var(--phase);
+  animation: vm-pulse 1.2s ease-out infinite;
+}
+.vm-station.is-done .vm-dot { border-color: var(--phase); background: var(--phase); opacity: 0.45; }
+.vm-station.is-done { color: var(--ink); }
+.vm-detail { font-size: 0.75rem; color: var(--ink-soft); grid-column: 2; margin-top: -0.35rem; }
+.vm-ms { font-size: 0.78rem; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+@keyframes vm-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--phase) 55%, transparent); }
+  100% { box-shadow: 0 0 0 0.6rem transparent; }
+}
+.vm-latency { margin-top: 1.5rem; font-size: 0.8rem; color: var(--ink-soft); line-height: 1.6; }
+.vm-latency strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* ── conversation ───────────────────────────────────────────────────────── */
+.vm-talk { display: flex; flex-direction: column; min-height: 0; }
+.vm-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.75rem clamp(1rem, 4vw, 3.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.vm-msg { max-width: 66ch; font-family: var(--font-text); font-size: 1.08rem; line-height: 1.6; }
+.vm-msg.user { align-self: flex-end; color: var(--ink-soft); text-align: right; }
+.vm-msg.assistant { align-self: flex-start; white-space: pre-wrap; }
+.vm-msg.interrupted::after { content: " …"; color: var(--ink-soft); }
+.vm-empty { margin: auto; max-width: 34ch; text-align: center; color: var(--ink-soft); line-height: 1.6; }
+.vm-partial {
+  min-height: 1.6rem;
+  padding: 0 clamp(1rem, 4vw, 3.5rem);
+  font-family: var(--font-text);
+  font-style: italic;
+  color: var(--listen);
+}
+.vm-compose {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem clamp(1rem, 4vw, 3.5rem) 1.25rem;
+}
+.vm-input {
+  flex: 1;
+  font: inherit;
+  font-size: 1rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ink);
+}
+
+/* ── side panel: what happened, and notes ───────────────────────────────── */
+.vm-side { border-left: 1px solid var(--rule); overflow-y: auto; padding: 1.25rem 1.1rem; }
+.vm-side h2 { font-size: 0.95rem; font-weight: 650; margin: 0 0 0.6rem; }
+.vm-side section + section { margin-top: 1.75rem; }
+.vm-trace-item { font-size: 0.85rem; line-height: 1.45; padding: 0.35rem 0; border-bottom: 1px solid var(--rule); }
+.vm-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  padding: 0 0.4rem;
+  margin-right: 0.35rem;
+  border-radius: 0.3rem;
+  border: 1px solid currentColor;
+}
+.vm-badge.web { color: var(--egress); }
+.vm-badge.memory { color: var(--listen); }
+.vm-badge.local { color: var(--ink-soft); }
+.vm-badge.error { color: var(--speak); }
+.vm-note { display: flex; gap: 0.5rem; align-items: baseline; font-size: 0.88rem; padding: 0.25rem 0; }
+.vm-note small { color: var(--ink-soft); }
+
+@media (max-width: 960px) {
+  .vm-shell { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto; height: auto; min-height: 100vh; }
+  .vm-rail { border-right: 0; border-bottom: 1px solid var(--rule); display: flex; overflow-x: auto; padding: 0.75rem 1rem; gap: 0.25rem; }
+  .vm-station { grid-template-columns: 1.25rem auto; min-width: 7.5rem; }
+  .vm-station::before, .vm-ms, .vm-latency { display: none; }
+  .vm-side { border-left: 0; border-top: 1px solid var(--rule); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vm-station.is-active .vm-dot { animation: none; }
+}
