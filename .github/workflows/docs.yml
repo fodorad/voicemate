@@ -22,7 +22,7 @@ jobs:
       - name: Install package and docs dependencies
         run: |
           uv venv --python 3.13 .venv
-          uv pip install --python .venv/bin/python -e ".[dev,docs]"
+          uv pip install --python .venv/bin/python -e ".[dev,docs,bench]"
 
       - name: Build docs
         run: make docs
