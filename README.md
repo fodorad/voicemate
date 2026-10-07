@@ -59,6 +59,15 @@ sentence chunker ─► TTS (Piper for Hungarian, Kokoro for English) ─► bro
 See [docs/architecture.md](docs/architecture.md) for diagrams of the LangGraph agent, a
 spoken turn, interruptions and the research memory.
 
+## Early look
+
+<img src="https://raw.githubusercontent.com/fodorad/voicemate/main/docs/ui/early-look.png" alt="voicemate in the browser" width="100%"/>
+
+*A real session with the `fast` profile (gemma4:e4b): a tool-backed question about the date and
+weather, then a trip-planning request that was interrupted mid-answer with a follow-up. The
+left rail shows each pipeline stage with its timing, the right panel shows what was
+recalled from memory, and the status shows the microphone is live.*
+
 ## What you can ask it
 
 - "What time is it?", "What's 18% of 2,450?", "What's the weather tomorrow?" (time,

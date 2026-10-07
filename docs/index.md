@@ -26,6 +26,13 @@ researched together, and answers out loud.
   falls back to a model that fits.
 - **Transparent:** the browser UI shows each pipeline stage live.
 
+```{image} ui/early-look.png
+:alt: voicemate in the browser
+:width: 100%
+```
+
+*A real session: pipeline stages with timings on the left, memory and tool trace on the right.*
+
 ## Quick start
 
 ```bash
