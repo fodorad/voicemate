@@ -24,7 +24,7 @@ import json
 import logging
 import time
 import uuid
-from collections.abc import AsyncIterator, Coroutine
+from collections.abc import AsyncIterator, Callable, Coroutine
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -60,6 +60,7 @@ from voicemate.pipeline.conversation import (
     ChatLine,
     Conversation,
 )
+from voicemate.pipeline.turn_taking import Begin, Collect, Decision, Interrupt, TurnTaking
 from voicemate.runtime import Runtime
 
 logger = logging.getLogger(__name__)
@@ -73,25 +74,12 @@ APOLOGIES: dict[str, str] = {
     "en": "Sorry, that didn't work. Please try again.",
 }
 
-#: A question cut off before any answer is merged with the next utterance only if that
-#: utterance follows within this many seconds; later speech is a new question.
-MERGE_WINDOW_S: float = 20.0
-
 #: Live partial transcripts only cover the most recent speech, so a long utterance never
 #: makes the final transcript wait behind a slow partial pass on the shared ASR thread.
 PARTIAL_WINDOW_S: float = 8.0
 
 #: Seconds between checks for due reminders.
 REMINDER_INTERVAL_S: float = 30.0
-
-
-@dataclass
-class _Pending:
-    """A user message whose turn was cancelled before anything was said."""
-
-    message_id: str
-    text: str
-    at: float
 
 
 @dataclass
@@ -132,18 +120,14 @@ class VoiceSession:
         self.bus = EventBus()
         self.segmenter = Segmenter(runtime.vad_factory(), self.config.vad)
         self.lang = self.config.assistant.default_language
-        #: While True, utterances are collected instead of answered (see :meth:`hold`).
-        self.holding = False
-        self._held: list[str] = []
+        #: The rules for what user input means (hold, merge, confirmation).
+        self.policy = TurnTaking()
         self._utterances: set[asyncio.Task] = set()
-        #: Question the agent is waiting on (human-in-the-loop), if any.
-        self.confirmation: Confirmation | None = None
         self._speaking = False
         self._turn: asyncio.Task | None = None
         self._partial: asyncio.Task | None = None
         self._reminders: asyncio.Task | None = None
         self._last_partial_at = 0.0
-        self._pending: _Pending | None = None
         self._interrupted_reply = ""  # partial reply of the turn cut off by the last barge-in
         self._tasks: set[asyncio.Task] = set()
 
@@ -188,9 +172,24 @@ class VoiceSession:
         return self.conversation.thread_id
 
     @property
+    def holding(self) -> bool:
+        """True while the user holds: pauses do not end their turn (see :meth:`hold`)."""
+        return self.policy.holding
+
+    @property
+    def confirmation(self) -> Confirmation | None:
+        """The question the agent is waiting on (human-in-the-loop), if any."""
+        question = self.policy.question
+        return Confirmation(question) if question is not None else None
+
+    @property
+    def _turn_running(self) -> bool:
+        return self._turn is not None and not self._turn.done()
+
+    @property
     def busy(self) -> bool:
         """True while a turn is being processed or its audio is playing."""
-        return self._speaking or (self._turn is not None and not self._turn.done())
+        return self._speaking or self._turn_running
 
     def emit(self, event: Event) -> None:
         """Publish an event; tool events also drive the TOOL lane."""
@@ -209,7 +208,7 @@ class VoiceSession:
         for event in self.segmenter.feed(pcm16_to_float32(pcm)):
             if isinstance(event, SpeechStart):
                 self._status(Lane.LISTENING, LaneState.ACTIVE)
-                if self.busy:
+                if isinstance(self.policy.on_speech_start(self.busy), Interrupt):
                     await self.interrupt()
             elif isinstance(event, SpeechEnd):
                 self._utterance_ended(event)
@@ -225,15 +224,14 @@ class VoiceSession:
     async def submit_text(self, text: str) -> None:
         """Handle typed input like a spoken utterance (no ASR, never merged)."""
         text = text.strip()
-        if text and self.holding:
-            self._collect(text)
-        elif text:
-            await self._begin_turn(text, time.monotonic(), continuation=False)
+        if text:
+            now = time.monotonic()
+            await self._input(lambda running: self.policy.on_typed(text, now, running), now)
 
     async def answer_confirmation(self, answer: str) -> None:
         """Answer the pending human-in-the-loop question (e.g. from a UI button)."""
-        if self.confirmation is not None:
-            await self._begin_turn(answer, time.monotonic(), continuation=False)
+        now = time.monotonic()
+        await self._input(lambda running: self.policy.on_answer(answer, now, running), now)
 
     async def interrupt(self) -> None:
         """Barge-in: stop the current turn and tell the browser to stop playback."""
@@ -279,9 +277,9 @@ class VoiceSession:
 
         A running answer is stopped first: the user wants the floor.
         """
-        if self.busy:
+        decision = self.policy.hold(self.busy)
+        if isinstance(decision, Interrupt):
             await self.interrupt()
-        self.holding = True
         self.bus.publish(HoldEvent(True))
 
     async def release(self) -> None:
@@ -292,20 +290,8 @@ class VoiceSession:
             self._utterance_ended(end)
         while self._utterances:  # transcripts still on their way join the question
             await asyncio.wait(set(self._utterances))
-        self.holding = False
+        await self._input(self.policy.release, time.monotonic())
         self.bus.publish(HoldEvent(False))
-        held, self._held = self._held, []
-        if held:
-            await self._begin_turn(" ".join(held), time.monotonic(), shown=True)
-
-    def _collect(self, text: str) -> None:
-        """Add one held utterance; the UI shows the question growing in one bubble."""
-        self._held.append(text)
-        self.lang = self.runtime.langid.detect(text, previous=self.lang)
-        joined = " ".join(self._held)
-        self.bus.publish(
-            TranscriptEvent(joined, final=True, lang=self.lang, merged=len(self._held) > 1)
-        )
 
     async def restore(self) -> list[ChatLine]:
         """Pick up this thread where it stopped (a reopened page).
@@ -313,7 +299,7 @@ class VoiceSession:
         Reopens a question the agent is still waiting on and returns what was said so far.
         """
         if question := await self.conversation.pending_question():
-            self.confirmation = Confirmation(question)
+            self.policy.question_asked(question)
             self.bus.publish(ConfirmEvent(question))
         return await self.conversation.lines()
 
@@ -356,11 +342,12 @@ class VoiceSession:
             await asyncio.to_thread(self._save_audio, audio)
         if not any(ch.isalnum() for ch in text):
             return
-        if self.holding:
-            self._collect(text.strip())
-            return
         transcript = Transcript(text, "", len(audio) / SAMPLE_RATE, latency)
-        await self._begin_turn(text, ended_at, transcript, continuation=True)
+        await self._input(
+            lambda running: self.policy.on_utterance(text.strip(), ended_at, running),
+            ended_at,
+            transcript,
+        )
 
     def _save_audio(self, audio: np.ndarray) -> None:
         import soundfile as sf
@@ -371,40 +358,47 @@ class VoiceSession:
 
     # ── turns ────────────────────────────────────────────────────────────────
 
-    async def _begin_turn(
+    async def _input(
         self,
-        text: str,
+        decide: Callable[[bool], Decision],
         ended_at: float,
         transcript: Transcript | None = None,
-        continuation: bool = False,
-        shown: bool = False,
     ) -> None:
-        """The single entry point for new user input: at most one turn runs at a time.
+        """The single entry point for user input: at most one turn runs at a time.
 
         Args:
-            text: What the user said or typed.
+            decide: Asks the turn-taking policy what the input means, given whether a turn
+                is running.
             ended_at: Monotonic time the user finished (latency reference).
             transcript: ASR details when the input was spoken.
-            continuation: Spoken input may continue a question cut off moments ago.
-            shown: The UI already shows this text (collected during a hold).
         """
-        if self._turn is not None and not self._turn.done():
+        decision = decide(self._turn_running)
+        if isinstance(decision, Interrupt):  # the running turn stops, then the input counts
             await self.interrupt()
-        resume = None
-        if self.confirmation is not None:  # the user's words answer the pending question
-            resume, self.confirmation = text, None
+            decision = decide(False)
+        match decision:
+            case Collect(text, parts):
+                self.lang = self.runtime.langid.detect(text, previous=self.lang)
+                self.bus.publish(
+                    TranscriptEvent(text, final=True, lang=self.lang, merged=parts > 1)
+                )
+            case Begin():
+                await self._begin_turn(decision, ended_at, transcript)
+
+    async def _begin_turn(
+        self, begin: Begin, ended_at: float, transcript: Transcript | None
+    ) -> None:
+        if begin.resume is not None:
             self.bus.publish(ConfirmEvent("", open=False))
-        pending, self._pending = self._pending, None
-        merged = bool(
-            resume is None and continuation and pending and ended_at - pending.at <= MERGE_WINDOW_S
-        )
-        if merged and pending is not None:
-            await self.conversation.discard(pending.message_id)
-            text = f"{pending.text} {text}"
+        if begin.discard is not None:
+            await self.conversation.discard(begin.discard)
+        text = begin.text
         lang = self.runtime.langid.detect(text, previous=self.lang)
         self.lang = lang
-        self.bus.publish(TranscriptEvent(text, final=True, lang=lang, merged=merged or shown))
-        self._turn = self._spawn(self._run_turn(text, lang, ended_at, transcript, resume))
+        self.bus.publish(
+            TranscriptEvent(text, final=True, lang=lang, merged=begin.merged or begin.shown)
+        )
+        self._turn = self._spawn(self._run_turn(text, lang, ended_at, transcript, begin.resume))
 
     async def _close_interrupted_turn(self) -> None:
         """Repair the history of a cut-off turn (see :meth:`Conversation.close_interrupted`)."""
@@ -439,8 +433,13 @@ class VoiceSession:
             if turn.reply:
                 self._interrupted_reply = turn.reply
                 self.bus.publish(ReplyEvent(turn.reply, interrupted=True))
-            elif resume is None:
-                self._pending = _Pending(message_id, text, time.monotonic())
+            self.policy.turn_cancelled(
+                message_id,
+                text,
+                time.monotonic(),
+                spoke=bool(turn.reply),
+                resumed=resume is not None,
+            )
             raise
         except Exception as exc:  # timeout, Ollama down, ...
             turn.failed = True
@@ -498,7 +497,7 @@ class VoiceSession:
         question = await self.conversation.pending_question()
         if question is None:
             return
-        self.confirmation = Confirmation(question)
+        self.policy.question_asked(question)
         self.bus.publish(ConfirmEvent(question))
         turn.say(question)
 
