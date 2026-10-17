@@ -325,7 +325,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Coroutine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncIterator</span><span class="p">,</span> <span class="n">Coroutine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -358,10 +358,8 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.chunker</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpeechChunker</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.conversation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">INTERRUPTED_MARK</span><span class="p">,</span>
     <span class="n">ChatLine</span><span class="p">,</span>
     <span class="n">Conversation</span><span class="p">,</span>
-    <span class="n">question_text</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.runtime</span><span class="w"> </span><span class="kn">import</span> <span class="n">Runtime</span>
 
@@ -375,9 +373,6 @@
     <span class="s2">"hu"</span><span class="p">:</span> <span class="s2">"Elnézést, ez most nem sikerült. Kérlek, próbáld újra."</span><span class="p">,</span>
     <span class="s2">"en"</span><span class="p">:</span> <span class="s2">"Sorry, that didn't work. Please try again."</span><span class="p">,</span>
 <span class="p">}</span>
-
-<span class="c1">#: Result given to tool calls that were cancelled by a barge-in.</span>
-<span class="n">INTERRUPTED_TOOL_RESULT</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Cancelled: the user interrupted before this finished."</span>
 
 <span class="c1">#: A question cut off before any answer is merged with the next utterance only if that</span>
 <span class="c1">#: utterance follows within this many seconds; later speech is a new question.</span>
@@ -749,7 +744,7 @@
             <span class="n">resume</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">continuation</span> <span class="ow">and</span> <span class="n">pending</span> <span class="ow">and</span> <span class="n">ended_at</span> <span class="o">-</span> <span class="n">pending</span><span class="o">.</span><span class="n">at</span> <span class="o">&lt;=</span> <span class="n">MERGE_WINDOW_S</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">merged</span> <span class="ow">and</span> <span class="n">pending</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_discard_message</span><span class="p">(</span><span class="n">pending</span><span class="o">.</span><span class="n">message_id</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">pending</span><span class="o">.</span><span class="n">message_id</span><span class="p">)</span>
             <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pending</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">langid</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">previous</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="n">lang</span>
@@ -757,51 +752,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_turn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run_turn</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">lang</span><span class="p">,</span> <span class="n">ended_at</span><span class="p">,</span> <span class="n">transcript</span><span class="p">,</span> <span class="n">resume</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_close_interrupted_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Keep the history of a cut-off turn consistent and informative.</span>
-
-<span class="sd">        Tool calls that never got a result are answered with a "cancelled" message (models</span>
-<span class="sd">        reject dangling tool calls), and a partially spoken reply is kept, marked as</span>
-<span class="sd">        interrupted, so the next turn knows what the user already heard.</span>
-<span class="sd">        """</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">AIMessage</span><span class="p">,</span> <span class="n">ToolMessage</span>
-
+<span class="w">        </span><span class="sd">"""Repair the history of a cut-off turn (see :meth:`Conversation.close_interrupted`)."""</span>
         <span class="n">partial</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interrupted_reply</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interrupted_reply</span><span class="p">,</span> <span class="s2">""</span>
-        <span class="n">run_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">run_config</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">snapshot</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">aget_state</span><span class="p">(</span><span class="n">run_config</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pragma: no cover - checkpointer unavailable</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"Cannot read the interrupted turn's state"</span><span class="p">)</span>
-            <span class="k">return</span>
-        <span class="n">messages</span> <span class="o">=</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"messages"</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">snapshot</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="n">answered</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">tool_call_id</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">ToolMessage</span><span class="p">)}</span>
-        <span class="n">patch</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">AIMessage</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="n">open_calls</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">tool_calls</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">answered</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">open_calls</span><span class="p">:</span>
-                <span class="c1"># Re-add the call message with its results: a cancel that lands just before</span>
-                <span class="c1"># LangGraph commits the step can drop it, which would leave a tool result</span>
-                <span class="c1"># without a call (models reject that). Messages are matched by id, so when</span>
-                <span class="c1"># it is already stored this replaces it in place.</span>
-                <span class="n">patch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-                <span class="n">patch</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                    <span class="n">ToolMessage</span><span class="p">(</span><span class="n">INTERRUPTED_TOOL_RESULT</span><span class="p">,</span> <span class="n">tool_call_id</span><span class="o">=</span><span class="n">c</span><span class="p">[</span><span class="s2">"id"</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">open_calls</span>
-                <span class="p">)</span>
-        <span class="k">if</span> <span class="n">partial</span><span class="p">:</span>
-            <span class="n">patch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AIMessage</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">partial</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">INTERRUPTED_MARK</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">patch</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">aupdate_state</span><span class="p">(</span><span class="n">run_config</span><span class="p">,</span> <span class="p">{</span><span class="s2">"messages"</span><span class="p">:</span> <span class="n">patch</span><span class="p">},</span> <span class="n">as_node</span><span class="o">=</span><span class="s2">"agent"</span><span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_discard_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Remove an unanswered user message from the checkpointed history."""</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">RemoveMessage</span>
-
-        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">aupdate_state</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">run_config</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="n">RemoveMessage</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">message_id</span><span class="p">)]},</span>
-            <span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">close_interrupted</span><span class="p">(</span><span class="n">partial</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_run_turn</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -812,33 +765,27 @@
         <span class="n">resume</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Stream one agent run into speech; ``resume`` answers a pending confirmation."""</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">HumanMessage</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
-
         <span class="n">turn</span> <span class="o">=</span> <span class="n">_Turn</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">ended_at</span><span class="p">)</span>
-        <span class="n">message</span> <span class="o">=</span> <span class="n">HumanMessage</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">)</span>
-        <span class="n">graph_input</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">Command</span><span class="p">(</span><span class="n">resume</span><span class="o">=</span><span class="n">resume</span><span class="p">)</span> <span class="k">if</span> <span class="n">resume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{</span><span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="n">message</span><span class="p">],</span> <span class="s2">"lang"</span><span class="p">:</span> <span class="n">lang</span><span class="p">}</span>
+        <span class="n">message_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+        <span class="n">emit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tool_emitter</span><span class="p">(</span><span class="n">turn</span><span class="p">)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">resume</span><span class="p">(</span><span class="n">resume</span><span class="p">,</span> <span class="n">emit</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">resume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">say</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">lang</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">emit</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">run_config</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">"configurable"</span><span class="p">:</span> <span class="p">{</span>
-                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">run_config</span><span class="p">[</span><span class="s2">"configurable"</span><span class="p">],</span>
-                <span class="s2">"emit"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tool_emitter</span><span class="p">(</span><span class="n">turn</span><span class="p">),</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
         <span class="n">worker</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tts_worker</span><span class="p">(</span><span class="n">turn</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">(</span><span class="n">Lane</span><span class="o">.</span><span class="n">THINKING</span><span class="p">,</span> <span class="n">LaneState</span><span class="o">.</span><span class="n">ACTIVE</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">async</span> <span class="k">with</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">turn_timeout_s</span><span class="p">):</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream</span><span class="p">(</span><span class="n">turn</span><span class="p">,</span> <span class="n">graph_input</span><span class="p">,</span> <span class="n">run_config</span><span class="p">)</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ask_if_paused</span><span class="p">(</span><span class="n">turn</span><span class="p">,</span> <span class="n">run_config</span><span class="p">)</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream</span><span class="p">(</span><span class="n">turn</span><span class="p">,</span> <span class="n">chunks</span><span class="p">)</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ask_if_paused</span><span class="p">(</span><span class="n">turn</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
             <span class="n">worker</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">turn</span><span class="o">.</span><span class="n">reply</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_interrupted_reply</span> <span class="o">=</span> <span class="n">turn</span><span class="o">.</span><span class="n">reply</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">ReplyEvent</span><span class="p">(</span><span class="n">turn</span><span class="o">.</span><span class="n">reply</span><span class="p">,</span> <span class="n">interrupted</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
             <span class="k">elif</span> <span class="n">resume</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span> <span class="o">=</span> <span class="n">_Pending</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">id</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span> <span class="o">=</span> <span class="n">_Pending</span><span class="p">(</span><span class="n">message_id</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">())</span>
             <span class="k">raise</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># timeout, Ollama down, ...</span>
             <span class="n">turn</span><span class="o">.</span><span class="n">failed</span> <span class="o">=</span> <span class="kc">True</span>
@@ -878,18 +825,9 @@
 
         <span class="k">return</span> <span class="n">on_event</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">turn</span><span class="p">:</span> <span class="n">_Turn</span><span class="p">,</span> <span class="n">graph_input</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">run_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">turn</span><span class="p">:</span> <span class="n">_Turn</span><span class="p">,</span> <span class="n">chunks</span><span class="p">:</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Feed the agent's streamed answer into the chunker and the UI."""</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">AIMessageChunk</span>
-
-        <span class="k">async</span> <span class="k">for</span> <span class="n">chunk</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">astream</span><span class="p">(</span>
-            <span class="n">graph_input</span><span class="p">,</span> <span class="n">run_config</span><span class="p">,</span> <span class="n">stream_mode</span><span class="o">=</span><span class="s2">"messages"</span>
-        <span class="p">):</span>
-            <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"langgraph_node"</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">"agent"</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">AIMessageChunk</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="n">content</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">content</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">content</span><span class="p">:</span>
-                <span class="k">continue</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">turn</span><span class="o">.</span><span class="n">first_token</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">turn</span><span class="o">.</span><span class="n">first_token</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">(</span><span class="n">Lane</span><span class="o">.</span><span class="n">THINKING</span><span class="p">,</span> <span class="n">LaneState</span><span class="o">.</span><span class="n">DONE</span><span class="p">)</span>
@@ -900,13 +838,11 @@
             <span class="k">for</span> <span class="n">piece</span> <span class="ow">in</span> <span class="n">turn</span><span class="o">.</span><span class="n">chunker</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
                 <span class="n">turn</span><span class="o">.</span><span class="n">say</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_ask_if_paused</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">turn</span><span class="p">:</span> <span class="n">_Turn</span><span class="p">,</span> <span class="n">run_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_ask_if_paused</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">turn</span><span class="p">:</span> <span class="n">_Turn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""If a tool paused the graph for permission, show and speak the question."""</span>
-        <span class="n">snapshot</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">aget_state</span><span class="p">(</span><span class="n">run_config</span><span class="p">)</span>
-        <span class="n">interrupts</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="s2">"interrupts"</span><span class="p">,</span> <span class="p">())</span> <span class="ow">or</span> <span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">interrupts</span><span class="p">:</span>
+        <span class="n">question</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">pending_question</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">question</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">question</span> <span class="o">=</span> <span class="n">question_text</span><span class="p">(</span><span class="n">interrupts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">confirmation</span> <span class="o">=</span> <span class="n">Confirmation</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">ConfirmEvent</span><span class="p">(</span><span class="n">question</span><span class="p">))</span>
         <span class="n">turn</span><span class="o">.</span><span class="n">say</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>

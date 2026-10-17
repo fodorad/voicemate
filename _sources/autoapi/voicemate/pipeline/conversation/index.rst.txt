@@ -22,6 +22,7 @@ Attributes
 
    voicemate.pipeline.conversation.logger
    voicemate.pipeline.conversation.INTERRUPTED_MARK
+   voicemate.pipeline.conversation.INTERRUPTED_TOOL_RESULT
 
 
 Classes
@@ -50,6 +51,11 @@ Module Contents
 .. py:data:: INTERRUPTED_MARK
    :type:  str
    :value: '[interrupted by the user]'
+
+
+.. py:data:: INTERRUPTED_TOOL_RESULT
+   :type:  str
+   :value: 'Cancelled: the user interrupted before this finished.'
 
 
 .. py:class:: ChatLine
@@ -137,6 +143,48 @@ Module Contents
 
 
       The question the agent is waiting on (human-in-the-loop), if any.
+
+
+
+   .. py:method:: say(text: str, lang: str, message_id: str, emit: collections.abc.Callable[[voicemate.events.Event], None]) -> collections.abc.AsyncIterator[str]
+
+      Add a user message and stream the assistant's answer text as it is written.
+
+      :param text: What the user said or typed.
+      :param lang: Reply language of this turn.
+      :param message_id: Identifies the user message (so it can be discarded later).
+      :param emit: Receives the tool and status events of the run.
+
+      :returns: An iterator of text chunks. When it ends, :meth:`pending_question` tells whether
+                the agent paused to ask the user something.
+
+
+
+   .. py:method:: resume(answer: str, emit: collections.abc.Callable[[voicemate.events.Event], None]) -> collections.abc.AsyncIterator[str]
+
+      Answer the pending question and stream the rest of the run.
+
+
+
+   .. py:method:: close_interrupted(partial_reply: str) -> None
+      :async:
+
+
+      Keep the history of a cut-off turn consistent and informative.
+
+      Tool calls that never got a result are answered with a "cancelled" message (models
+      reject dangling tool calls), and a partially spoken reply is kept, marked as
+      interrupted, so the next turn knows what the user already heard. Safe to repeat.
+
+      :param partial_reply: The part of the answer the user heard (may be empty).
+
+
+
+   .. py:method:: discard(message_id: str) -> None
+      :async:
+
+
+      Remove an unanswered user message from the history (errors are ignored).
 
 
 

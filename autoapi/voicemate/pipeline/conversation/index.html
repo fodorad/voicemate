@@ -324,6 +324,9 @@ question, if any, the agent is waiting on. It is not long-term memory (see
 <tr class="row-even"><td><p><a class="reference internal" href="#voicemate.pipeline.conversation.INTERRUPTED_MARK" title="voicemate.pipeline.conversation.INTERRUPTED_MARK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INTERRUPTED_MARK</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.pipeline.conversation.INTERRUPTED_TOOL_RESULT" title="voicemate.pipeline.conversation.INTERRUPTED_TOOL_RESULT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INTERRUPTED_TOOL_RESULT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -368,6 +371,11 @@ question, if any, the agent is waiting on. It is not long-term memory (see
 <dl class="py data">
 <dt class="sig sig-object py" id="voicemate.pipeline.conversation.INTERRUPTED_MARK">
 <span class="sig-prename descclassname"><span class="pre">voicemate.pipeline.conversation.</span></span><span class="sig-name descname"><span class="pre">INTERRUPTED_MARK</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'[interrupted</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">user]'</span></span><a class="headerlink" href="#voicemate.pipeline.conversation.INTERRUPTED_MARK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="voicemate.pipeline.conversation.INTERRUPTED_TOOL_RESULT">
+<span class="sig-prename descclassname"><span class="pre">voicemate.pipeline.conversation.</span></span><span class="sig-name descname"><span class="pre">INTERRUPTED_TOOL_RESULT</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Cancelled:</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">interrupted</span> <span class="pre">before</span> <span class="pre">this</span> <span class="pre">finished.'</span></span><a class="headerlink" href="#voicemate.pipeline.conversation.INTERRUPTED_TOOL_RESULT" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
@@ -474,6 +482,52 @@ question, if any, the agent is waiting on. It is not long-term memory (see
 <dd><p>The question the agent is waiting on (human-in-the-loop), if any.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.pipeline.conversation.Conversation.say">
+<span class="sig-name descname"><span class="pre">say</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../events/index.html#voicemate.events.Event" title="voicemate.events.Event"><span class="pre">voicemate.events.Event</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.AsyncIterator</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/conversation.html#Conversation.say"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.conversation.Conversation.say" title="Link to this definition">¶</a></dt>
+<dd><p>Add a user message and stream the assistant’s answer text as it is written.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> – What the user said or typed.</p></li>
+<li><p><strong>lang</strong> – Reply language of this turn.</p></li>
+<li><p><strong>message_id</strong> – Identifies the user message (so it can be discarded later).</p></li>
+<li><p><strong>emit</strong> – Receives the tool and status events of the run.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An iterator of text chunks. When it ends, <a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.pending_question" title="voicemate.pipeline.conversation.Conversation.pending_question"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pending_question()</span></code></a> tells whether
+the agent paused to ask the user something.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.pipeline.conversation.Conversation.resume">
+<span class="sig-name descname"><span class="pre">resume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">answer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../events/index.html#voicemate.events.Event" title="voicemate.events.Event"><span class="pre">voicemate.events.Event</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.AsyncIterator</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/conversation.html#Conversation.resume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.conversation.Conversation.resume" title="Link to this definition">¶</a></dt>
+<dd><p>Answer the pending question and stream the rest of the run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.pipeline.conversation.Conversation.close_interrupted">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">close_interrupted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partial_reply</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/conversation.html#Conversation.close_interrupted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.conversation.Conversation.close_interrupted" title="Link to this definition">¶</a></dt>
+<dd><p>Keep the history of a cut-off turn consistent and informative.</p>
+<p>Tool calls that never got a result are answered with a “cancelled” message (models
+reject dangling tool calls), and a partially spoken reply is kept, marked as
+interrupted, so the next turn knows what the user already heard. Safe to repeat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>partial_reply</strong> – The part of the answer the user heard (may be empty).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.pipeline.conversation.Conversation.discard">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">discard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/conversation.html#Conversation.discard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.conversation.Conversation.discard" title="Link to this definition">¶</a></dt>
+<dd><p>Remove an unanswered user message from the history (errors are ignored).</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -541,6 +595,7 @@ question, if any, the agent is waiting on. It is not long-term memory (see
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.INTERRUPTED_MARK"><code class="docutils literal notranslate"><span class="pre">INTERRUPTED_MARK</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.conversation.INTERRUPTED_TOOL_RESULT"><code class="docutils literal notranslate"><span class="pre">INTERRUPTED_TOOL_RESULT</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.ChatLine"><code class="docutils literal notranslate"><span class="pre">ChatLine</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.ChatLine.role"><code class="docutils literal notranslate"><span class="pre">ChatLine.role</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.ChatLine.text"><code class="docutils literal notranslate"><span class="pre">ChatLine.text</span></code></a></li>
@@ -560,6 +615,10 @@ question, if any, the agent is waiting on. It is not long-term memory (see
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.run_config"><code class="docutils literal notranslate"><span class="pre">Conversation.run_config</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.lines"><code class="docutils literal notranslate"><span class="pre">Conversation.lines()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.pending_question"><code class="docutils literal notranslate"><span class="pre">Conversation.pending_question()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.say"><code class="docutils literal notranslate"><span class="pre">Conversation.say()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.resume"><code class="docutils literal notranslate"><span class="pre">Conversation.resume()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.close_interrupted"><code class="docutils literal notranslate"><span class="pre">Conversation.close_interrupted()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.discard"><code class="docutils literal notranslate"><span class="pre">Conversation.discard()</span></code></a></li>
 </ul>
 </li>
 </ul>

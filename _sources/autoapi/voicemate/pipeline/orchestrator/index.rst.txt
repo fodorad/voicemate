@@ -32,7 +32,6 @@ Attributes
    voicemate.pipeline.orchestrator.logger
    voicemate.pipeline.orchestrator.FILLERS
    voicemate.pipeline.orchestrator.APOLOGIES
-   voicemate.pipeline.orchestrator.INTERRUPTED_TOOL_RESULT
    voicemate.pipeline.orchestrator.MERGE_WINDOW_S
    voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S
    voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S
@@ -64,11 +63,6 @@ Module Contents
 
 .. py:data:: APOLOGIES
    :type:  dict[str, str]
-
-.. py:data:: INTERRUPTED_TOOL_RESULT
-   :type:  str
-   :value: 'Cancelled: the user interrupted before this finished.'
-
 
 .. py:data:: MERGE_WINDOW_S
    :type:  float
