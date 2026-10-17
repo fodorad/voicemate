@@ -12,16 +12,29 @@ from __future__ import annotations
 import json
 import logging
 import uuid
+from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import (
+    AIMessage,
+    AIMessageChunk,
+    HumanMessage,
+    RemoveMessage,
+    ToolMessage,
+)
+from langgraph.types import Command
+
+from voicemate.events import Event
 
 logger = logging.getLogger(__name__)
 
 #: Appended to a reply the user interrupted (kept in the conversation history).
 INTERRUPTED_MARK: str = "[interrupted by the user]"
+
+#: Result given to tool calls that were cancelled by a barge-in.
+INTERRUPTED_TOOL_RESULT: str = "Cancelled: the user interrupted before this finished."
 
 
 @dataclass
@@ -106,3 +119,80 @@ class Conversation:
         snapshot = await self.graph.aget_state(self.run_config)
         interrupts = getattr(snapshot, "interrupts", ()) or ()
         return question_text(interrupts[0].value) if interrupts else None
+
+    def say(
+        self, text: str, lang: str, message_id: str, emit: Callable[[Event], None]
+    ) -> AsyncIterator[str]:
+        """Add a user message and stream the assistant's answer text as it is written.
+
+        Args:
+            text: What the user said or typed.
+            lang: Reply language of this turn.
+            message_id: Identifies the user message (so it can be discarded later).
+            emit: Receives the tool and status events of the run.
+
+        Returns:
+            An iterator of text chunks. When it ends, :meth:`pending_question` tells whether
+            the agent paused to ask the user something.
+        """
+        graph_input = {"messages": [HumanMessage(text, id=message_id)], "lang": lang}
+        return self._stream(graph_input, emit)
+
+    def resume(self, answer: str, emit: Callable[[Event], None]) -> AsyncIterator[str]:
+        """Answer the pending question and stream the rest of the run."""
+        return self._stream(Command(resume=answer), emit)
+
+    async def _stream(self, graph_input: Any, emit: Callable[[Event], None]) -> AsyncIterator[str]:
+        run_config = {"configurable": {**self.run_config["configurable"], "emit": emit}}
+        async for chunk, meta in self.graph.astream(
+            graph_input, run_config, stream_mode="messages"
+        ):
+            if meta.get("langgraph_node") != "agent" or not isinstance(chunk, AIMessageChunk):
+                continue
+            if isinstance(chunk.content, str) and chunk.content:
+                yield chunk.content
+
+    async def close_interrupted(self, partial_reply: str) -> None:
+        """Keep the history of a cut-off turn consistent and informative.
+
+        Tool calls that never got a result are answered with a "cancelled" message (models
+        reject dangling tool calls), and a partially spoken reply is kept, marked as
+        interrupted, so the next turn knows what the user already heard. Safe to repeat.
+
+        Args:
+            partial_reply: The part of the answer the user heard (may be empty).
+        """
+        try:
+            snapshot = await self.graph.aget_state(self.run_config)
+        except Exception:  # pragma: no cover - checkpointer unavailable
+            logger.exception("Cannot read the interrupted turn's state")
+            return
+        messages = snapshot.values.get("messages", []) if snapshot else []
+        answered = {m.tool_call_id for m in messages if isinstance(m, ToolMessage)}
+        patch: list = []
+        for message in messages:
+            if not isinstance(message, AIMessage):
+                continue
+            open_calls = [c for c in message.tool_calls if c["id"] not in answered]
+            if open_calls:
+                # Re-add the call message with its results: a cancel that lands just before
+                # LangGraph commits the step can drop it, which would leave a tool result
+                # without a call (models reject that). Messages are matched by id, so when
+                # it is already stored this replaces it in place.
+                patch.append(message)
+                patch.extend(
+                    ToolMessage(INTERRUPTED_TOOL_RESULT, tool_call_id=c["id"]) for c in open_calls
+                )
+        if partial_reply:
+            patch.append(AIMessage(f"{partial_reply.strip()} {INTERRUPTED_MARK}"))
+        if patch:
+            await self.graph.aupdate_state(self.run_config, {"messages": patch}, as_node="agent")
+
+    async def discard(self, message_id: str) -> None:
+        """Remove an unanswered user message from the history (errors are ignored)."""
+        try:
+            await self.graph.aupdate_state(
+                self.run_config, {"messages": [RemoveMessage(id=message_id)]}
+            )
+        except Exception:
+            logger.debug("Could not discard message %s", message_id, exc_info=True)
