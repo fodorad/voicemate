@@ -39,7 +39,6 @@ from voicemate.pipeline.orchestrator import (
     FILLERS,
     PARTIAL_WINDOW_S,
     VoiceSession,
-    _Pending,
     turns_log_path,
 )
 from voicemate.runtime import Runtime
@@ -419,7 +418,9 @@ class TestTurnDiscipline(SessionTestCase):
 
     async def test_stale_cut_off_question_is_not_merged(self):
         self.make_session(["Ok."], transcripts=["new question"])
-        self.session._pending = _Pending("gone", "old question", time.monotonic() - 60)
+        self.session.policy.turn_cancelled(
+            "gone", "old question", time.monotonic() - 60, spoke=False, resumed=False
+        )
         await self.speak()
         await self.settle()
         finals = [e.text for e in self.drain() if isinstance(e, TranscriptEvent) and e.final]
