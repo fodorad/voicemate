@@ -24,6 +24,7 @@ from nicegui import app, background_tasks, ui
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from voicemate.audio.codec import pack_audio_frame
+from voicemate.audio.protocol import MicOff, PlaybackEnded, PlaybackStarted, Stop, dump, parse
 from voicemate.config import Config
 from voicemate.events import (
     AudioEvent,
@@ -93,20 +94,13 @@ def _dump_tasks() -> None:  # pragma: no cover - manual diagnostics
 
 def handle_control_message(session: VoiceSession, text: str) -> None:
     """Apply a JSON control message from the browser; malformed messages are ignored."""
-    try:
-        data = json.loads(text)
-    except json.JSONDecodeError:
-        logger.warning("Ignoring malformed control message")
-        return
-    if not isinstance(data, dict):
-        return
-    kind, state = data.get("type"), data.get("state")
-    if kind == "playback" and state == "started":
-        session.playback_started()
-    elif kind == "playback" and state == "ended":
-        session.playback_ended()
-    elif kind == "mic" and state == "off":
-        session.microphone_stopped()
+    match parse(text):
+        case PlaybackStarted():
+            session.playback_started()
+        case PlaybackEnded():
+            session.playback_ended()
+        case MicOff():
+            session.microphone_stopped()
 
 
 async def serve_audio(websocket: WebSocket, session: VoiceSession) -> None:
@@ -120,7 +114,7 @@ async def serve_audio(websocket: WebSocket, session: VoiceSession) -> None:
             if isinstance(event, AudioEvent):
                 await websocket.send_bytes(pack_audio_frame(event.pcm, event.sample_rate))
             elif isinstance(event, InterruptEvent):
-                await websocket.send_text(json.dumps({"type": "stop"}))
+                await websocket.send_text(dump(Stop()))
 
     sender = background_tasks.create(forward(), name="audio-out")
     try:
