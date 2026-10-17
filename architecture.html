@@ -345,6 +345,61 @@ in one Python process except the language model, which runs in Ollama.</p>
     </pre><p>The speech models run on the CPU on purpose: the GPU and most of the memory belong to the
 language model (see the spec, §10).</p>
 </section>
+<section id="modules-and-seams">
+<h2>Modules and seams<a class="headerlink" href="#modules-and-seams" title="Link to this heading">¶</a></h2>
+<p>Five deep modules keep the rules in one place each. Dashed lines are the seams: the interface
+other modules (and the tests) use. Behind each seam sits a real adapter and, in the tests, a
+small hand-written fake.</p>
+<pre  class="mermaid">
+        flowchart TB
+    UI[ui/app.py&lt;br/&gt;page + /ws/audio] --&gt;|messages| PROTO[[audio.protocol&lt;br/&gt;browser messages]]
+    UI --&gt; SESSION[VoiceSession&lt;br/&gt;plumbing: audio, ASR, graph stream, TTS]
+    SESSION -.-&gt; POLICY[[TurnTaking&lt;br/&gt;what input means]]
+    SESSION -.-&gt; CONV[[Conversation&lt;br/&gt;thread, history, repair, stream]]
+    SESSION -.-&gt; SPEECH[[Speech&lt;br/&gt;async ASR + TTS, one worker each]]
+    CONV -.-&gt; GRAPH[(LangGraph + checkpoint)]
+    GRAPH --&gt; TOOLS[agent tools]
+    TOOLS -.-&gt; RESEARCH[[Research&lt;br/&gt;cached search, listed addresses]]
+    RESEARCH --&gt; MEM[(Memory)]
+    RESEARCH --&gt; NET((web, arXiv, pages))
+    SPEECH --&gt; MODELS[Parakeet · Piper · Kokoro]
+    classDef deep fill:#0f172a,color:#f8fafc,stroke:#0f172a;
+    class POLICY,CONV,SPEECH,RESEARCH,PROTO deep;
+    </pre><div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Module</p></th>
+<th class="head"><p>Owns</p></th>
+<th class="head"><p>Faked in tests with</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.turn_taking</span></code></p></td>
+<td><p>hold and release, merging a cut-off question (20 s), answering a confirmation, barge-in. Pure: no event loop, no I/O</p></td>
+<td><p>nothing needed: plain values in, decisions out</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.conversation</span></code></p></td>
+<td><p>the current thread id (<code class="docutils literal notranslate"><span class="pre">data/conversation.json</span></code>), history lines, repair of an interrupted turn, discarding a cancelled message, streaming a turn, the pending question</p></td>
+<td><p>in-memory LangGraph checkpointer + a scripted chat model</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">speech</span></code></p></td>
+<td><p>transcription and synthesis, one worker thread per model (MLX is not re-entrant), clean shutdown</p></td>
+<td><p>scripted recognizer, tone synthesizer</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">agent.tools.research</span></code></p></td>
+<td><p>cache-first web and arXiv search, page and paper access, the listed addresses (anything else asks the user first), what leaves the machine</p></td>
+<td><p>static search and arXiv backends, a local HTTP server</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">audio.protocol</span></code></p></td>
+<td><p>the browser to server messages (mic off, playback started and ended, stop)</p></td>
+<td><p>a contract test reads <code class="docutils literal notranslate"><span class="pre">audio.js</span></code> and fails if either side drifts</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">VoiceSession</span></code> keeps only plumbing: it feeds inputs to the policy and executes the decisions,
+and it imports nothing from LangGraph or LangChain (a test asserts that).</p>
+</section>
 <section id="the-langgraph-agent">
 <h2>The LangGraph agent<a class="headerlink" href="#the-langgraph-agent" title="Link to this heading">¶</a></h2>
 <p>This diagram is generated from the compiled graph (<code class="docutils literal notranslate"><span class="pre">graph.get_graph().draw_mermaid()</span></code>):</p>
@@ -544,6 +599,7 @@ days, papers after a year.</p>
             <ul>
 <li><a class="reference internal" href="#">How it works</a><ul>
 <li><a class="reference internal" href="#the-whole-system">The whole system</a></li>
+<li><a class="reference internal" href="#modules-and-seams">Modules and seams</a></li>
 <li><a class="reference internal" href="#the-langgraph-agent">The LangGraph agent</a></li>
 <li><a class="reference internal" href="#asking-before-risky-actions-human-in-the-loop">Asking before risky actions (human-in-the-loop)</a></li>
 <li><a class="reference internal" href="#choosing-the-model">Choosing the model</a></li>

@@ -981,6 +981,61 @@ result without a call. Closing a turn now re-adds the call message with its resu
 8 under CPU load; 0 in 40 after the fix.</p></li>
 </ul>
 </section>
+<section id="architecture-deepening-2026-10-17">
+<h2>13. Architecture deepening (2026-10-17)<a class="headerlink" href="#architecture-deepening-2026-10-17" title="Link to this heading">¶</a></h2>
+<p>An architecture review of v1.0.0 found five shallow spots. Fixes kept landing in the same
+few places (the interrupted-history bug in the session, the exfiltration fix in four tools).
+Each became a deep module behind a small interface; behaviour is unchanged, each landed as its
+own <code class="docutils literal notranslate"><span class="pre">refactor:</span></code> PR with the full local and remote gate green.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Module</p></th>
+<th class="head"><p>Replaces</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">audio.protocol</span></code></p></td>
+<td><p>message names defined separately in <code class="docutils literal notranslate"><span class="pre">audio.js</span></code> and Python</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">speech.Speech</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Runtime.recognizer/voices/asr_executor/tts_executor</span></code>, the executor calls in the session, and a duplicated synthesis path for reminders</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.conversation</span></code></p></td>
+<td><p>checkpoint access in four places in the session, and thread persistence in the UI <code class="docutils literal notranslate"><span class="pre">Server</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.turn_taking</span></code></p></td>
+<td><p>hold, cut-off question and confirmation flags spread over <code class="docutils literal notranslate"><span class="pre">VoiceSession</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">agent.tools.research</span></code></p></td>
+<td><p>the same cache-first recipe in four tools, plus <code class="docutils literal notranslate"><span class="pre">ToolContext.offered_urls</span></code> and the address guard calls</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Decisions made along the way:</p>
+<ul class="simple">
+<li><p><strong>Interrupt before interpreting.</strong> The old session cancelled a running turn first, and the
+cancelled turn left the cut-off question that the next utterance may merge with. A pure
+policy would decide before that happened, so it answers <code class="docutils literal notranslate"><span class="pre">Interrupt</span></code> without consuming any
+state when a turn is running; the session cancels, then presents the same input again.</p></li>
+<li><p><strong>Conversation owns streaming</strong>, so the session needs no LangChain message types.</p></li>
+<li><p><strong>Research asks through a callback</strong>, so it stays free of LangGraph. The tool supplies the
+question and the model sees the user’s own words when they refuse.</p></li>
+<li><p><strong>The browser protocol is checked by a contract test</strong>, not generated: JS cannot import
+Python types, and a regex over <code class="docutils literal notranslate"><span class="pre">audio.js</span></code> is cheap and catches drift.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ToolContext</span></code> lost <code class="docutils literal notranslate"><span class="pre">search</span></code>, <code class="docutils literal notranslate"><span class="pre">offered_urls</span></code> and <code class="docutils literal notranslate"><span class="pre">allowed_private_hosts</span></code>; <code class="docutils literal notranslate"><span class="pre">Runtime</span></code> lost four
+fields. The arXiv backend became injectable, so the arXiv tool is finally tested offline.</p></li>
+</ul>
+<p>Verification: 305 tests (was 223), coverage 91 %, 94-100 % on the new modules. The
+interrupted-history and session tests ran 40 times each under CPU load with no failure. A
+real-model end-to-end run (gemma4:e4b, isolated server) passed: spoken and typed turns,
+a web search answered from memory the second time, an unlisted page asking first and
+fetching after “Allow”, a reload in the middle of that question (history and question
+restored), hold with two clips answered once, barge-in marking the cut-off reply, and
+New conversation starting empty. First audio 2.83-2.85 s for spoken chat turns (v1.0.0:
+2.9 s) and 1.8-5.2 s for tool turns (2.2-5.1 s), the same within noise.</p>
+</section>
 </section>
 
         </article>
@@ -1057,6 +1112,7 @@ result without a call. Closing a turn now re-adds the call message with its resu
 <li><a class="reference internal" href="#end-to-end-findings-stage-4-2026-09-29">10. End-to-end findings (Stage 4, 2026-09-29)</a></li>
 <li><a class="reference internal" href="#review-round-2026-10-07">11. Review round (2026-10-07)</a></li>
 <li><a class="reference internal" href="#first-test-drive-2026-10-07">12. First test drive (2026-10-07)</a></li>
+<li><a class="reference internal" href="#architecture-deepening-2026-10-17">13. Architecture deepening (2026-10-17)</a></li>
 </ul>
 </li>
 </ul>
