@@ -40,12 +40,12 @@ def build(ctx: ToolContext) -> list[BaseTool]:
             text = "\n\n".join(hit.text for hit in stored)
             header = f"[from memory, retrieved {format_date(stored[0].created)}] {UNTRUSTED_NOTE}"
             return f"{header}\n{text[:MAX_RETURN_CHARS]}"
-        if url not in ctx.offered_urls:
+        if not ctx.research.is_listed(url):
             host = urlsplit(url).hostname or url
             answer = ask_user(f"Open {host}? It was not in a search result.")
             if not is_affirmative(answer):
                 raise ToolError(f"The user did not approve opening {host}. They said: {answer}")
-            ctx.offered_urls.add(url)
+            ctx.research.list_address(url)
         try:
             response = await safe_get(ctx.http, url, ctx.allowed_private_hosts)
         except ToolError:

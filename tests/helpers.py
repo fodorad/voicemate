@@ -79,7 +79,40 @@ class StaticSearchBackend:
         return self.results[:max_results]
 
 
-def make_tool_context(tmp: str, http=None, search=None):
+class StaticArxivBackend:
+    """arXiv stand-in returning fixed papers and counting requests (no network)."""
+
+    name = "static-arxiv"
+
+    def __init__(self, papers=None) -> None:
+        from voicemate.agent.tools.arxiv_tools import Paper
+
+        self.papers = papers or [
+            Paper(
+                "2401.00001",
+                "Sparse experts at scale",
+                ["A. Author", "B. Author"],
+                "2024-01-02",
+                "We route tokens to experts.",
+                "https://arxiv.org/pdf/2401.00001",
+            ),
+            Paper(
+                "2401.00002",
+                "Routing without load balancing",
+                ["C. Author"],
+                "2024-01-03",
+                "Balanced routing, no auxiliary loss.",
+                "https://arxiv.org/pdf/2401.00002",
+            ),
+        ]
+        self.queries: list[str] = []
+
+    async def search(self, query: str, max_results: int):
+        self.queries.append(query)
+        return self.papers[:max_results]
+
+
+def make_tool_context(tmp: str, http=None, search=None, arxiv=None):
     """A ToolContext whose sandbox, memory and notes live under ``tmp``."""
     from datetime import datetime
     from pathlib import Path
@@ -104,11 +137,15 @@ def make_tool_context(tmp: str, http=None, search=None):
             search_cache_similarity=0.9, recall_min_similarity=0.2, fact_min_similarity=0.2
         ),
     )
+    from voicemate.agent.tools.research import Research
+
     return ToolContext(
         config=config,
         memory=memory,
         notes=NotesStore(base / "data" / "notes.sqlite"),
-        search=search or StaticSearchBackend(),
+        research=Research(
+            memory, search or StaticSearchBackend(), arxiv or StaticArxivBackend(), max_results=5
+        ),
         http=http or httpx.AsyncClient(),
         now=lambda: datetime(2026, 9, 28, 21, 30).astimezone(),
         # The fetch tests serve pages from a local HTTP server.

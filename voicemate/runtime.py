@@ -12,6 +12,7 @@ from typing import Any
 import httpx
 
 from voicemate.agent.model_select import ModelChoice
+from voicemate.agent.tools.research import ArxivApi, Research
 from voicemate.asr.langid import LanguageDetector
 from voicemate.audio.vad import SpeechProbability
 from voicemate.config import Config
@@ -129,7 +130,10 @@ class Runtime:
                 ParakeetRecognizer, config.asr.model, config.asr.device
             )
             voice_io = Speech(recognizer, voices)
-        ctx = ToolContext(config, memory, notes, make_backend(config.search, http), http)
+        research = Research(
+            memory, make_backend(config.search, http), ArxivApi(), config.search.max_results
+        )
+        ctx = ToolContext(config, memory, notes, http, research)
         try:
             choice = await asyncio.to_thread(probe_and_choose, config.llm)
         except Exception as exc:  # Ollama down: keep the preferred model, turns report errors

@@ -86,7 +86,7 @@ class TestWebSearch(ToolTestCase):
         self.assertIn("Untrusted", first)
         second = await self.call("web_search", query="mixture of experts survey")
         self.assertIn("[from memory, retrieved", second)
-        self.assertEqual(self.ctx.search.queries, ["mixture of experts survey"])
+        self.assertEqual(self.ctx.research.web_backend.queries, ["mixture of experts survey"])
         self.assertEqual([e.source for e in self.tool_events()], ["web", "memory"])
 
     async def test_results_become_recallable_documents(self):
@@ -96,6 +96,18 @@ class TestWebSearch(ToolTestCase):
         self.assertIn("https://example.org/moe", recalled)
 
 
+class TestArxivSearch(ToolTestCase):
+    async def test_papers_are_listed_and_the_second_search_comes_from_memory(self):
+        first = await self.call("arxiv_search", query="sparse experts routing", max_results=2)
+        self.assertIn("[2401.00001] Sparse experts at scale", first)
+        self.assertIn("[arXiv search]", first)
+        second = await self.call("arxiv_search", query="sparse experts routing", max_results=2)
+        self.assertIn("[from memory, retrieved", second)
+        self.assertEqual(self.ctx.research.arxiv_backend.queries, ["sparse experts routing"])
+        self.assertEqual([e.source for e in self.tool_events()], ["web", "memory"])
+        self.assertTrue(self.ctx.research.is_listed("https://arxiv.org/abs/2401.00001"))
+
+
 class TestFetchPage(ToolTestCase):
     async def asyncSetUp(self):
         await super().asyncSetUp()
@@ -103,7 +115,7 @@ class TestFetchPage(ToolTestCase):
         self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
         self.url = f"http://127.0.0.1:{self.server.server_address[1]}/lora"
-        self.ctx.offered_urls.add(self.url)  # as if a search had listed it
+        self.ctx.research.list_address(self.url)  # as if a search had listed it
 
     async def asyncTearDown(self):
         await asyncio.to_thread(self.server.shutdown)  # blocks ~0.5 s; keep the loop free
