@@ -210,7 +210,7 @@ class TestUnlistedUrls(GraphTestCase):
         self.assertEqual(final["messages"][-1].content.strip(), "It says hello.")
 
     async def test_url_from_a_search_result_needs_no_question(self):
-        self.ctx.offered_urls.add(self.url)
+        self.ctx.research.list_address(self.url)
         _, state = await self.ask()
         self.assertEqual(state.interrupts, ())
         self.assertEqual(_PageHandler.requests, 1)
@@ -218,7 +218,7 @@ class TestUnlistedUrls(GraphTestCase):
     async def test_search_results_are_offered(self):
         graph = self.graph([tool_call("web_search", {"query": "moe survey"}), "Found it."])
         await self.turn(graph, "search", lang="en")
-        self.assertIn("https://example.org/moe", self.ctx.offered_urls)
+        self.assertTrue(self.ctx.research.is_listed("https://example.org/moe"))
 
 
 class _PageHandler(http.server.BaseHTTPRequestHandler):

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     import httpx
     from langchain_core.runnables import RunnableConfig
 
-    from voicemate.agent.tools.search import SearchBackend
+    from voicemate.agent.tools.research import Research
     from voicemate.config import Config
     from voicemate.memory.notes import NotesStore
     from voicemate.memory.store import MemoryStore
@@ -41,23 +41,19 @@ class ToolContext:
         config: Application configuration.
         memory: Long-term memory store.
         notes: Notes database.
-        search: Web search backend.
         http: Shared async HTTP client.
+        research: Cache-first searching and the listed addresses.
         now: Clock returning the current local time (injectable for tests).
         allowed_private_hosts: Hosts exempt from the SSRF guard (only for tests).
-        offered_urls: Addresses that search results listed. ``fetch_page`` opens these
-            without asking; any other address could carry private data out in its path or
-            query, so it needs the user's permission first.
     """
 
     config: Config
     memory: MemoryStore
     notes: NotesStore
-    search: SearchBackend
     http: httpx.AsyncClient
+    research: Research
     now: Callable[[], datetime] = field(default=lambda: datetime.now().astimezone())
     allowed_private_hosts: frozenset[str] = frozenset()
-    offered_urls: set[str] = field(default_factory=set)
 
 
 def emitter(config: RunnableConfig | None) -> Callable[[Event], None]:

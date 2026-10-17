@@ -169,6 +169,7 @@ def bench_llm(config: Config) -> dict:
     from voicemate.agent.graph import make_chat_model
     from voicemate.agent.prompts import system_prompt, turn_context
     from voicemate.agent.tools import ToolContext, build_tools
+    from voicemate.agent.tools.research import ArxivApi, Research
     from voicemate.agent.tools.search import make_backend
     from voicemate.memory.notes import NotesStore
     from voicemate.memory.store import MemoryStore
@@ -182,12 +183,12 @@ def bench_llm(config: Config) -> dict:
 
         with tempfile.TemporaryDirectory() as tmp:
             async with httpx.AsyncClient() as http:
+                memory = MemoryStore(Path(tmp) / "m", _NullEmbedder(), config.memory)
+                research = Research(
+                    memory, make_backend(config.search, http), ArxivApi(), config.search.max_results
+                )
                 ctx = ToolContext(
-                    config,
-                    MemoryStore(Path(tmp) / "m", _NullEmbedder(), config.memory),
-                    NotesStore(Path(tmp) / "n.sqlite"),
-                    make_backend(config.search, http),
-                    http,
+                    config, memory, NotesStore(Path(tmp) / "n.sqlite"), http, research
                 )
                 llm = make_chat_model(config.llm).bind_tools(build_tools(ctx))
                 correct, rows, ttfts = 0, [], []

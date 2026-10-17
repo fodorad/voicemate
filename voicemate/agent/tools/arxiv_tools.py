@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import Any
 
 from langchain_core.runnables import RunnableConfig
@@ -89,7 +89,8 @@ def _to_paper(result: Any) -> Paper:
     )
 
 
-def _query_arxiv(query: str | None, ids: list[str] | None, max_results: int) -> list[Paper]:
+def query_arxiv(query: str | None, ids: list[str] | None, max_results: int) -> list[Paper]:
+    """Ask the arXiv API (blocking) for papers by keywords or by id, most relevant first."""
     import arxiv
 
     search = arxiv.Search(
@@ -125,35 +126,14 @@ def build(ctx: ToolContext) -> list[BaseTool]:
             query: Topic keywords, e.g. "mixture of experts routing".
             max_results: Number of papers (1-10).
         """
-        cached = await asyncio.to_thread(ctx.memory.cached_search, query, "arxiv")
-        if cached is not None:
-            ctx.offered_urls.update(
-                f"https://arxiv.org/abs/{r.get('arxiv_id', '')}" for r in cached.results
-            )
-            report(config, "arxiv_search", {"query": query}, "memory", cached.query)
-            header = f"[from memory, retrieved {format_date(cached.retrieved_at)}]"
-            return format_papers(cached.results, header)
-        try:
-            papers = await asyncio.to_thread(
-                _query_arxiv, query, None, max(1, min(10, int(max_results)))
-            )
-        except Exception as exc:
-            raise ToolError(f"arXiv search failed: {exc}") from exc
-        rows = [asdict(p) for p in papers]
-        ctx.offered_urls.update(p.abs_url for p in papers)
-        ttl = ttl_days_for(query, "arxiv")
-        await asyncio.to_thread(ctx.memory.store_search, query, "arxiv", rows, ttl)
-        for paper in papers:
-            await asyncio.to_thread(
-                ctx.memory.add_documents,
-                [f"{paper.title}. {paper.summary}"],
-                paper.abs_url,
-                paper.title,
-                "arxiv",
-                ttl,
-            )
-        report(config, "arxiv_search", {"query": query}, "web", query)
-        return format_papers(rows, "[arXiv search]")
+        found = await ctx.research.papers(query, max_results)
+        if found.from_memory:
+            report(config, "arxiv_search", {"query": query}, "memory", found.query)
+            header = f"[from memory, retrieved {format_date(found.retrieved_at or 0)}]"
+        else:
+            report(config, "arxiv_search", {"query": query}, "web", query)
+            header = "[arXiv search]"
+        return format_papers(found.results, header)
 
     async def download_paper(arxiv_id: str, config: RunnableConfig) -> str:
         """Download an arXiv paper as PDF and index its full text into memory.
@@ -166,7 +146,7 @@ def build(ctx: ToolContext) -> list[BaseTool]:
         """
         paper_id = normalize_id(arxiv_id)
         try:
-            papers = await asyncio.to_thread(_query_arxiv, None, [paper_id], 1)
+            papers = await asyncio.to_thread(query_arxiv, None, [paper_id], 1)
         except Exception as exc:
             raise ToolError(f"arXiv lookup failed: {exc}") from exc
         if not papers:
