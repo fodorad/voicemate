@@ -11,11 +11,12 @@ voicemate.pipeline.orchestrator
    :meth:`VoiceSession.feed_audio`; everything the UI needs, including synthesized audio,
    leaves through :attr:`VoiceSession.bus`.
 
-   Concurrency: the VAD runs inline (well under 1 ms per frame); ASR and TTS run on their
-   single-thread executors; each turn is one asyncio task in which the LLM stream feeds a
-   sentence chunker whose output is synthesized by a parallel TTS worker, so speech starts
-   while the model is still generating. At most one turn runs at a time: speaking (or typing)
-   while a turn is active cancels it (barge-in) before the new one starts.
+   Concurrency: the VAD runs inline (well under 1 ms per frame); ASR and TTS run on the
+   worker threads inside :class:`~voicemate.speech.Speech`; each turn is one asyncio task in
+   which the LLM stream feeds a sentence chunker whose output is synthesized by a parallel TTS
+   worker, so speech starts while the model is still generating. At most one turn runs at a
+   time: speaking (or typing) while a turn is active cancels it (barge-in) before the new one
+   starts.
 
    "Hold until I'm finished" (:meth:`VoiceSession.hold`) suspends endpointing: utterances are
    transcribed and collected, and :meth:`VoiceSession.release` sends them as one question, so

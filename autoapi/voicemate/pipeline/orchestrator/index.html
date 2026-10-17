@@ -253,6 +253,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../report/index.html">voicemate.report</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../runtime/index.html">voicemate.runtime</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../speech/index.html">voicemate.speech</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../tts/index.html">voicemate.tts</a><input aria-label="Toggle navigation of voicemate.tts" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../tts/base/index.html">voicemate.tts.base</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../tts/kokoro/index.html">voicemate.tts.kokoro</a></li>
@@ -309,11 +310,12 @@
 <p>One <a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession" title="voicemate.pipeline.orchestrator.VoiceSession"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoiceSession</span></code></a> exists per browser tab. Microphone PCM arrives via
 <a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.feed_audio" title="voicemate.pipeline.orchestrator.VoiceSession.feed_audio"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VoiceSession.feed_audio()</span></code></a>; everything the UI needs, including synthesized audio,
 leaves through <a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.bus" title="voicemate.pipeline.orchestrator.VoiceSession.bus"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VoiceSession.bus</span></code></a>.</p>
-<p>Concurrency: the VAD runs inline (well under 1 ms per frame); ASR and TTS run on their
-single-thread executors; each turn is one asyncio task in which the LLM stream feeds a
-sentence chunker whose output is synthesized by a parallel TTS worker, so speech starts
-while the model is still generating. At most one turn runs at a time: speaking (or typing)
-while a turn is active cancels it (barge-in) before the new one starts.</p>
+<p>Concurrency: the VAD runs inline (well under 1 ms per frame); ASR and TTS run on the
+worker threads inside <a class="reference internal" href="../../speech/index.html#voicemate.speech.Speech" title="voicemate.speech.Speech"><code class="xref py py-class docutils literal notranslate"><span class="pre">Speech</span></code></a>; each turn is one asyncio task in
+which the LLM stream feeds a sentence chunker whose output is synthesized by a parallel TTS
+worker, so speech starts while the model is still generating. At most one turn runs at a
+time: speaking (or typing) while a turn is active cancels it (barge-in) before the new one
+starts.</p>
 <p>“Hold until I’m finished” (<a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.hold" title="voicemate.pipeline.orchestrator.VoiceSession.hold"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VoiceSession.hold()</span></code></a>) suspends endpointing: utterances are
 transcribed and collected, and <a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.release" title="voicemate.pipeline.orchestrator.VoiceSession.release"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VoiceSession.release()</span></code></a> sends them as one question, so
 the user can pause to think without the assistant jumping in.</p>

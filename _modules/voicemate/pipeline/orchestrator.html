@@ -252,6 +252,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../autoapi/voicemate/report/index.html">voicemate.report</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../autoapi/voicemate/runtime/index.html">voicemate.runtime</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/voicemate/speech/index.html">voicemate.speech</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/voicemate/tts/index.html">voicemate.tts</a><input aria-label="Toggle navigation of voicemate.tts" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/tts/base/index.html">voicemate.tts.base</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/tts/kokoro/index.html">voicemate.tts.kokoro</a></li>
@@ -303,11 +304,12 @@
 <span class="sd">:meth:`VoiceSession.feed_audio`; everything the UI needs, including synthesized audio,</span>
 <span class="sd">leaves through :attr:`VoiceSession.bus`.</span>
 
-<span class="sd">Concurrency: the VAD runs inline (well under 1 ms per frame); ASR and TTS run on their</span>
-<span class="sd">single-thread executors; each turn is one asyncio task in which the LLM stream feeds a</span>
-<span class="sd">sentence chunker whose output is synthesized by a parallel TTS worker, so speech starts</span>
-<span class="sd">while the model is still generating. At most one turn runs at a time: speaking (or typing)</span>
-<span class="sd">while a turn is active cancels it (barge-in) before the new one starts.</span>
+<span class="sd">Concurrency: the VAD runs inline (well under 1 ms per frame); ASR and TTS run on the</span>
+<span class="sd">worker threads inside :class:`~voicemate.speech.Speech`; each turn is one asyncio task in</span>
+<span class="sd">which the LLM stream feeds a sentence chunker whose output is synthesized by a parallel TTS</span>
+<span class="sd">worker, so speech starts while the model is still generating. At most one turn runs at a</span>
+<span class="sd">time: speaking (or typing) while a turn is active cancels it (barge-in) before the new one</span>
+<span class="sd">starts.</span>
 
 <span class="sd">"Hold until I'm finished" (:meth:`VoiceSession.hold`) suspends endpointing: utterances are</span>
 <span class="sd">transcribed and collected, and :meth:`VoiceSession.release` sends them as one question, so</span>
@@ -690,13 +692,8 @@
     <span class="c1"># ── ASR ──────────────────────────────────────────────────────────────────</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_transcribe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">audio</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">recognizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">recognizer</span>
-        <span class="k">if</span> <span class="n">recognizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">""</span>
-        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">asr_executor</span><span class="p">,</span> <span class="n">recognizer</span><span class="o">.</span><span class="n">transcribe_text</span><span class="p">,</span> <span class="n">audio</span>
-        <span class="p">)</span>
+        <span class="n">speech</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">speech</span>
+        <span class="k">return</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">speech</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="k">await</span> <span class="n">speech</span><span class="o">.</span><span class="n">transcribe</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_maybe_partial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Schedule a live partial transcript every ``partial_interval_s`` of speech."""</span>
@@ -939,20 +936,24 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"question"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_tts_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">turn</span><span class="p">:</span> <span class="n">_Turn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">voices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">voices</span>
-        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
         <span class="k">while</span> <span class="p">(</span><span class="n">piece</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">turn</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">voices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">speech</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">(</span><span class="n">Lane</span><span class="o">.</span><span class="n">SYNTHESIZING</span><span class="p">,</span> <span class="n">LaneState</span><span class="o">.</span><span class="n">ACTIVE</span><span class="p">)</span>
-            <span class="n">audio</span><span class="p">,</span> <span class="n">rate</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">tts_executor</span><span class="p">,</span> <span class="n">voices</span><span class="o">.</span><span class="n">synthesize</span><span class="p">,</span> <span class="n">piece</span><span class="p">,</span> <span class="n">turn</span><span class="o">.</span><span class="n">lang</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">turn</span><span class="o">.</span><span class="n">first_audio</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">turn</span><span class="o">.</span><span class="n">first_audio</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">AudioEvent</span><span class="p">(</span><span class="n">float32_to_pcm16</span><span class="p">(</span><span class="n">audio</span><span class="p">),</span> <span class="n">rate</span><span class="p">))</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_speak</span><span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="n">turn</span><span class="o">.</span><span class="n">lang</span><span class="p">)</span> <span class="ow">and</span> <span class="n">turn</span><span class="o">.</span><span class="n">first_audio</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">turn</span><span class="o">.</span><span class="n">first_audio</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">(</span><span class="n">Lane</span><span class="o">.</span><span class="n">SYNTHESIZING</span><span class="p">,</span> <span class="n">LaneState</span><span class="o">.</span><span class="n">DONE</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_speak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Synthesize ``text`` and publish it as audio; False when there was nothing to play."""</span>
+        <span class="n">speech</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">speech</span>
+        <span class="k">if</span> <span class="n">speech</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">audio</span><span class="p">,</span> <span class="n">rate</span> <span class="o">=</span> <span class="k">await</span> <span class="n">speech</span><span class="o">.</span><span class="n">synthesize</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">lang</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">AudioEvent</span><span class="p">(</span><span class="n">float32_to_pcm16</span><span class="p">(</span><span class="n">audio</span><span class="p">),</span> <span class="n">rate</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_finish_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">turn</span><span class="p">:</span> <span class="n">_Turn</span><span class="p">,</span> <span class="n">transcript</span><span class="p">:</span> <span class="n">Transcript</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"lang"</span><span class="p">:</span> <span class="n">turn</span><span class="o">.</span><span class="n">lang</span><span class="p">,</span> <span class="s2">"tools"</span><span class="p">:</span> <span class="n">turn</span><span class="o">.</span><span class="n">tools</span><span class="p">}</span>
@@ -996,17 +997,9 @@
         <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">due</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">notes</span><span class="o">.</span><span class="n">mark_notified</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">ReminderEvent</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">busy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">holding</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">voices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">busy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">holding</span><span class="p">:</span>
                 <span class="n">prefix</span> <span class="o">=</span> <span class="s2">"Emlékeztető: "</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lang</span> <span class="o">==</span> <span class="s2">"hu"</span> <span class="k">else</span> <span class="s2">"Reminder: "</span>
-                <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
-                <span class="n">audio</span><span class="p">,</span> <span class="n">rate</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">tts_executor</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">voices</span><span class="o">.</span><span class="n">synthesize</span><span class="p">,</span>
-                    <span class="n">prefix</span> <span class="o">+</span> <span class="n">note</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">AudioEvent</span><span class="p">(</span><span class="n">float32_to_pcm16</span><span class="p">(</span><span class="n">audio</span><span class="p">),</span> <span class="n">rate</span><span class="p">))</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_speak</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">note</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">due</span><span class="p">)</span></div>
 
 

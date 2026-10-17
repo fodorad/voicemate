@@ -53,16 +53,13 @@ Module Contents
    Shared components.
 
    :ivar config: Application configuration.
-   :ivar recognizer: Speech recognizer (``None`` for text-only use).
-   :ivar voices: TTS voices (``None`` for text-only use).
+   :ivar speech: Speech input and output (``None`` for text-only use).
    :ivar vad_factory: Creates a fresh VAD model per session (VAD is stateful).
    :ivar graph: Compiled LangGraph agent.
    :ivar model_choice: The chat model chosen by the memory guard (None in tests).
    :ivar memory: Long-term memory store.
    :ivar notes: Notes database.
    :ivar langid: Language detector.
-   :ivar asr_executor: Single worker thread for ASR (MLX is not re-entrant).
-   :ivar tts_executor: Single worker thread for TTS.
 
 
 
@@ -70,12 +67,8 @@ Module Contents
       :type:  voicemate.config.Config
 
 
-   .. py:attribute:: recognizer
-      :type:  voicemate.asr.base.SpeechRecognizer | None
-
-
-   .. py:attribute:: voices
-      :type:  voicemate.tts.voices.VoiceBank | None
+   .. py:attribute:: speech
+      :type:  voicemate.speech.Speech | None
 
 
    .. py:attribute:: vad_factory
@@ -102,14 +95,6 @@ Module Contents
       :type:  voicemate.agent.model_select.ModelChoice | None
       :value: None
 
-
-
-   .. py:attribute:: asr_executor
-      :type:  concurrent.futures.ThreadPoolExecutor
-
-
-   .. py:attribute:: tts_executor
-      :type:  concurrent.futures.ThreadPoolExecutor
 
 
    .. py:method:: aclose() -> None

@@ -252,6 +252,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../autoapi/voicemate/report/index.html">voicemate.report</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../autoapi/voicemate/runtime/index.html">voicemate.runtime</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/voicemate/speech/index.html">voicemate.speech</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/voicemate/tts/index.html">voicemate.tts</a><input aria-label="Toggle navigation of voicemate.tts" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/tts/base/index.html">voicemate.tts.base</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/tts/kokoro/index.html">voicemate.tts.kokoro</a></li>
@@ -304,7 +305,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncExitStack</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
@@ -312,12 +312,12 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.model_select</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelChoice</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.asr.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpeechRecognizer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.asr.langid</span><span class="w"> </span><span class="kn">import</span> <span class="n">LanguageDetector</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.audio.vad</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpeechProbability</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.notes</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotesStore</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryStore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.speech</span><span class="w"> </span><span class="kn">import</span> <span class="n">Speech</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.tts.voices</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoiceBank</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -360,33 +360,23 @@
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        config: Application configuration.</span>
-<span class="sd">        recognizer: Speech recognizer (``None`` for text-only use).</span>
-<span class="sd">        voices: TTS voices (``None`` for text-only use).</span>
+<span class="sd">        speech: Speech input and output (``None`` for text-only use).</span>
 <span class="sd">        vad_factory: Creates a fresh VAD model per session (VAD is stateful).</span>
 <span class="sd">        graph: Compiled LangGraph agent.</span>
 <span class="sd">        model_choice: The chat model chosen by the memory guard (None in tests).</span>
 <span class="sd">        memory: Long-term memory store.</span>
 <span class="sd">        notes: Notes database.</span>
 <span class="sd">        langid: Language detector.</span>
-<span class="sd">        asr_executor: Single worker thread for ASR (MLX is not re-entrant).</span>
-<span class="sd">        tts_executor: Single worker thread for TTS.</span>
 <span class="sd">    """</span>
 
     <span class="n">config</span><span class="p">:</span> <span class="n">Config</span>
-    <span class="n">recognizer</span><span class="p">:</span> <span class="n">SpeechRecognizer</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">voices</span><span class="p">:</span> <span class="n">VoiceBank</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">speech</span><span class="p">:</span> <span class="n">Speech</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">vad_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">SpeechProbability</span><span class="p">]</span>
     <span class="n">graph</span><span class="p">:</span> <span class="n">Any</span>
     <span class="n">memory</span><span class="p">:</span> <span class="n">MemoryStore</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">notes</span><span class="p">:</span> <span class="n">NotesStore</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">langid</span><span class="p">:</span> <span class="n">LanguageDetector</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">LanguageDetector</span><span class="p">)</span>
     <span class="n">model_choice</span><span class="p">:</span> <span class="n">ModelChoice</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">asr_executor</span><span class="p">:</span> <span class="n">ThreadPoolExecutor</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
-        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">thread_name_prefix</span><span class="o">=</span><span class="s2">"asr"</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">tts_executor</span><span class="p">:</span> <span class="n">ThreadPoolExecutor</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
-        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">thread_name_prefix</span><span class="o">=</span><span class="s2">"tts"</span><span class="p">)</span>
-    <span class="p">)</span>
     <span class="n">_stack</span><span class="p">:</span> <span class="n">AsyncExitStack</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Runtime.aclose">
@@ -395,8 +385,8 @@
 <span class="w">        </span><span class="sd">"""Release executors, the HTTP client, the checkpointer and databases."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="o">.</span><span class="n">aclose</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">asr_executor</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cancel_futures</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tts_executor</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cancel_futures</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">speech</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">speech</span><span class="o">.</span><span class="n">aclose</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -440,7 +430,7 @@
         <span class="p">)</span>
         <span class="n">memory</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">MemoryStore</span><span class="p">,</span> <span class="n">data</span> <span class="o">/</span> <span class="s2">"memory"</span><span class="p">,</span> <span class="n">embedder</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
         <span class="n">notes</span> <span class="o">=</span> <span class="n">NotesStore</span><span class="p">(</span><span class="n">data</span> <span class="o">/</span> <span class="s2">"notes.sqlite"</span><span class="p">)</span>
-        <span class="n">recognizer</span> <span class="o">=</span> <span class="n">voices</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">voice_io</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">speech</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.asr.parakeet</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParakeetRecognizer</span>
 
@@ -448,6 +438,7 @@
             <span class="n">recognizer</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span>
                 <span class="n">ParakeetRecognizer</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">asr</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">asr</span><span class="o">.</span><span class="n">device</span>
             <span class="p">)</span>
+            <span class="n">voice_io</span> <span class="o">=</span> <span class="n">Speech</span><span class="p">(</span><span class="n">recognizer</span><span class="p">,</span> <span class="n">voices</span><span class="p">)</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="n">ToolContext</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">notes</span><span class="p">,</span> <span class="n">make_backend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">search</span><span class="p">,</span> <span class="n">http</span><span class="p">),</span> <span class="n">http</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">choice</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">probe_and_choose</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">llm</span><span class="p">)</span>
@@ -466,8 +457,7 @@
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
             <span class="n">langid</span><span class="o">=</span><span class="n">LanguageDetector</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">assistant</span><span class="o">.</span><span class="n">default_language</span><span class="p">),</span>
             <span class="n">model_choice</span><span class="o">=</span><span class="n">choice</span><span class="p">,</span>
-            <span class="n">recognizer</span><span class="o">=</span><span class="n">recognizer</span><span class="p">,</span>
-            <span class="n">voices</span><span class="o">=</span><span class="n">voices</span><span class="p">,</span>
+            <span class="n">speech</span><span class="o">=</span><span class="n">voice_io</span><span class="p">,</span>
             <span class="n">vad_factory</span><span class="o">=</span><span class="n">SileroVAD</span><span class="p">,</span>
             <span class="n">graph</span><span class="o">=</span><span class="n">graph</span><span class="p">,</span>
             <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>

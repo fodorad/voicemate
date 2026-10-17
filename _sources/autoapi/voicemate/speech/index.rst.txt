@@ -1,0 +1,82 @@
+voicemate.speech
+================
+
+.. py:module:: voicemate.speech
+
+.. autoapi-nested-parse::
+
+   Speech input and output behind one async interface.
+
+   :class:`Speech` pairs a speech recognizer with the text-to-speech voices and owns the worker
+   threads they run on. MLX models are not re-entrant, so each model gets exactly one worker
+   thread: callers simply ``await`` and never see an executor. Recognizers and voices are the
+   adapters (the real Parakeet/Piper/Kokoro models in production, small deterministic fakes in
+   tests).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.speech.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.speech.Speech
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: Speech(recognizer: voicemate.asr.base.SpeechRecognizer, voices: voicemate.tts.voices.VoiceBank)
+
+   Async transcription and synthesis, one worker thread per model.
+
+   :param recognizer: Turns 16 kHz mono float32 audio into text.
+   :param voices: Per-language voices that clean and synthesize text.
+
+
+   .. py:attribute:: recognizer
+
+
+   .. py:attribute:: voices
+
+
+   .. py:method:: transcribe(audio: numpy.ndarray) -> str
+      :async:
+
+
+      The text spoken in ``audio`` (16 kHz mono float32).
+
+      :raises RuntimeError: If the speech module was closed.
+
+
+
+   .. py:method:: synthesize(text: str, lang: str) -> tuple[numpy.ndarray, int]
+      :async:
+
+
+      Render ``text`` with the voice of ``lang``.
+
+      :returns: ``(audio, sample_rate)``; the audio is empty when nothing speakable remains.
+
+      :raises RuntimeError: If the speech module was closed.
+
+
+
+   .. py:method:: aclose() -> None
+      :async:
+
+
+      Release the worker threads; later calls raise. Safe to call twice.
+
+
+

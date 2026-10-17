@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html"><link rel="next" title="voicemate.tts" href="../tts/index.html"><link rel="prev" title="voicemate.report" href="../report/index.html">
+<link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html"><link rel="next" title="voicemate.speech" href="../speech/index.html"><link rel="prev" title="voicemate.report" href="../report/index.html">
         <link rel="canonical" href="https://fodorad.github.io/voicemate/autoapi/voicemate/runtime/index.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
@@ -253,6 +253,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../report/index.html">voicemate.report</a></li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">voicemate.runtime</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../speech/index.html">voicemate.speech</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../tts/index.html">voicemate.tts</a><input aria-label="Toggle navigation of voicemate.tts" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../tts/base/index.html">voicemate.tts.base</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../tts/kokoro/index.html">voicemate.tts.kokoro</a></li>
@@ -370,16 +371,13 @@ assistant nothing but explicit tool calls should leave the machine.</p>
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config</strong> – Application configuration.</p></li>
-<li><p><strong>recognizer</strong> – Speech recognizer (<code class="docutils literal notranslate"><span class="pre">None</span></code> for text-only use).</p></li>
-<li><p><strong>voices</strong> – TTS voices (<code class="docutils literal notranslate"><span class="pre">None</span></code> for text-only use).</p></li>
+<li><p><strong>speech</strong> – Speech input and output (<code class="docutils literal notranslate"><span class="pre">None</span></code> for text-only use).</p></li>
 <li><p><strong>vad_factory</strong> – Creates a fresh VAD model per session (VAD is stateful).</p></li>
 <li><p><strong>graph</strong> – Compiled LangGraph agent.</p></li>
 <li><p><strong>model_choice</strong> – The chat model chosen by the memory guard (None in tests).</p></li>
 <li><p><strong>memory</strong> – Long-term memory store.</p></li>
 <li><p><strong>notes</strong> – Notes database.</p></li>
 <li><p><strong>langid</strong> – Language detector.</p></li>
-<li><p><strong>asr_executor</strong> – Single worker thread for ASR (MLX is not re-entrant).</p></li>
-<li><p><strong>tts_executor</strong> – Single worker thread for TTS.</p></li>
 </ul>
 </dd>
 </dl>
@@ -389,13 +387,8 @@ assistant nothing but explicit tool calls should leave the machine.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.runtime.Runtime.recognizer">
-<span class="sig-name descname"><span class="pre">recognizer</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../asr/base/index.html#voicemate.asr.base.SpeechRecognizer" title="voicemate.asr.base.SpeechRecognizer"><span class="pre">voicemate.asr.base.SpeechRecognizer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.runtime.Runtime.recognizer" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.runtime.Runtime.voices">
-<span class="sig-name descname"><span class="pre">voices</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../tts/voices/index.html#voicemate.tts.voices.VoiceBank" title="voicemate.tts.voices.VoiceBank"><span class="pre">voicemate.tts.voices.VoiceBank</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.runtime.Runtime.voices" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="voicemate.runtime.Runtime.speech">
+<span class="sig-name descname"><span class="pre">speech</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../speech/index.html#voicemate.speech.Speech" title="voicemate.speech.Speech"><span class="pre">voicemate.speech.Speech</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.runtime.Runtime.speech" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -426,16 +419,6 @@ assistant nothing but explicit tool calls should leave the machine.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.runtime.Runtime.model_choice">
 <span class="sig-name descname"><span class="pre">model_choice</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../agent/model_select/index.html#voicemate.agent.model_select.ModelChoice" title="voicemate.agent.model_select.ModelChoice"><span class="pre">voicemate.agent.model_select.ModelChoice</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.runtime.Runtime.model_choice" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.runtime.Runtime.asr_executor">
-<span class="sig-name descname"><span class="pre">asr_executor</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">concurrent.futures.ThreadPoolExecutor</span></span><a class="headerlink" href="#voicemate.runtime.Runtime.asr_executor" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.runtime.Runtime.tts_executor">
-<span class="sig-name descname"><span class="pre">tts_executor</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">concurrent.futures.ThreadPoolExecutor</span></span><a class="headerlink" href="#voicemate.runtime.Runtime.tts_executor" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -472,12 +455,12 @@ assistant nothing but explicit tool calls should leave the machine.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../tts/index.html">
+          <a class="next-page" href="../speech/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">voicemate.tts</div>
+                <div class="title">voicemate.speech</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -531,16 +514,13 @@ assistant nothing but explicit tool calls should leave the machine.</p>
 <li><a class="reference internal" href="#voicemate.runtime.use_offline_hub_if_cached"><code class="docutils literal notranslate"><span class="pre">use_offline_hub_if_cached()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime"><code class="docutils literal notranslate"><span class="pre">Runtime</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.config"><code class="docutils literal notranslate"><span class="pre">Runtime.config</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.runtime.Runtime.recognizer"><code class="docutils literal notranslate"><span class="pre">Runtime.recognizer</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.runtime.Runtime.voices"><code class="docutils literal notranslate"><span class="pre">Runtime.voices</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.runtime.Runtime.speech"><code class="docutils literal notranslate"><span class="pre">Runtime.speech</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.vad_factory"><code class="docutils literal notranslate"><span class="pre">Runtime.vad_factory</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.graph"><code class="docutils literal notranslate"><span class="pre">Runtime.graph</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.memory"><code class="docutils literal notranslate"><span class="pre">Runtime.memory</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.notes"><code class="docutils literal notranslate"><span class="pre">Runtime.notes</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.langid"><code class="docutils literal notranslate"><span class="pre">Runtime.langid</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.model_choice"><code class="docutils literal notranslate"><span class="pre">Runtime.model_choice</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.runtime.Runtime.asr_executor"><code class="docutils literal notranslate"><span class="pre">Runtime.asr_executor</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.runtime.Runtime.tts_executor"><code class="docutils literal notranslate"><span class="pre">Runtime.tts_executor</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.aclose"><code class="docutils literal notranslate"><span class="pre">Runtime.aclose()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.load"><code class="docutils literal notranslate"><span class="pre">Runtime.load()</span></code></a></li>
 </ul>

@@ -26,6 +26,7 @@ Submodules
    /autoapi/voicemate/pipeline/index
    /autoapi/voicemate/report/index
    /autoapi/voicemate/runtime/index
+   /autoapi/voicemate/speech/index
    /autoapi/voicemate/tts/index
 
 
