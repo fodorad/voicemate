@@ -23,8 +23,6 @@ from voicemate.agent.tools.base import (
     report,
 )
 from voicemate.agent.tools.documents import pdf_to_text
-from voicemate.agent.tools.netguard import safe_get
-from voicemate.memory.text import chunk_text, ttl_days_for
 
 _ID = re.compile(r"(\d{4}\.\d{4,5}(?:v\d+)?|[a-z\-]+(?:\.[A-Z]{2})?/\d{7}(?:v\d+)?)")
 
@@ -144,33 +142,15 @@ def build(ctx: ToolContext) -> list[BaseTool]:
         Args:
             arxiv_id: arXiv id or URL, e.g. "2401.01234".
         """
-        paper_id = normalize_id(arxiv_id)
-        try:
-            papers = await asyncio.to_thread(query_arxiv, None, [paper_id], 1)
-        except Exception as exc:
-            raise ToolError(f"arXiv lookup failed: {exc}") from exc
-        if not papers:
-            raise ToolError(f"No arXiv paper {paper_id}")
-        paper = papers[0]
+        paper = await ctx.research.get_paper(arxiv_id)
         folder = ctx.config.files.papers_path
         folder.mkdir(parents=True, exist_ok=True)
         path = folder / paper_filename(paper)
         if not path.exists():
-            response = await safe_get(ctx.http, paper.pdf_url, ctx.allowed_private_hosts)
-            path.write_bytes(response.content)
+            path.write_bytes(await ctx.research.paper_pdf(paper))
         text, pages = await asyncio.to_thread(pdf_to_text, path.read_bytes())
-        indexed = await asyncio.to_thread(ctx.memory.documents_for_url, paper.abs_url)
-        # Only the abstract is stored by arxiv_search; index the full text once.
-        if len(indexed) <= 1 and text:
-            await asyncio.to_thread(
-                ctx.memory.add_documents,
-                chunk_text(text),
-                paper.abs_url,
-                paper.title,
-                "paper",
-                ttl_days_for("", "paper"),
-            )
-        report(config, "download_paper", {"arxiv_id": paper_id}, "web", paper.title)
+        await ctx.research.index_paper(paper, text)
+        report(config, "download_paper", {"arxiv_id": paper.arxiv_id}, "web", paper.title)
         return (
             f"Saved '{paper.title}' ({pages} pages) to {display_path(path)} and indexed it "
             f"into memory.\nAbstract: {paper.summary[:800]}"

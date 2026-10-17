@@ -44,7 +44,6 @@ class ToolContext:
         http: Shared async HTTP client.
         research: Cache-first searching and the listed addresses.
         now: Clock returning the current local time (injectable for tests).
-        allowed_private_hosts: Hosts exempt from the SSRF guard (only for tests).
     """
 
     config: Config
@@ -53,7 +52,6 @@ class ToolContext:
     http: httpx.AsyncClient
     research: Research
     now: Callable[[], datetime] = field(default=lambda: datetime.now().astimezone())
-    allowed_private_hosts: frozenset[str] = frozenset()
 
 
 def emitter(config: RunnableConfig | None) -> Callable[[Event], None]:
