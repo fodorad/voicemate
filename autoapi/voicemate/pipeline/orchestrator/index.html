@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html"><link rel="next" title="voicemate.report" href="../../report/index.html"><link rel="prev" title="voicemate.pipeline.chunker" href="../chunker/index.html">
+<link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html"><link rel="next" title="voicemate.report" href="../../report/index.html"><link rel="prev" title="voicemate.pipeline.conversation" href="../conversation/index.html">
         <link rel="canonical" href="https://fodorad.github.io/voicemate/autoapi/voicemate/pipeline/orchestrator/index.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
@@ -248,6 +248,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../models/index.html">voicemate.models</a></li>
 <li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html">voicemate.pipeline</a><input aria-label="Toggle navigation of voicemate.pipeline" checked="" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../chunker/index.html">voicemate.pipeline.chunker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../conversation/index.html">voicemate.pipeline.conversation</a></li>
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#">voicemate.pipeline.orchestrator</a></li>
 </ul>
 </li>
@@ -333,19 +334,16 @@ the user can pause to think without the assistant jumping in.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.APOLOGIES" title="voicemate.pipeline.orchestrator.APOLOGIES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">APOLOGIES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.INTERRUPTED_MARK" title="voicemate.pipeline.orchestrator.INTERRUPTED_MARK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INTERRUPTED_MARK</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.INTERRUPTED_TOOL_RESULT" title="voicemate.pipeline.orchestrator.INTERRUPTED_TOOL_RESULT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INTERRUPTED_TOOL_RESULT</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.INTERRUPTED_TOOL_RESULT" title="voicemate.pipeline.orchestrator.INTERRUPTED_TOOL_RESULT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INTERRUPTED_TOOL_RESULT</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.MERGE_WINDOW_S" title="voicemate.pipeline.orchestrator.MERGE_WINDOW_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MERGE_WINDOW_S</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.MERGE_WINDOW_S" title="voicemate.pipeline.orchestrator.MERGE_WINDOW_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MERGE_WINDOW_S</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S" title="voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PARTIAL_WINDOW_S</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S" title="voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PARTIAL_WINDOW_S</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S" title="voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REMINDER_INTERVAL_S</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S" title="voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REMINDER_INTERVAL_S</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -357,10 +355,7 @@ the user can pause to think without the assistant jumping in.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.ChatLine" title="voicemate.pipeline.orchestrator.ChatLine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ChatLine</span></code></a></p></td>
-<td><p>One message of the conversation as the user saw it (for re-rendering a page).</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession" title="voicemate.pipeline.orchestrator.VoiceSession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VoiceSession</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession" title="voicemate.pipeline.orchestrator.VoiceSession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VoiceSession</span></code></a></p></td>
 <td><p>One conversation with one browser tab.</p></td>
 </tr>
 </tbody>
@@ -397,11 +392,6 @@ the user can pause to think without the assistant jumping in.</p>
 <dd></dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.INTERRUPTED_MARK">
-<span class="sig-prename descclassname"><span class="pre">voicemate.pipeline.orchestrator.</span></span><span class="sig-name descname"><span class="pre">INTERRUPTED_MARK</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'[interrupted</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">user]'</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.INTERRUPTED_MARK" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
 <dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.INTERRUPTED_TOOL_RESULT">
 <span class="sig-prename descclassname"><span class="pre">voicemate.pipeline.orchestrator.</span></span><span class="sig-name descname"><span class="pre">INTERRUPTED_TOOL_RESULT</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Cancelled:</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">interrupted</span> <span class="pre">before</span> <span class="pre">this</span> <span class="pre">finished.'</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.INTERRUPTED_TOOL_RESULT" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -420,36 +410,6 @@ the user can pause to think without the assistant jumping in.</p>
 <dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S">
 <span class="sig-prename descclassname"><span class="pre">voicemate.pipeline.orchestrator.</span></span><span class="sig-name descname"><span class="pre">REMINDER_INTERVAL_S</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30.0</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.ChatLine">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.pipeline.orchestrator.</span></span><span class="sig-name descname"><span class="pre">ChatLine</span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/orchestrator.html#ChatLine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.orchestrator.ChatLine" title="Link to this definition">¶</a></dt>
-<dd><p>One message of the conversation as the user saw it (for re-rendering a page).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>role</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;user&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;assistant&quot;</span></code>.</p></li>
-<li><p><strong>text</strong> – What was said, without internal markers.</p></li>
-<li><p><strong>interrupted</strong> – The user cut this reply off.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.ChatLine.role">
-<span class="sig-name descname"><span class="pre">role</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.ChatLine.role" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.ChatLine.text">
-<span class="sig-name descname"><span class="pre">text</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.ChatLine.text" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.ChatLine.interrupted">
-<span class="sig-name descname"><span class="pre">interrupted</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.ChatLine.interrupted" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.VoiceSession">
@@ -474,8 +434,8 @@ the user can pause to think without the assistant jumping in.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.VoiceSession.thread_id">
-<span class="sig-name descname"><span class="pre">thread_id</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'session-000000000000'</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.VoiceSession.thread_id" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.VoiceSession.conversation">
+<span class="sig-name descname"><span class="pre">conversation</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.VoiceSession.conversation" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -519,6 +479,12 @@ the user can pause to think without the assistant jumping in.</p>
 <dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.VoiceSession.wait_idle">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">wait_idle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/orchestrator.html#VoiceSession.wait_idle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.orchestrator.VoiceSession.wait_idle" title="Link to this definition">¶</a></dt>
 <dd><p>Wait until no utterance, turn or follow-up task is in progress.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.VoiceSession.thread_id">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">thread_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.VoiceSession.thread_id" title="Link to this definition">¶</a></dt>
+<dd><p>Id of this session’s conversation thread.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -592,7 +558,7 @@ the microphone off means “I’m done talking”.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.VoiceSession.restore">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">restore</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.pipeline.orchestrator.ChatLine" title="voicemate.pipeline.orchestrator.ChatLine"><span class="pre">ChatLine</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/orchestrator.html#VoiceSession.restore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.orchestrator.VoiceSession.restore" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">restore</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../conversation/index.html#voicemate.pipeline.conversation.ChatLine" title="voicemate.pipeline.conversation.ChatLine"><span class="pre">voicemate.pipeline.conversation.ChatLine</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/orchestrator.html#VoiceSession.restore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.orchestrator.VoiceSession.restore" title="Link to this definition">¶</a></dt>
 <dd><p>Pick up this thread where it stopped (a reopened page).</p>
 <p>Reopens a question the agent is still waiting on and returns what was said so far.</p>
 </dd></dl>
@@ -629,14 +595,14 @@ the microphone off means “I’m done talking”.</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../chunker/index.html">
+          <a class="prev-page" href="../conversation/index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">voicemate.pipeline.chunker</div>
+                <div class="title">voicemate.pipeline.conversation</div>
                 
               </div>
             </a>
@@ -678,21 +644,14 @@ the microphone off means “I’m done talking”.</p>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.FILLERS"><code class="docutils literal notranslate"><span class="pre">FILLERS</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.APOLOGIES"><code class="docutils literal notranslate"><span class="pre">APOLOGIES</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.INTERRUPTED_MARK"><code class="docutils literal notranslate"><span class="pre">INTERRUPTED_MARK</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.INTERRUPTED_TOOL_RESULT"><code class="docutils literal notranslate"><span class="pre">INTERRUPTED_TOOL_RESULT</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.MERGE_WINDOW_S"><code class="docutils literal notranslate"><span class="pre">MERGE_WINDOW_S</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S"><code class="docutils literal notranslate"><span class="pre">PARTIAL_WINDOW_S</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S"><code class="docutils literal notranslate"><span class="pre">REMINDER_INTERVAL_S</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.ChatLine"><code class="docutils literal notranslate"><span class="pre">ChatLine</span></code></a><ul>
-<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.ChatLine.role"><code class="docutils literal notranslate"><span class="pre">ChatLine.role</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.ChatLine.text"><code class="docutils literal notranslate"><span class="pre">ChatLine.text</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.ChatLine.interrupted"><code class="docutils literal notranslate"><span class="pre">ChatLine.interrupted</span></code></a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession"><code class="docutils literal notranslate"><span class="pre">VoiceSession</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.runtime"><code class="docutils literal notranslate"><span class="pre">VoiceSession.runtime</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.config"><code class="docutils literal notranslate"><span class="pre">VoiceSession.config</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.thread_id"><code class="docutils literal notranslate"><span class="pre">VoiceSession.thread_id</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.conversation"><code class="docutils literal notranslate"><span class="pre">VoiceSession.conversation</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.bus"><code class="docutils literal notranslate"><span class="pre">VoiceSession.bus</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.segmenter"><code class="docutils literal notranslate"><span class="pre">VoiceSession.segmenter</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.lang"><code class="docutils literal notranslate"><span class="pre">VoiceSession.lang</span></code></a></li>
@@ -701,6 +660,7 @@ the microphone off means “I’m done talking”.</p>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.start"><code class="docutils literal notranslate"><span class="pre">VoiceSession.start()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.close"><code class="docutils literal notranslate"><span class="pre">VoiceSession.close()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.wait_idle"><code class="docutils literal notranslate"><span class="pre">VoiceSession.wait_idle()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.thread_id"><code class="docutils literal notranslate"><span class="pre">VoiceSession.thread_id</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.busy"><code class="docutils literal notranslate"><span class="pre">VoiceSession.busy</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.emit"><code class="docutils literal notranslate"><span class="pre">VoiceSession.emit()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.feed_audio"><code class="docutils literal notranslate"><span class="pre">VoiceSession.feed_audio()</span></code></a></li>

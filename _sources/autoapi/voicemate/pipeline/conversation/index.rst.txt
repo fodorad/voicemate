@@ -1,0 +1,142 @@
+voicemate.pipeline.conversation
+===============================
+
+.. py:module:: voicemate.pipeline.conversation
+
+.. autoapi-nested-parse::
+
+   The conversation: one persisted thread of messages between the user and the assistant.
+
+   A conversation is a LangGraph thread. This module owns everything about its identity and
+   history so the voice session and the UI never touch the checkpointer: which thread is
+   current (and that it survives page reloads and restarts), what was said so far, and which
+   question, if any, the agent is waiting on. It is not long-term memory (see
+   :mod:`voicemate.memory`): starting a new conversation keeps facts, research and notes.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.pipeline.conversation.logger
+   voicemate.pipeline.conversation.INTERRUPTED_MARK
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.pipeline.conversation.ChatLine
+   voicemate.pipeline.conversation.ThreadStore
+   voicemate.pipeline.conversation.Conversation
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.pipeline.conversation.question_text
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: INTERRUPTED_MARK
+   :type:  str
+   :value: '[interrupted by the user]'
+
+
+.. py:class:: ChatLine
+
+   One message of the conversation as the user saw it (for re-rendering a page).
+
+   :ivar role: ``"user"`` or ``"assistant"``.
+   :ivar text: What was said, without internal markers.
+   :ivar interrupted: The user cut this reply off.
+
+
+
+   .. py:attribute:: role
+      :type:  str
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: interrupted
+      :type:  bool
+      :value: False
+
+
+
+.. py:function:: question_text(value: Any) -> str
+
+   The question text of a LangGraph ``interrupt()`` payload.
+
+
+.. py:class:: ThreadStore(path: pathlib.Path)
+
+   Remembers which conversation is current, across page reloads and restarts.
+
+   :param path: JSON file holding the current thread id.
+
+
+   .. py:attribute:: path
+
+
+   .. py:method:: current() -> str
+
+      The current thread id; a new conversation is started when none is stored.
+
+
+
+   .. py:method:: start_new() -> str
+
+      Begin a fresh conversation and make it the current one.
+
+
+
+.. py:class:: Conversation(graph: Any, thread_id: str)
+
+   One thread of the agent graph: its history and its pending question.
+
+   :param graph: The compiled LangGraph agent (with a checkpointer).
+   :param thread_id: Identifies the thread inside the checkpointer.
+
+
+   .. py:attribute:: graph
+
+
+   .. py:attribute:: thread_id
+
+
+   .. py:property:: run_config
+      :type: dict[str, Any]
+
+
+      LangGraph run configuration selecting this thread.
+
+
+   .. py:method:: lines() -> list[ChatLine]
+      :async:
+
+
+      What was said so far, in order (tool traffic is not shown).
+
+
+
+   .. py:method:: pending_question() -> str | None
+      :async:
+
+
+      The question the agent is waiting on (human-in-the-loop), if any.
+
+
+

@@ -11,6 +11,7 @@ Submodules
    :maxdepth: 1
 
    /autoapi/voicemate/pipeline/chunker/index
+   /autoapi/voicemate/pipeline/conversation/index
    /autoapi/voicemate/pipeline/orchestrator/index
 
 

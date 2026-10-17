@@ -248,6 +248,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../voicemate/models/index.html">voicemate.models</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../voicemate/pipeline/index.html">voicemate.pipeline</a><input aria-label="Toggle navigation of voicemate.pipeline" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../voicemate/pipeline/chunker/index.html">voicemate.pipeline.chunker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../voicemate/pipeline/conversation/index.html">voicemate.pipeline.conversation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../voicemate/pipeline/orchestrator/index.html">voicemate.pipeline.orchestrator</a></li>
 </ul>
 </li>
@@ -489,7 +490,7 @@ travel over a plain WebSocket so the binary stream stays out of NiceGUI’s own 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="app.ConversationPage.show_history">
-<span class="sig-name descname"><span class="pre">show_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.ChatLine" title="voicemate.pipeline.orchestrator.ChatLine"><span class="pre">voicemate.pipeline.orchestrator.ChatLine</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app.ConversationPage.show_history" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">show_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.ChatLine" title="voicemate.pipeline.conversation.ChatLine"><span class="pre">voicemate.pipeline.conversation.ChatLine</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app.ConversationPage.show_history" title="Link to this definition">¶</a></dt>
 <dd><p>Render the earlier messages of a reopened conversation.</p>
 </dd></dl>
 
@@ -544,6 +545,11 @@ travel over a plain WebSocket so the binary stream stays out of NiceGUI’s own 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="app.Server.sessions">
 <span class="sig-name descname"><span class="pre">sessions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession" title="voicemate.pipeline.orchestrator.VoiceSession"><span class="pre">voicemate.pipeline.orchestrator.VoiceSession</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#app.Server.sessions" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.Server.threads">
+<span class="sig-name descname"><span class="pre">threads</span></span><a class="headerlink" href="#app.Server.threads" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -695,6 +701,7 @@ travel over a plain WebSocket so the binary stream stays out of NiceGUI’s own 
 <li><a class="reference internal" href="#app.Server.config"><code class="docutils literal notranslate"><span class="pre">Server.config</span></code></a></li>
 <li><a class="reference internal" href="#app.Server.runtime"><code class="docutils literal notranslate"><span class="pre">Server.runtime</span></code></a></li>
 <li><a class="reference internal" href="#app.Server.sessions"><code class="docutils literal notranslate"><span class="pre">Server.sessions</span></code></a></li>
+<li><a class="reference internal" href="#app.Server.threads"><code class="docutils literal notranslate"><span class="pre">Server.threads</span></code></a></li>
 <li><a class="reference internal" href="#app.Server.thread_id"><code class="docutils literal notranslate"><span class="pre">Server.thread_id()</span></code></a></li>
 <li><a class="reference internal" href="#app.Server.new_conversation"><code class="docutils literal notranslate"><span class="pre">Server.new_conversation()</span></code></a></li>
 <li><a class="reference internal" href="#app.Server.open_session"><code class="docutils literal notranslate"><span class="pre">Server.open_session()</span></code></a></li>

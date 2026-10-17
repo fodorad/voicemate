@@ -32,7 +32,6 @@ Attributes
    voicemate.pipeline.orchestrator.logger
    voicemate.pipeline.orchestrator.FILLERS
    voicemate.pipeline.orchestrator.APOLOGIES
-   voicemate.pipeline.orchestrator.INTERRUPTED_MARK
    voicemate.pipeline.orchestrator.INTERRUPTED_TOOL_RESULT
    voicemate.pipeline.orchestrator.MERGE_WINDOW_S
    voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S
@@ -44,7 +43,6 @@ Classes
 
 .. autoapisummary::
 
-   voicemate.pipeline.orchestrator.ChatLine
    voicemate.pipeline.orchestrator.VoiceSession
 
 
@@ -67,11 +65,6 @@ Module Contents
 .. py:data:: APOLOGIES
    :type:  dict[str, str]
 
-.. py:data:: INTERRUPTED_MARK
-   :type:  str
-   :value: '[interrupted by the user]'
-
-
 .. py:data:: INTERRUPTED_TOOL_RESULT
    :type:  str
    :value: 'Cancelled: the user interrupted before this finished.'
@@ -92,30 +85,6 @@ Module Contents
    :value: 30.0
 
 
-.. py:class:: ChatLine
-
-   One message of the conversation as the user saw it (for re-rendering a page).
-
-   :ivar role: ``"user"`` or ``"assistant"``.
-   :ivar text: What was said, without internal markers.
-   :ivar interrupted: The user cut this reply off.
-
-
-
-   .. py:attribute:: role
-      :type:  str
-
-
-   .. py:attribute:: text
-      :type:  str
-
-
-   .. py:attribute:: interrupted
-      :type:  bool
-      :value: False
-
-
-
 .. py:class:: VoiceSession(runtime: voicemate.runtime.Runtime, thread_id: str | None = None)
 
    One conversation with one browser tab.
@@ -130,9 +99,7 @@ Module Contents
    .. py:attribute:: config
 
 
-   .. py:attribute:: thread_id
-      :value: 'session-000000000000'
-
+   .. py:attribute:: conversation
 
 
    .. py:attribute:: bus
@@ -175,6 +142,13 @@ Module Contents
 
       Wait until no utterance, turn or follow-up task is in progress.
 
+
+
+   .. py:property:: thread_id
+      :type: str
+
+
+      Id of this session's conversation thread.
 
 
    .. py:property:: busy
@@ -261,7 +235,7 @@ Module Contents
 
 
 
-   .. py:method:: restore() -> list[ChatLine]
+   .. py:method:: restore() -> list[voicemate.pipeline.conversation.ChatLine]
       :async:
 
 

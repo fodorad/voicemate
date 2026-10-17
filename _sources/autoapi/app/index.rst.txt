@@ -142,7 +142,7 @@ Module Contents
 
 
 
-   .. py:method:: show_history(lines: list[voicemate.pipeline.orchestrator.ChatLine]) -> None
+   .. py:method:: show_history(lines: list[voicemate.pipeline.conversation.ChatLine]) -> None
 
       Render the earlier messages of a reopened conversation.
 
@@ -196,6 +196,9 @@ Module Contents
 
    .. py:attribute:: sessions
       :type:  dict[str, voicemate.pipeline.orchestrator.VoiceSession]
+
+
+   .. py:attribute:: threads
 
 
    .. py:method:: thread_id() -> str
