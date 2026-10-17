@@ -185,7 +185,11 @@ def bench_llm(config: Config) -> dict:
             async with httpx.AsyncClient() as http:
                 memory = MemoryStore(Path(tmp) / "m", _NullEmbedder(), config.memory)
                 research = Research(
-                    memory, make_backend(config.search, http), ArxivApi(), config.search.max_results
+                    memory,
+                    make_backend(config.search, http),
+                    ArxivApi(),
+                    config.search.max_results,
+                    http,
                 )
                 ctx = ToolContext(
                     config, memory, NotesStore(Path(tmp) / "n.sqlite"), http, research

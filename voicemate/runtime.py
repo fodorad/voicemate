@@ -131,7 +131,7 @@ class Runtime:
             )
             voice_io = Speech(recognizer, voices)
         research = Research(
-            memory, make_backend(config.search, http), ArxivApi(), config.search.max_results
+            memory, make_backend(config.search, http), ArxivApi(), config.search.max_results, http
         )
         ctx = ToolContext(config, memory, notes, http, research)
         try:

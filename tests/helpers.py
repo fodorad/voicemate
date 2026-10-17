@@ -111,6 +111,9 @@ class StaticArxivBackend:
         self.queries.append(query)
         return self.papers[:max_results]
 
+    async def get(self, paper_id: str):
+        return next((p for p in self.papers if p.arxiv_id == paper_id), None)
+
 
 def make_tool_context(tmp: str, http=None, search=None, arxiv=None):
     """A ToolContext whose sandbox, memory and notes live under ``tmp``."""
@@ -139,17 +142,22 @@ def make_tool_context(tmp: str, http=None, search=None, arxiv=None):
     )
     from voicemate.agent.tools.research import Research
 
+    client = http or httpx.AsyncClient()
     return ToolContext(
         config=config,
         memory=memory,
         notes=NotesStore(base / "data" / "notes.sqlite"),
         research=Research(
-            memory, search or StaticSearchBackend(), arxiv or StaticArxivBackend(), max_results=5
+            memory,
+            search or StaticSearchBackend(),
+            arxiv or StaticArxivBackend(),
+            max_results=5,
+            http=client,
+            # The fetch tests serve pages from a local HTTP server.
+            allowed_private_hosts=frozenset({"127.0.0.1"}),
         ),
-        http=http or httpx.AsyncClient(),
+        http=client,
         now=lambda: datetime(2026, 9, 28, 21, 30).astimezone(),
-        # The fetch tests serve pages from a local HTTP server.
-        allowed_private_hosts=frozenset({"127.0.0.1"}),
     )
 
 
