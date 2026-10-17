@@ -29,6 +29,7 @@ Functions
    voicemate.agent.tools.arxiv_tools.normalize_id
    voicemate.agent.tools.arxiv_tools.slugify
    voicemate.agent.tools.arxiv_tools.paper_filename
+   voicemate.agent.tools.arxiv_tools.query_arxiv
    voicemate.agent.tools.arxiv_tools.format_papers
    voicemate.agent.tools.arxiv_tools.build
 
@@ -95,6 +96,11 @@ Module Contents
 .. py:function:: paper_filename(paper: Paper) -> str
 
    ``<id>-<slug>.pdf``.
+
+
+.. py:function:: query_arxiv(query: str | None, ids: list[str] | None, max_results: int) -> list[Paper]
+
+   Ask the arXiv API (blocking) for papers by keywords or by id, most relevant first.
 
 
 .. py:function:: format_papers(papers: list[dict[str, Any]], header: str) -> str

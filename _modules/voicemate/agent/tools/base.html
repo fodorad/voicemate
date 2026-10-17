@@ -213,6 +213,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/memory_tools/index.html">voicemate.agent.tools.memory_tools</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/netguard/index.html">voicemate.agent.tools.netguard</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/notes_tools/index.html">voicemate.agent.tools.notes_tools</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/research/index.html">voicemate.agent.tools.research</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/search/index.html">voicemate.agent.tools.search</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/weather/index.html">voicemate.agent.tools.weather</a></li>
 </ul>
@@ -322,7 +323,7 @@
     <span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunnableConfig</span>
 
-    <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.search</span><span class="w"> </span><span class="kn">import</span> <span class="n">SearchBackend</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.research</span><span class="w"> </span><span class="kn">import</span> <span class="n">Research</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.notes</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotesStore</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryStore</span>
@@ -348,23 +349,19 @@
 <span class="sd">        config: Application configuration.</span>
 <span class="sd">        memory: Long-term memory store.</span>
 <span class="sd">        notes: Notes database.</span>
-<span class="sd">        search: Web search backend.</span>
 <span class="sd">        http: Shared async HTTP client.</span>
+<span class="sd">        research: Cache-first searching and the listed addresses.</span>
 <span class="sd">        now: Clock returning the current local time (injectable for tests).</span>
 <span class="sd">        allowed_private_hosts: Hosts exempt from the SSRF guard (only for tests).</span>
-<span class="sd">        offered_urls: Addresses that search results listed. ``fetch_page`` opens these</span>
-<span class="sd">            without asking; any other address could carry private data out in its path or</span>
-<span class="sd">            query, so it needs the user's permission first.</span>
 <span class="sd">    """</span>
 
     <span class="n">config</span><span class="p">:</span> <span class="n">Config</span>
     <span class="n">memory</span><span class="p">:</span> <span class="n">MemoryStore</span>
     <span class="n">notes</span><span class="p">:</span> <span class="n">NotesStore</span>
-    <span class="n">search</span><span class="p">:</span> <span class="n">SearchBackend</span>
     <span class="n">http</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span>
+    <span class="n">research</span><span class="p">:</span> <span class="n">Research</span>
     <span class="n">now</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">astimezone</span><span class="p">())</span>
-    <span class="n">allowed_private_hosts</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
-    <span class="n">offered_urls</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span></div>
+    <span class="n">allowed_private_hosts</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span></div>
 
 
 

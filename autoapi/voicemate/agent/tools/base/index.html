@@ -214,6 +214,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../memory_tools/index.html">voicemate.agent.tools.memory_tools</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../netguard/index.html">voicemate.agent.tools.netguard</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../notes_tools/index.html">voicemate.agent.tools.notes_tools</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../research/index.html">voicemate.agent.tools.research</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../search/index.html">voicemate.agent.tools.search</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../weather/index.html">voicemate.agent.tools.weather</a></li>
 </ul>
@@ -395,13 +396,10 @@ can show whether data came from the web (left the machine), memory, or local sta
 <li><p><strong>config</strong> – Application configuration.</p></li>
 <li><p><strong>memory</strong> – Long-term memory store.</p></li>
 <li><p><strong>notes</strong> – Notes database.</p></li>
-<li><p><strong>search</strong> – Web search backend.</p></li>
 <li><p><strong>http</strong> – Shared async HTTP client.</p></li>
+<li><p><strong>research</strong> – Cache-first searching and the listed addresses.</p></li>
 <li><p><strong>now</strong> – Clock returning the current local time (injectable for tests).</p></li>
 <li><p><strong>allowed_private_hosts</strong> – Hosts exempt from the SSRF guard (only for tests).</p></li>
-<li><p><strong>offered_urls</strong> – Addresses that search results listed. <code class="docutils literal notranslate"><span class="pre">fetch_page</span></code> opens these
-without asking; any other address could carry private data out in its path or
-query, so it needs the user’s permission first.</p></li>
 </ul>
 </dd>
 </dl>
@@ -421,13 +419,13 @@ query, so it needs the user’s permission first.</p></li>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.agent.tools.base.ToolContext.search">
-<span class="sig-name descname"><span class="pre">search</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../search/index.html#voicemate.agent.tools.search.SearchBackend" title="voicemate.agent.tools.search.SearchBackend"><span class="pre">voicemate.agent.tools.search.SearchBackend</span></a></span><a class="headerlink" href="#voicemate.agent.tools.base.ToolContext.search" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="voicemate.agent.tools.base.ToolContext.http">
+<span class="sig-name descname"><span class="pre">http</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">httpx.AsyncClient</span></span><a class="headerlink" href="#voicemate.agent.tools.base.ToolContext.http" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.agent.tools.base.ToolContext.http">
-<span class="sig-name descname"><span class="pre">http</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">httpx.AsyncClient</span></span><a class="headerlink" href="#voicemate.agent.tools.base.ToolContext.http" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="voicemate.agent.tools.base.ToolContext.research">
+<span class="sig-name descname"><span class="pre">research</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../research/index.html#voicemate.agent.tools.research.Research" title="voicemate.agent.tools.research.Research"><span class="pre">voicemate.agent.tools.research.Research</span></a></span><a class="headerlink" href="#voicemate.agent.tools.base.ToolContext.research" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -438,11 +436,6 @@ query, so it needs the user’s permission first.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.agent.tools.base.ToolContext.allowed_private_hosts">
 <span class="sig-name descname"><span class="pre">allowed_private_hosts</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#voicemate.agent.tools.base.ToolContext.allowed_private_hosts" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.agent.tools.base.ToolContext.offered_urls">
-<span class="sig-name descname"><span class="pre">offered_urls</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#voicemate.agent.tools.base.ToolContext.offered_urls" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -541,11 +534,10 @@ query, so it needs the user’s permission first.</p></li>
 <li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.config"><code class="docutils literal notranslate"><span class="pre">ToolContext.config</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.memory"><code class="docutils literal notranslate"><span class="pre">ToolContext.memory</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.notes"><code class="docutils literal notranslate"><span class="pre">ToolContext.notes</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.search"><code class="docutils literal notranslate"><span class="pre">ToolContext.search</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.http"><code class="docutils literal notranslate"><span class="pre">ToolContext.http</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.research"><code class="docutils literal notranslate"><span class="pre">ToolContext.research</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.now"><code class="docutils literal notranslate"><span class="pre">ToolContext.now</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.allowed_private_hosts"><code class="docutils literal notranslate"><span class="pre">ToolContext.allowed_private_hosts</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.offered_urls"><code class="docutils literal notranslate"><span class="pre">ToolContext.offered_urls</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.agent.tools.base.emitter"><code class="docutils literal notranslate"><span class="pre">emitter()</span></code></a></li>

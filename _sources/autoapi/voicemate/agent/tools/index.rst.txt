@@ -24,6 +24,7 @@ Submodules
    /autoapi/voicemate/agent/tools/memory_tools/index
    /autoapi/voicemate/agent/tools/netguard/index
    /autoapi/voicemate/agent/tools/notes_tools/index
+   /autoapi/voicemate/agent/tools/research/index
    /autoapi/voicemate/agent/tools/search/index
    /autoapi/voicemate/agent/tools/weather/index
 

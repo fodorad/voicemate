@@ -213,6 +213,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../autoapi/voicemate/agent/tools/memory_tools/index.html">voicemate.agent.tools.memory_tools</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../autoapi/voicemate/agent/tools/netguard/index.html">voicemate.agent.tools.netguard</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../autoapi/voicemate/agent/tools/notes_tools/index.html">voicemate.agent.tools.notes_tools</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../autoapi/voicemate/agent/tools/research/index.html">voicemate.agent.tools.research</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../autoapi/voicemate/agent/tools/search/index.html">voicemate.agent.tools.search</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../autoapi/voicemate/agent/tools/weather/index.html">voicemate.agent.tools.weather</a></li>
 </ul>
@@ -314,6 +315,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.model_select</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelChoice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.research</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArxivApi</span><span class="p">,</span> <span class="n">Research</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.asr.langid</span><span class="w"> </span><span class="kn">import</span> <span class="n">LanguageDetector</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.audio.vad</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpeechProbability</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
@@ -441,7 +443,10 @@
                 <span class="n">ParakeetRecognizer</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">asr</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">asr</span><span class="o">.</span><span class="n">device</span>
             <span class="p">)</span>
             <span class="n">voice_io</span> <span class="o">=</span> <span class="n">Speech</span><span class="p">(</span><span class="n">recognizer</span><span class="p">,</span> <span class="n">voices</span><span class="p">)</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ToolContext</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">notes</span><span class="p">,</span> <span class="n">make_backend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">search</span><span class="p">,</span> <span class="n">http</span><span class="p">),</span> <span class="n">http</span><span class="p">)</span>
+        <span class="n">research</span> <span class="o">=</span> <span class="n">Research</span><span class="p">(</span>
+            <span class="n">memory</span><span class="p">,</span> <span class="n">make_backend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">search</span><span class="p">,</span> <span class="n">http</span><span class="p">),</span> <span class="n">ArxivApi</span><span class="p">(),</span> <span class="n">config</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">max_results</span>
+        <span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ToolContext</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">notes</span><span class="p">,</span> <span class="n">http</span><span class="p">,</span> <span class="n">research</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">choice</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">probe_and_choose</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">llm</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># Ollama down: keep the preferred model, turns report errors</span>

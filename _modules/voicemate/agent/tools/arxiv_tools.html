@@ -213,6 +213,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/memory_tools/index.html">voicemate.agent.tools.memory_tools</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/netguard/index.html">voicemate.agent.tools.netguard</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/notes_tools/index.html">voicemate.agent.tools.notes_tools</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/research/index.html">voicemate.agent.tools.research</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/search/index.html">voicemate.agent.tools.search</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/agent/tools/weather/index.html">voicemate.agent.tools.weather</a></li>
 </ul>
@@ -311,7 +312,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunnableConfig</span>
@@ -403,7 +404,10 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_query_arxiv</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_results</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Paper</span><span class="p">]:</span>
+<div class="viewcode-block" id="query_arxiv">
+<a class="viewcode-back" href="../../../../autoapi/voicemate/agent/tools/arxiv_tools/index.html#voicemate.agent.tools.arxiv_tools.query_arxiv">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">query_arxiv</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_results</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Paper</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Ask the arXiv API (blocking) for papers by keywords or by id, most relevant first."""</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">arxiv</span>
 
     <span class="n">search</span> <span class="o">=</span> <span class="n">arxiv</span><span class="o">.</span><span class="n">Search</span><span class="p">(</span>
@@ -412,7 +416,8 @@
         <span class="n">max_results</span><span class="o">=</span><span class="n">max_results</span><span class="p">,</span>
         <span class="n">sort_by</span><span class="o">=</span><span class="n">arxiv</span><span class="o">.</span><span class="n">SortCriterion</span><span class="o">.</span><span class="n">Relevance</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">_to_paper</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">arxiv</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">num_retries</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">results</span><span class="p">(</span><span class="n">search</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">_to_paper</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">arxiv</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">num_retries</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">results</span><span class="p">(</span><span class="n">search</span><span class="p">)]</span></div>
+
 
 
 <div class="viewcode-block" id="format_papers">
@@ -444,35 +449,14 @@
 <span class="sd">            query: Topic keywords, e.g. "mixture of experts routing".</span>
 <span class="sd">            max_results: Number of papers (1-10).</span>
 <span class="sd">        """</span>
-        <span class="n">cached</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">cached_search</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="s2">"arxiv"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">offered_urls</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"https://arxiv.org/abs/</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'arxiv_id'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">cached</span><span class="o">.</span><span class="n">results</span>
-            <span class="p">)</span>
-            <span class="n">report</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"arxiv_search"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"query"</span><span class="p">:</span> <span class="n">query</span><span class="p">},</span> <span class="s2">"memory"</span><span class="p">,</span> <span class="n">cached</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
-            <span class="n">header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[from memory, retrieved </span><span class="si">{</span><span class="n">format_date</span><span class="p">(</span><span class="n">cached</span><span class="o">.</span><span class="n">retrieved_at</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
-            <span class="k">return</span> <span class="n">format_papers</span><span class="p">(</span><span class="n">cached</span><span class="o">.</span><span class="n">results</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">papers</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span>
-                <span class="n">_query_arxiv</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_results</span><span class="p">)))</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ToolError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"arXiv search failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">asdict</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">papers</span><span class="p">]</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">offered_urls</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">abs_url</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">papers</span><span class="p">)</span>
-        <span class="n">ttl</span> <span class="o">=</span> <span class="n">ttl_days_for</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="s2">"arxiv"</span><span class="p">)</span>
-        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">store_search</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="s2">"arxiv"</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">ttl</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">paper</span> <span class="ow">in</span> <span class="n">papers</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span>
-                <span class="n">ctx</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">add_documents</span><span class="p">,</span>
-                <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">paper</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">paper</span><span class="o">.</span><span class="n">summary</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span>
-                <span class="n">paper</span><span class="o">.</span><span class="n">abs_url</span><span class="p">,</span>
-                <span class="n">paper</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
-                <span class="s2">"arxiv"</span><span class="p">,</span>
-                <span class="n">ttl</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="n">report</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"arxiv_search"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"query"</span><span class="p">:</span> <span class="n">query</span><span class="p">},</span> <span class="s2">"web"</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">format_papers</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="s2">"[arXiv search]"</span><span class="p">)</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">research</span><span class="o">.</span><span class="n">papers</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">max_results</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">found</span><span class="o">.</span><span class="n">from_memory</span><span class="p">:</span>
+            <span class="n">report</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"arxiv_search"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"query"</span><span class="p">:</span> <span class="n">query</span><span class="p">},</span> <span class="s2">"memory"</span><span class="p">,</span> <span class="n">found</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[from memory, retrieved </span><span class="si">{</span><span class="n">format_date</span><span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">retrieved_at</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">report</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"arxiv_search"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"query"</span><span class="p">:</span> <span class="n">query</span><span class="p">},</span> <span class="s2">"web"</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="s2">"[arXiv search]"</span>
+        <span class="k">return</span> <span class="n">format_papers</span><span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">results</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">download_paper</span><span class="p">(</span><span class="n">arxiv_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">RunnableConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Download an arXiv paper as PDF and index its full text into memory.</span>
@@ -485,7 +469,7 @@
 <span class="sd">        """</span>
         <span class="n">paper_id</span> <span class="o">=</span> <span class="n">normalize_id</span><span class="p">(</span><span class="n">arxiv_id</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">papers</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">_query_arxiv</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">paper_id</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">papers</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">query_arxiv</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">paper_id</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ToolError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"arXiv lookup failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">papers</span><span class="p">:</span>

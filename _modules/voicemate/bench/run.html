@@ -213,6 +213,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/agent/tools/memory_tools/index.html">voicemate.agent.tools.memory_tools</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/agent/tools/netguard/index.html">voicemate.agent.tools.netguard</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/agent/tools/notes_tools/index.html">voicemate.agent.tools.notes_tools</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/agent/tools/research/index.html">voicemate.agent.tools.research</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/agent/tools/search/index.html">voicemate.agent.tools.search</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/agent/tools/weather/index.html">voicemate.agent.tools.weather</a></li>
 </ul>
@@ -479,6 +480,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_chat_model</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.prompts</span><span class="w"> </span><span class="kn">import</span> <span class="n">system_prompt</span><span class="p">,</span> <span class="n">turn_context</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolContext</span><span class="p">,</span> <span class="n">build_tools</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.research</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArxivApi</span><span class="p">,</span> <span class="n">Research</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.search</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_backend</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.notes</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotesStore</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryStore</span>
@@ -492,12 +494,12 @@
 
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
             <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">http</span><span class="p">:</span>
+                <span class="n">memory</span> <span class="o">=</span> <span class="n">MemoryStore</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"m"</span><span class="p">,</span> <span class="n">_NullEmbedder</span><span class="p">(),</span> <span class="n">config</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
+                <span class="n">research</span> <span class="o">=</span> <span class="n">Research</span><span class="p">(</span>
+                    <span class="n">memory</span><span class="p">,</span> <span class="n">make_backend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">search</span><span class="p">,</span> <span class="n">http</span><span class="p">),</span> <span class="n">ArxivApi</span><span class="p">(),</span> <span class="n">config</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">max_results</span>
+                <span class="p">)</span>
                 <span class="n">ctx</span> <span class="o">=</span> <span class="n">ToolContext</span><span class="p">(</span>
-                    <span class="n">config</span><span class="p">,</span>
-                    <span class="n">MemoryStore</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"m"</span><span class="p">,</span> <span class="n">_NullEmbedder</span><span class="p">(),</span> <span class="n">config</span><span class="o">.</span><span class="n">memory</span><span class="p">),</span>
-                    <span class="n">NotesStore</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"n.sqlite"</span><span class="p">),</span>
-                    <span class="n">make_backend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">search</span><span class="p">,</span> <span class="n">http</span><span class="p">),</span>
-                    <span class="n">http</span><span class="p">,</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">NotesStore</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"n.sqlite"</span><span class="p">),</span> <span class="n">http</span><span class="p">,</span> <span class="n">research</span>
                 <span class="p">)</span>
                 <span class="n">llm</span> <span class="o">=</span> <span class="n">make_chat_model</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">llm</span><span class="p">)</span><span class="o">.</span><span class="n">bind_tools</span><span class="p">(</span><span class="n">build_tools</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span>
                 <span class="n">correct</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">ttfts</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]</span>

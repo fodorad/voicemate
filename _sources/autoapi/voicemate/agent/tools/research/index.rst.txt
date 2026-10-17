@@ -1,0 +1,174 @@
+voicemate.agent.tools.research
+==============================
+
+.. py:module:: voicemate.agent.tools.research
+
+.. autoapi-nested-parse::
+
+   Research: cache-first searching and the rule for which addresses may be opened.
+
+   :class:`Research` is what the search tools stand on. Asking it for a web or arXiv search first
+   looks in long-term memory for a similar, still fresh search; only if there is none does it
+   query the backend, and then it stores what it found (as a reusable search and as documents for
+   semantic recall) with a freshness class that depends on the topic.
+
+   It also keeps the *listed addresses*: the URLs that searches returned (plus those the user
+   approved). ``fetch_page`` opens a listed address without asking and asks the user for any
+   other, because an address the model was talked into opening could carry private data in its
+   path or query.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.research.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.agent.tools.research.ArxivBackend
+   voicemate.agent.tools.research.ArxivApi
+   voicemate.agent.tools.research.Found
+   voicemate.agent.tools.research.Research
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: ArxivBackend
+
+   Bases: :py:obj:`Protocol`
+
+
+   A source of arXiv papers.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:method:: search(query: str, max_results: int) -> list[voicemate.agent.tools.arxiv_tools.Paper]
+      :async:
+
+
+      Return up to ``max_results`` papers for ``query``.
+
+
+
+.. py:class:: ArxivApi
+
+   The public arXiv API (through the ``arxiv`` library, run off the event loop).
+
+
+   .. py:attribute:: name
+      :value: 'arxiv'
+
+
+
+   .. py:method:: search(query: str, max_results: int) -> list[voicemate.agent.tools.arxiv_tools.Paper]
+      :async:
+
+
+      Return up to ``max_results`` papers for ``query``, most relevant first.
+
+
+
+.. py:class:: Found
+
+   The outcome of a cache-first search.
+
+   :ivar results: Result rows as stored (web hits or papers, as dictionaries).
+   :ivar from_memory: Answered from a stored search; nothing left the machine.
+   :ivar query: The query the results belong to (the stored one when from memory).
+   :ivar backend: Name of the backend (when it was queried).
+   :ivar retrieved_at: Unix time a stored search was made (from memory only).
+
+
+
+   .. py:attribute:: results
+      :type:  list[dict[str, Any]]
+
+
+   .. py:attribute:: from_memory
+      :type:  bool
+
+
+   .. py:attribute:: query
+      :type:  str
+
+
+   .. py:attribute:: backend
+      :type:  str
+
+
+   .. py:attribute:: retrieved_at
+      :type:  float | None
+      :value: None
+
+
+
+.. py:class:: Research(memory: voicemate.memory.store.MemoryStore, web_backend: voicemate.agent.tools.search.SearchBackend, arxiv_backend: ArxivBackend, max_results: int)
+
+   Cache-first search plus the set of addresses that may be opened without asking.
+
+   :param memory: Long-term memory holding stored searches and documents.
+   :param web_backend: The web search engine.
+   :param arxiv_backend: The arXiv source.
+   :param max_results: Web results per search.
+
+
+   .. py:attribute:: memory
+
+
+   .. py:attribute:: web_backend
+
+
+   .. py:attribute:: arxiv_backend
+
+
+   .. py:attribute:: max_results
+
+
+   .. py:method:: is_listed(url: str) -> bool
+
+      True if a search returned (or the user approved) exactly this address.
+
+
+
+   .. py:method:: list_address(url: str) -> None
+
+      Remember that ``url`` may be opened without asking again.
+
+
+
+   .. py:method:: web(query: str) -> Found
+      :async:
+
+
+      Search the web, answering from a fresh stored search when there is one.
+
+      :raises ToolError: If the backend fails (rate limit, network).
+
+
+
+   .. py:method:: papers(query: str, max_results: int = 5) -> Found
+      :async:
+
+
+      Search arXiv, answering from a fresh stored search when there is one.
+
+      :param query: Topic keywords.
+      :param max_results: Number of papers, clamped to 1-10.
+
+      :raises ToolError: If arXiv cannot be reached.
+
+
+
