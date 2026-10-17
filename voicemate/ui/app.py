@@ -44,7 +44,8 @@ from voicemate.events import (
     ToolEvent,
     TranscriptEvent,
 )
-from voicemate.pipeline.orchestrator import ChatLine, VoiceSession
+from voicemate.pipeline.conversation import ChatLine, ThreadStore
+from voicemate.pipeline.orchestrator import VoiceSession
 from voicemate.runtime import Runtime
 
 logger = logging.getLogger(__name__)
@@ -466,24 +467,15 @@ class Server:
         self.config = config
         self.runtime = runtime
         self.sessions: dict[str, VoiceSession] = {}
-
-    @property
-    def _thread_file(self) -> Path:
-        return self.config.data_path / "conversation.json"
+        self.threads = ThreadStore(config.data_path / "conversation.json")
 
     def thread_id(self) -> str:
         """The current conversation; it survives page reloads and server restarts."""
-        try:
-            return str(json.loads(self._thread_file.read_text())["thread_id"])
-        except (OSError, ValueError, KeyError, TypeError):
-            return self.new_conversation()
+        return self.threads.current()
 
     def new_conversation(self) -> str:
         """Start a fresh conversation thread (long-term memory is kept)."""
-        thread = f"conversation-{uuid.uuid4().hex[:12]}"
-        self._thread_file.parent.mkdir(parents=True, exist_ok=True)
-        self._thread_file.write_text(json.dumps({"thread_id": thread}))
-        return thread
+        return self.threads.start_new()
 
     async def open_session(self) -> tuple[str, VoiceSession]:
         """A session for a new page, continuing the current conversation."""

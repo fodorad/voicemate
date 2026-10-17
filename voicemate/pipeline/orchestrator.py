@@ -56,6 +56,12 @@ from voicemate.events import (
     TranscriptEvent,
 )
 from voicemate.pipeline.chunker import SpeechChunker
+from voicemate.pipeline.conversation import (
+    INTERRUPTED_MARK,
+    ChatLine,
+    Conversation,
+    question_text,
+)
 from voicemate.runtime import Runtime
 
 logger = logging.getLogger(__name__)
@@ -68,9 +74,6 @@ APOLOGIES: dict[str, str] = {
     "hu": "Elnézést, ez most nem sikerült. Kérlek, próbáld újra.",
     "en": "Sorry, that didn't work. Please try again.",
 }
-
-#: Appended to a reply the user interrupted (kept in the conversation history).
-INTERRUPTED_MARK: str = "[interrupted by the user]"
 
 #: Result given to tool calls that were cancelled by a barge-in.
 INTERRUPTED_TOOL_RESULT: str = "Cancelled: the user interrupted before this finished."
@@ -85,21 +88,6 @@ PARTIAL_WINDOW_S: float = 8.0
 
 #: Seconds between checks for due reminders.
 REMINDER_INTERVAL_S: float = 30.0
-
-
-@dataclass
-class ChatLine:
-    """One message of the conversation as the user saw it (for re-rendering a page).
-
-    Attributes:
-        role: ``"user"`` or ``"assistant"``.
-        text: What was said, without internal markers.
-        interrupted: The user cut this reply off.
-    """
-
-    role: str
-    text: str
-    interrupted: bool = False
 
 
 @dataclass
@@ -143,7 +131,9 @@ class VoiceSession:
     def __init__(self, runtime: Runtime, thread_id: str | None = None) -> None:
         self.runtime = runtime
         self.config = runtime.config
-        self.thread_id = thread_id or f"session-{uuid.uuid4().hex[:12]}"
+        self.conversation = Conversation(
+            runtime.graph, thread_id or f"session-{uuid.uuid4().hex[:12]}"
+        )
         self.bus = EventBus()
         self.segmenter = Segmenter(runtime.vad_factory(), self.config.vad)
         self.lang = self.config.assistant.default_language
@@ -196,6 +186,11 @@ class VoiceSession:
         self._tasks.discard(task)
         if not task.cancelled() and task.exception() is not None:
             logger.error("Session task failed", exc_info=task.exception())
+
+    @property
+    def thread_id(self) -> str:
+        """Id of this session's conversation thread."""
+        return self.conversation.thread_id
 
     @property
     def busy(self) -> bool:
@@ -322,25 +317,10 @@ class VoiceSession:
 
         Reopens a question the agent is still waiting on and returns what was said so far.
         """
-        from langchain_core.messages import AIMessage, HumanMessage
-
-        snapshot = await self.runtime.graph.aget_state(
-            {"configurable": {"thread_id": self.thread_id}}
-        )
-        lines: list[ChatLine] = []
-        for message in snapshot.values.get("messages", []):
-            text = str(message.content).strip()
-            if isinstance(message, HumanMessage) and text:
-                lines.append(ChatLine("user", text))
-            elif isinstance(message, AIMessage) and text:
-                interrupted = text.endswith(INTERRUPTED_MARK)
-                text = text.removesuffix(INTERRUPTED_MARK).strip()
-                lines.append(ChatLine("assistant", text, interrupted))
-        if snapshot.interrupts:
-            question = self._question(snapshot.interrupts[0].value)
+        if question := await self.conversation.pending_question():
             self.confirmation = Confirmation(question)
             self.bus.publish(ConfirmEvent(question))
-        return lines
+        return await self.conversation.lines()
 
     # ── ASR ──────────────────────────────────────────────────────────────────
 
@@ -441,7 +421,7 @@ class VoiceSession:
         from langchain_core.messages import AIMessage, ToolMessage
 
         partial, self._interrupted_reply = self._interrupted_reply, ""
-        run_config = {"configurable": {"thread_id": self.thread_id}}
+        run_config = self.conversation.run_config
         try:
             snapshot = await self.runtime.graph.aget_state(run_config)
         except Exception:  # pragma: no cover - checkpointer unavailable
@@ -474,7 +454,7 @@ class VoiceSession:
 
         with contextlib.suppress(Exception):
             await self.runtime.graph.aupdate_state(
-                {"configurable": {"thread_id": self.thread_id}},
+                self.conversation.run_config,
                 {"messages": [RemoveMessage(id=message_id)]},
             )
 
@@ -496,7 +476,10 @@ class VoiceSession:
             Command(resume=resume) if resume is not None else {"messages": [message], "lang": lang}
         )
         run_config = {
-            "configurable": {"thread_id": self.thread_id, "emit": self._tool_emitter(turn)}
+            "configurable": {
+                **self.conversation.run_config["configurable"],
+                "emit": self._tool_emitter(turn),
+            }
         }
         worker = asyncio.create_task(self._tts_worker(turn))
         self._status(Lane.THINKING, LaneState.ACTIVE)
@@ -578,15 +561,10 @@ class VoiceSession:
         interrupts = getattr(snapshot, "interrupts", ()) or ()
         if not interrupts:
             return
-        question = self._question(interrupts[0].value)
+        question = question_text(interrupts[0].value)
         self.confirmation = Confirmation(question)
         self.bus.publish(ConfirmEvent(question))
         turn.say(question)
-
-    @staticmethod
-    def _question(value: Any) -> str:
-        """The question text of an ``interrupt()`` payload."""
-        return str(value.get("question", value) if isinstance(value, dict) else value)
 
     async def _tts_worker(self, turn: _Turn) -> None:
         while (piece := await turn.queue.get()) is not None:
