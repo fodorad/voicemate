@@ -45,6 +45,7 @@ from voicemate.pipeline.orchestrator import (
     turns_log_path,
 )
 from voicemate.runtime import Runtime
+from voicemate.speech import Speech
 from voicemate.tts.voices import VoiceBank
 
 
@@ -80,8 +81,10 @@ class SessionTestCase(unittest.IsolatedAsyncioTestCase):
         )
         self.runtime = Runtime(
             config=self.ctx.config,
-            recognizer=ScriptedRecognizer(list(transcripts), repeat_last=repeat),
-            voices=VoiceBank({"hu": self.voice, "en": self.voice}),
+            speech=Speech(
+                ScriptedRecognizer(list(transcripts), repeat_last=repeat),
+                VoiceBank({"hu": self.voice, "en": self.voice}),
+            ),
             vad_factory=EnergyVAD,
             graph=graph,
             memory=self.ctx.memory,
@@ -464,7 +467,7 @@ class TestTurnDiscipline(SessionTestCase):
 
     async def test_asr_failure_is_reported(self):
         self.make_session(["x"])
-        self.runtime.recognizer = FailingRecognizer()
+        self.runtime.speech = Speech(FailingRecognizer(), self.runtime.speech.voices)
         await self.speak()
         await self.settle()
         errors = [e for e in self.drain() if isinstance(e, ErrorEvent)]

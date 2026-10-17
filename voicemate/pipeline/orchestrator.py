@@ -4,11 +4,12 @@ One :class:`VoiceSession` exists per browser tab. Microphone PCM arrives via
 :meth:`VoiceSession.feed_audio`; everything the UI needs, including synthesized audio,
 leaves through :attr:`VoiceSession.bus`.
 
-Concurrency: the VAD runs inline (well under 1 ms per frame); ASR and TTS run on their
-single-thread executors; each turn is one asyncio task in which the LLM stream feeds a
-sentence chunker whose output is synthesized by a parallel TTS worker, so speech starts
-while the model is still generating. At most one turn runs at a time: speaking (or typing)
-while a turn is active cancels it (barge-in) before the new one starts.
+Concurrency: the VAD runs inline (well under 1 ms per frame); ASR and TTS run on the
+worker threads inside :class:`~voicemate.speech.Speech`; each turn is one asyncio task in
+which the LLM stream feeds a sentence chunker whose output is synthesized by a parallel TTS
+worker, so speech starts while the model is still generating. At most one turn runs at a
+time: speaking (or typing) while a turn is active cancels it (barge-in) before the new one
+starts.
 
 "Hold until I'm finished" (:meth:`VoiceSession.hold`) suspends endpointing: utterances are
 transcribed and collected, and :meth:`VoiceSession.release` sends them as one question, so
@@ -344,13 +345,8 @@ class VoiceSession:
     # ── ASR ──────────────────────────────────────────────────────────────────
 
     async def _transcribe(self, audio: np.ndarray) -> str:
-        recognizer = self.runtime.recognizer
-        if recognizer is None:
-            return ""
-        loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(
-            self.runtime.asr_executor, recognizer.transcribe_text, audio
-        )
+        speech = self.runtime.speech
+        return "" if speech is None else await speech.transcribe(audio)
 
     def _maybe_partial(self) -> None:
         """Schedule a live partial transcript every ``partial_interval_s`` of speech."""
@@ -593,20 +589,24 @@ class VoiceSession:
         return str(value.get("question", value) if isinstance(value, dict) else value)
 
     async def _tts_worker(self, turn: _Turn) -> None:
-        voices = self.runtime.voices
-        loop = asyncio.get_running_loop()
         while (piece := await turn.queue.get()) is not None:
-            if voices is None:
+            if self.runtime.speech is None:
                 continue
             self._status(Lane.SYNTHESIZING, LaneState.ACTIVE)
-            audio, rate = await loop.run_in_executor(
-                self.runtime.tts_executor, voices.synthesize, piece, turn.lang
-            )
-            if len(audio):
-                if turn.first_audio is None:
-                    turn.first_audio = time.monotonic()
-                self.bus.publish(AudioEvent(float32_to_pcm16(audio), rate))
+            if await self._speak(piece, turn.lang) and turn.first_audio is None:
+                turn.first_audio = time.monotonic()
         self._status(Lane.SYNTHESIZING, LaneState.DONE)
+
+    async def _speak(self, text: str, lang: str) -> bool:
+        """Synthesize ``text`` and publish it as audio; False when there was nothing to play."""
+        speech = self.runtime.speech
+        if speech is None:
+            return False
+        audio, rate = await speech.synthesize(text, lang)
+        if not len(audio):
+            return False
+        self.bus.publish(AudioEvent(float32_to_pcm16(audio), rate))
+        return True
 
     def _finish_metrics(self, turn: _Turn, transcript: Transcript | None) -> None:
         metrics: dict[str, Any] = {"lang": turn.lang, "tools": turn.tools}
@@ -648,17 +648,9 @@ class VoiceSession:
         for note in due:
             await asyncio.to_thread(notes.mark_notified, note.id)
             self.bus.publish(ReminderEvent(note.id, note.text))
-            if not self.busy and not self.holding and self.runtime.voices is not None:
+            if not self.busy and not self.holding:
                 prefix = "Emlékeztető: " if self.lang == "hu" else "Reminder: "
-                loop = asyncio.get_running_loop()
-                audio, rate = await loop.run_in_executor(
-                    self.runtime.tts_executor,
-                    self.runtime.voices.synthesize,
-                    prefix + note.text,
-                    self.lang,
-                )
-                if len(audio):
-                    self.bus.publish(AudioEvent(float32_to_pcm16(audio), rate))
+                await self._speak(prefix + note.text, self.lang)
         return len(due)
 
     async def _watch_reminders(self) -> None:

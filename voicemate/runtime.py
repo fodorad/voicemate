@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 import os
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
 from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from typing import Any
@@ -13,12 +12,12 @@ from typing import Any
 import httpx
 
 from voicemate.agent.model_select import ModelChoice
-from voicemate.asr.base import SpeechRecognizer
 from voicemate.asr.langid import LanguageDetector
 from voicemate.audio.vad import SpeechProbability
 from voicemate.config import Config
 from voicemate.memory.notes import NotesStore
 from voicemate.memory.store import MemoryStore
+from voicemate.speech import Speech
 from voicemate.tts.voices import VoiceBank
 
 logger = logging.getLogger(__name__)
@@ -56,41 +55,31 @@ class Runtime:
 
     Attributes:
         config: Application configuration.
-        recognizer: Speech recognizer (``None`` for text-only use).
-        voices: TTS voices (``None`` for text-only use).
+        speech: Speech input and output (``None`` for text-only use).
         vad_factory: Creates a fresh VAD model per session (VAD is stateful).
         graph: Compiled LangGraph agent.
         model_choice: The chat model chosen by the memory guard (None in tests).
         memory: Long-term memory store.
         notes: Notes database.
         langid: Language detector.
-        asr_executor: Single worker thread for ASR (MLX is not re-entrant).
-        tts_executor: Single worker thread for TTS.
     """
 
     config: Config
-    recognizer: SpeechRecognizer | None
-    voices: VoiceBank | None
+    speech: Speech | None
     vad_factory: Callable[[], SpeechProbability]
     graph: Any
     memory: MemoryStore | None
     notes: NotesStore | None
     langid: LanguageDetector = field(default_factory=LanguageDetector)
     model_choice: ModelChoice | None = None
-    asr_executor: ThreadPoolExecutor = field(
-        default_factory=lambda: ThreadPoolExecutor(1, thread_name_prefix="asr")
-    )
-    tts_executor: ThreadPoolExecutor = field(
-        default_factory=lambda: ThreadPoolExecutor(1, thread_name_prefix="tts")
-    )
     _stack: AsyncExitStack | None = None
 
     async def aclose(self) -> None:
         """Release executors, the HTTP client, the checkpointer and databases."""
         if self._stack is not None:
             await self._stack.aclose()
-        self.asr_executor.shutdown(wait=False, cancel_futures=True)
-        self.tts_executor.shutdown(wait=False, cancel_futures=True)
+        if self.speech is not None:
+            await self.speech.aclose()
         if self.notes is not None:
             self.notes.close()
 
@@ -131,7 +120,7 @@ class Runtime:
         )
         memory = await asyncio.to_thread(MemoryStore, data / "memory", embedder, config.memory)
         notes = NotesStore(data / "notes.sqlite")
-        recognizer = voices = None
+        voice_io = None
         if speech:
             from voicemate.asr.parakeet import ParakeetRecognizer
 
@@ -139,6 +128,7 @@ class Runtime:
             recognizer = await asyncio.to_thread(
                 ParakeetRecognizer, config.asr.model, config.asr.device
             )
+            voice_io = Speech(recognizer, voices)
         ctx = ToolContext(config, memory, notes, make_backend(config.search, http), http)
         try:
             choice = await asyncio.to_thread(probe_and_choose, config.llm)
@@ -157,8 +147,7 @@ class Runtime:
             config=config,
             langid=LanguageDetector(config.assistant.default_language),
             model_choice=choice,
-            recognizer=recognizer,
-            voices=voices,
+            speech=voice_io,
             vad_factory=SileroVAD,
             graph=graph,
             memory=memory,

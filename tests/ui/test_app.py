@@ -38,6 +38,7 @@ from voicemate.events import (
 )
 from voicemate.pipeline.orchestrator import ChatLine, VoiceSession
 from voicemate.runtime import Runtime
+from voicemate.speech import Speech
 from voicemate.tts.voices import VoiceBank
 from voicemate.ui.app import ConversationPage, Server, handle_control_message
 
@@ -77,8 +78,9 @@ class UITestCase(unittest.IsolatedAsyncioTestCase):
         )
         return Runtime(
             config=self.ctx.config,
-            recognizer=ScriptedRecognizer([]),
-            voices=VoiceBank({"en": voice, "hu": voice}, default_lang="en"),
+            speech=Speech(
+                ScriptedRecognizer([]), VoiceBank({"en": voice, "hu": voice}, default_lang="en")
+            ),
             vad_factory=EnergyVAD,
             graph=graph,
             memory=self.ctx.memory,
