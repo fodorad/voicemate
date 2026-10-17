@@ -332,7 +332,7 @@
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.UIConfig.allowed_hosts">allowed_hosts (voicemate.config.UIConfig attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/agent/tools/base/index.html#voicemate.agent.tools.base.ToolContext.allowed_private_hosts">allowed_private_hosts (voicemate.agent.tools.base.ToolContext attribute)</a>
+        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.allowed_private_hosts">allowed_private_hosts (voicemate.agent.tools.research.Research attribute)</a>
 </li>
         <li><a href="autoapi/app/index.html#app.ConversationPage.answer">answer() (app.ConversationPage method)</a>
 </li>
@@ -352,6 +352,8 @@
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/app/index.html#app.ConversationPage.apply">apply() (app.ConversationPage method)</a>
+</li>
+        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Approval">Approval (in module voicemate.agent.tools.research)</a>
 </li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.ToolEvent.args">args (voicemate.events.ToolEvent attribute)</a>
 </li>
@@ -742,7 +744,11 @@
         <li><a href="autoapi/voicemate/tts/voices/index.html#voicemate.tts.voices.VoiceBank.from_config">from_config() (voicemate.tts.voices.VoiceBank class method)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Found.from_memory">from_memory (voicemate.agent.tools.research.Found attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Page.from_memory">(voicemate.agent.tools.research.Page attribute)</a>
 </li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -755,8 +761,16 @@
 </li>
         <li><a href="autoapi/voicemate/agent/tools/weather/index.html#voicemate.agent.tools.weather.GEOCODING_URL">GEOCODING_URL (in module voicemate.agent.tools.weather)</a>
 </li>
+        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.ArxivApi.get">get() (voicemate.agent.tools.research.ArxivApi method)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.ArxivBackend.get">(voicemate.agent.tools.research.ArxivBackend method)</a>
+</li>
+        </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.get_paper">get_paper() (voicemate.agent.tools.research.Research method)</a>
+</li>
         <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.Conversation.graph">graph (voicemate.pipeline.conversation.Conversation attribute)</a>
 
         <ul>
@@ -802,6 +816,8 @@
         <li><a href="autoapi/voicemate/agent/tools/base/index.html#voicemate.agent.tools.base.ToolContext.http">http (voicemate.agent.tools.base.ToolContext attribute)</a>
 
         <ul>
+          <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.http">(voicemate.agent.tools.research.Research attribute)</a>
+</li>
           <li><a href="autoapi/voicemate/agent/tools/search/index.html#voicemate.agent.tools.search.SearxngBackend.http">(voicemate.agent.tools.search.SearxngBackend attribute)</a>
 </li>
         </ul></li>
@@ -829,18 +845,20 @@
 </li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.Segmenter.in_speech">in_speech (voicemate.audio.vad.Segmenter property)</a>
 </li>
+        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.index_paper">index_paper() (voicemate.agent.tools.research.Research method)</a>
+</li>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Interrupt">Interrupt (class in voicemate.pipeline.turn_taking)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.interrupt">interrupt() (voicemate.pipeline.orchestrator.VoiceSession method)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.ReplyEvent.interrupted">interrupted (voicemate.events.ReplyEvent attribute)</a>
 
         <ul>
           <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.ChatLine.interrupted">(voicemate.pipeline.conversation.ChatLine attribute)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.INTERRUPTED_MARK">INTERRUPTED_MARK (in module voicemate.pipeline.conversation)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.INTERRUPTED_TOOL_RESULT">INTERRUPTED_TOOL_RESULT (in module voicemate.pipeline.conversation)</a>
@@ -1304,9 +1322,15 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/audio/codec/index.html#voicemate.audio.codec.pack_audio_frame">pack_audio_frame() (in module voicemate.audio.codec)</a>
 </li>
+        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Page">Page (class in voicemate.agent.tools.research)</a>
+</li>
+        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.page">page() (voicemate.agent.tools.research.Research method)</a>
+</li>
         <li><a href="autoapi/voicemate/agent/tools/arxiv_tools/index.html#voicemate.agent.tools.arxiv_tools.Paper">Paper (class in voicemate.agent.tools.arxiv_tools)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/arxiv_tools/index.html#voicemate.agent.tools.arxiv_tools.paper_filename">paper_filename() (in module voicemate.agent.tools.arxiv_tools)</a>
+</li>
+        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.paper_pdf">paper_pdf() (voicemate.agent.tools.research.Research method)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.papers">papers() (voicemate.agent.tools.research.Research method)</a>
 </li>
@@ -1342,10 +1366,10 @@
 </li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.ToolEvent.phase">phase (voicemate.events.ToolEvent attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/tts/kokoro/index.html#voicemate.tts.kokoro.KokoroSynthesizer.phonemize">phonemize() (voicemate.tts.kokoro.KokoroSynthesizer method)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/voicemate/tts/kokoro/index.html#voicemate.tts.kokoro.KokoroSynthesizer.phonemize">phonemize() (voicemate.tts.kokoro.KokoroSynthesizer method)</a>
+</li>
         <li><a href="autoapi/voicemate/models/index.html#voicemate.models.PIPER_REPO">PIPER_REPO (in module voicemate.models)</a>
 </li>
         <li><a href="autoapi/voicemate/models/index.html#voicemate.models.piper_voice_path">piper_voice_path() (in module voicemate.models)</a>
@@ -1515,6 +1539,8 @@
         <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Found.retrieved_at">retrieved_at (voicemate.agent.tools.research.Found attribute)</a>
 
         <ul>
+          <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Page.retrieved_at">(voicemate.agent.tools.research.Page attribute)</a>
+</li>
           <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.CachedSearch.retrieved_at">(voicemate.memory.store.CachedSearch attribute)</a>
 </li>
         </ul></li>
@@ -1752,9 +1778,11 @@
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.UIConfig.test_audio">test_audio (voicemate.config.UIConfig attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/asr/base/index.html#voicemate.asr.base.Transcript.text">text (voicemate.asr.base.Transcript attribute)</a>
+        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Page.text">text (voicemate.agent.tools.research.Page attribute)</a>
 
         <ul>
+          <li><a href="autoapi/voicemate/asr/base/index.html#voicemate.asr.base.Transcript.text">(voicemate.asr.base.Transcript attribute)</a>
+</li>
           <li><a href="autoapi/voicemate/events/index.html#voicemate.events.ReminderEvent.text">(voicemate.events.ReminderEvent attribute)</a>
 </li>
           <li><a href="autoapi/voicemate/events/index.html#voicemate.events.ReplyEvent.text">(voicemate.events.ReplyEvent attribute)</a>
@@ -1886,8 +1914,12 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/agent/tools/search/index.html#voicemate.agent.tools.search.UNTRUSTED_NOTE">UNTRUSTED_NOTE (in module voicemate.agent.tools.search)</a>
 </li>
-        <li><a href="autoapi/voicemate/agent/tools/search/index.html#voicemate.agent.tools.search.SearchResult.url">url (voicemate.agent.tools.search.SearchResult attribute)</a>
+        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Page.url">url (voicemate.agent.tools.research.Page attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/agent/tools/search/index.html#voicemate.agent.tools.search.SearchResult.url">(voicemate.agent.tools.search.SearchResult attribute)</a>
 </li>
+        </ul></li>
         <li><a href="autoapi/voicemate/runtime/index.html#voicemate.runtime.use_offline_hub_if_cached">use_offline_hub_if_cached() (in module voicemate.runtime)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/base/index.html#voicemate.agent.tools.base.USER_AGENT">USER_AGENT (in module voicemate.agent.tools.base)</a>

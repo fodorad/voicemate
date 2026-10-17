@@ -352,7 +352,6 @@
 <span class="sd">        http: Shared async HTTP client.</span>
 <span class="sd">        research: Cache-first searching and the listed addresses.</span>
 <span class="sd">        now: Clock returning the current local time (injectable for tests).</span>
-<span class="sd">        allowed_private_hosts: Hosts exempt from the SSRF guard (only for tests).</span>
 <span class="sd">    """</span>
 
     <span class="n">config</span><span class="p">:</span> <span class="n">Config</span>
@@ -360,8 +359,7 @@
     <span class="n">notes</span><span class="p">:</span> <span class="n">NotesStore</span>
     <span class="n">http</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span>
     <span class="n">research</span><span class="p">:</span> <span class="n">Research</span>
-    <span class="n">now</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">astimezone</span><span class="p">())</span>
-    <span class="n">allowed_private_hosts</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span></div>
+    <span class="n">now</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">astimezone</span><span class="p">())</span></div>
 
 
 

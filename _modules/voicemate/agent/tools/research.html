@@ -318,14 +318,20 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Protocol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlsplit</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.arxiv_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">Paper</span><span class="p">,</span> <span class="n">query_arxiv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.arxiv_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">Paper</span><span class="p">,</span> <span class="n">normalize_id</span><span class="p">,</span> <span class="n">query_arxiv</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.documents</span><span class="w"> </span><span class="kn">import</span> <span class="n">html_to_text</span><span class="p">,</span> <span class="n">pdf_to_text</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.netguard</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_url</span><span class="p">,</span> <span class="n">safe_get</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.search</span><span class="w"> </span><span class="kn">import</span> <span class="n">SearchBackend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryStore</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">ttl_days_for</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">chunk_text</span><span class="p">,</span> <span class="n">ttl_days_for</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -346,6 +352,13 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_results</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Paper</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return up to ``max_results`` papers for ``query``."""</span>
         <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="ArxivBackend.get">
+<a class="viewcode-back" href="../../../../autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.ArxivBackend.get">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paper_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Paper</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The paper with this arXiv id, or None."""</span>
+        <span class="o">...</span></div>
 </div>
 
 
@@ -364,7 +377,40 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Paper</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return up to ``max_results`` papers for ``query``, most relevant first."""</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">query_arxiv</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_results</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ArxivApi.get">
+<a class="viewcode-back" href="../../../../autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.ArxivApi.get">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paper_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Paper</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover - needs the network</span>
+<span class="w">        </span><span class="sd">"""The paper with this arXiv id, or None."""</span>
+        <span class="n">papers</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">query_arxiv</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">paper_id</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">papers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">papers</span> <span class="k">else</span> <span class="kc">None</span></div>
 </div>
+
+
+
+<span class="c1">#: Asked before an unlisted address is opened. Returns None to allow it, or the user's own</span>
+<span class="c1">#: words to refuse (they are passed on to the model, so "no, try X instead" still works).</span>
+<span class="n">Approval</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Page">
+<a class="viewcode-back" href="../../../../autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Page">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Page</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The text of a web page or online PDF.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        url: The address.</span>
+<span class="sd">        text: The page's main text.</span>
+<span class="sd">        from_memory: Read from memory; nothing left the machine.</span>
+<span class="sd">        retrieved_at: Unix time the page was stored (from memory only).</span>
+<span class="sd">    """</span>
+
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">from_memory</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">retrieved_at</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 
@@ -400,6 +446,8 @@
 <span class="sd">        web_backend: The web search engine.</span>
 <span class="sd">        arxiv_backend: The arXiv source.</span>
 <span class="sd">        max_results: Web results per search.</span>
+<span class="sd">        http: HTTP client for pages and PDFs (every request passes the address guard).</span>
+<span class="sd">        allowed_private_hosts: Hosts exempt from the address guard (tests only).</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -408,11 +456,15 @@
         <span class="n">web_backend</span><span class="p">:</span> <span class="n">SearchBackend</span><span class="p">,</span>
         <span class="n">arxiv_backend</span><span class="p">:</span> <span class="n">ArxivBackend</span><span class="p">,</span>
         <span class="n">max_results</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">http</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">,</span>
+        <span class="n">allowed_private_hosts</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">memory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">web_backend</span> <span class="o">=</span> <span class="n">web_backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_backend</span> <span class="o">=</span> <span class="n">arxiv_backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_results</span> <span class="o">=</span> <span class="n">max_results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">http</span> <span class="o">=</span> <span class="n">http</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allowed_private_hosts</span> <span class="o">=</span> <span class="n">allowed_private_hosts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listed</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="c1"># ── listed addresses ──────────────────────────────────────────────────────</span>
@@ -507,6 +559,100 @@
                 <span class="n">ttl</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">Found</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_backend</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ── pages ─────────────────────────────────────────────────────────────────</span>
+
+<div class="viewcode-block" id="Research.page">
+<a class="viewcode-back" href="../../../../autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.page">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">approve</span><span class="p">:</span> <span class="n">Approval</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Page</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The text of a page or online PDF: stored copy first, else fetched and stored.</span>
+
+<span class="sd">        An address no search listed is opened only after ``approve`` allows it.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ToolError: If the address is not a public http(s) address, the user refuses,</span>
+<span class="sd">                the download fails, or the page has no readable text.</span>
+<span class="sd">        """</span>
+        <span class="k">await</span> <span class="n">check_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_private_hosts</span><span class="p">)</span>
+        <span class="n">stored</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">documents_for_url</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stored</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hit</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">hit</span> <span class="ow">in</span> <span class="n">stored</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Page</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">stored</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">created</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_listed</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="n">urlsplit</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">hostname</span> <span class="ow">or</span> <span class="n">url</span>
+            <span class="n">refusal</span> <span class="o">=</span> <span class="n">approve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">refusal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ToolError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The user did not approve opening </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">. They said: </span><span class="si">{</span><span class="n">refusal</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">list_address</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">safe_get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">http</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_private_hosts</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ToolError</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ToolError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not fetch </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="n">content_type</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"content-type"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"pdf"</span> <span class="ow">in</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="n">url</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".pdf"</span><span class="p">):</span>
+            <span class="n">text</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">pdf_to_text</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">html_to_text</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ToolError</span><span class="p">(</span><span class="s2">"No readable text on that page"</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">add_documents</span><span class="p">,</span>
+            <span class="n">chunk_text</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
+            <span class="n">url</span><span class="p">,</span>
+            <span class="n">title</span><span class="p">,</span>
+            <span class="s2">"page"</span><span class="p">,</span>
+            <span class="n">ttl_days_for</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s2">"page"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Page</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ── papers ────────────────────────────────────────────────────────────────</span>
+
+<div class="viewcode-block" id="Research.get_paper">
+<a class="viewcode-back" href="../../../../autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.get_paper">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_paper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paper_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Paper</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Look a paper up by arXiv id or URL.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ToolError: If the id is not an arXiv id, arXiv fails, or the paper does not exist.</span>
+<span class="sd">        """</span>
+        <span class="n">paper_id</span> <span class="o">=</span> <span class="n">normalize_id</span><span class="p">(</span><span class="n">paper_id</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">paper</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_backend</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">paper_id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ToolError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"arXiv lookup failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">if</span> <span class="n">paper</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ToolError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No arXiv paper </span><span class="si">{</span><span class="n">paper_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">paper</span></div>
+
+
+<div class="viewcode-block" id="Research.paper_pdf">
+<a class="viewcode-back" href="../../../../autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.paper_pdf">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">paper_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paper</span><span class="p">:</span> <span class="n">Paper</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Download the paper's PDF through the address guard."""</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">safe_get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">http</span><span class="p">,</span> <span class="n">paper</span><span class="o">.</span><span class="n">pdf_url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_private_hosts</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span></div>
+
+
+<div class="viewcode-block" id="Research.index_paper">
+<a class="viewcode-back" href="../../../../autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.index_paper">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">index_paper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paper</span><span class="p">:</span> <span class="n">Paper</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Store the paper's full text for recall, once (the abstract is stored by searches)."""</span>
+        <span class="n">indexed</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">documents_for_url</span><span class="p">,</span> <span class="n">paper</span><span class="o">.</span><span class="n">abs_url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indexed</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">text</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">add_documents</span><span class="p">,</span>
+                <span class="n">chunk_text</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
+                <span class="n">paper</span><span class="o">.</span><span class="n">abs_url</span><span class="p">,</span>
+                <span class="n">paper</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+                <span class="s2">"paper"</span><span class="p">,</span>
+                <span class="n">ttl_days_for</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"paper"</span><span class="p">),</span>
+            <span class="p">)</span></div>
 </div>
 
 </pre></div>

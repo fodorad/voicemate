@@ -399,7 +399,6 @@ can show whether data came from the web (left the machine), memory, or local sta
 <li><p><strong>http</strong> – Shared async HTTP client.</p></li>
 <li><p><strong>research</strong> – Cache-first searching and the listed addresses.</p></li>
 <li><p><strong>now</strong> – Clock returning the current local time (injectable for tests).</p></li>
-<li><p><strong>allowed_private_hosts</strong> – Hosts exempt from the SSRF guard (only for tests).</p></li>
 </ul>
 </dd>
 </dl>
@@ -431,11 +430,6 @@ can show whether data came from the web (left the machine), memory, or local sta
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.agent.tools.base.ToolContext.now">
 <span class="sig-name descname"><span class="pre">now</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#voicemate.agent.tools.base.ToolContext.now" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.agent.tools.base.ToolContext.allowed_private_hosts">
-<span class="sig-name descname"><span class="pre">allowed_private_hosts</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#voicemate.agent.tools.base.ToolContext.allowed_private_hosts" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -537,7 +531,6 @@ can show whether data came from the web (left the machine), memory, or local sta
 <li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.http"><code class="docutils literal notranslate"><span class="pre">ToolContext.http</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.research"><code class="docutils literal notranslate"><span class="pre">ToolContext.research</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.now"><code class="docutils literal notranslate"><span class="pre">ToolContext.now</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.agent.tools.base.ToolContext.allowed_private_hosts"><code class="docutils literal notranslate"><span class="pre">ToolContext.allowed_private_hosts</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.agent.tools.base.emitter"><code class="docutils literal notranslate"><span class="pre">emitter()</span></code></a></li>

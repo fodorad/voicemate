@@ -77,7 +77,6 @@ Module Contents
    :ivar http: Shared async HTTP client.
    :ivar research: Cache-first searching and the listed addresses.
    :ivar now: Clock returning the current local time (injectable for tests).
-   :ivar allowed_private_hosts: Hosts exempt from the SSRF guard (only for tests).
 
 
 
@@ -103,10 +102,6 @@ Module Contents
 
    .. py:attribute:: now
       :type:  collections.abc.Callable[[], datetime.datetime]
-
-
-   .. py:attribute:: allowed_private_hosts
-      :type:  frozenset[str]
 
 
 .. py:function:: emitter(config: langchain_core.runnables.RunnableConfig | None) -> collections.abc.Callable[[voicemate.events.Event], None]
