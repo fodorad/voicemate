@@ -24,7 +24,7 @@ import json
 import logging
 import time
 import uuid
-from collections.abc import Coroutine
+from collections.abc import AsyncIterator, Coroutine
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -57,10 +57,8 @@ from voicemate.events import (
 )
 from voicemate.pipeline.chunker import SpeechChunker
 from voicemate.pipeline.conversation import (
-    INTERRUPTED_MARK,
     ChatLine,
     Conversation,
-    question_text,
 )
 from voicemate.runtime import Runtime
 
@@ -74,9 +72,6 @@ APOLOGIES: dict[str, str] = {
     "hu": "Elnézést, ez most nem sikerült. Kérlek, próbáld újra.",
     "en": "Sorry, that didn't work. Please try again.",
 }
-
-#: Result given to tool calls that were cancelled by a barge-in.
-INTERRUPTED_TOOL_RESULT: str = "Cancelled: the user interrupted before this finished."
 
 #: A question cut off before any answer is merged with the next utterance only if that
 #: utterance follows within this many seconds; later speech is a new question.
@@ -404,7 +399,7 @@ class VoiceSession:
             resume is None and continuation and pending and ended_at - pending.at <= MERGE_WINDOW_S
         )
         if merged and pending is not None:
-            await self._discard_message(pending.message_id)
+            await self.conversation.discard(pending.message_id)
             text = f"{pending.text} {text}"
         lang = self.runtime.langid.detect(text, previous=self.lang)
         self.lang = lang
@@ -412,51 +407,9 @@ class VoiceSession:
         self._turn = self._spawn(self._run_turn(text, lang, ended_at, transcript, resume))
 
     async def _close_interrupted_turn(self) -> None:
-        """Keep the history of a cut-off turn consistent and informative.
-
-        Tool calls that never got a result are answered with a "cancelled" message (models
-        reject dangling tool calls), and a partially spoken reply is kept, marked as
-        interrupted, so the next turn knows what the user already heard.
-        """
-        from langchain_core.messages import AIMessage, ToolMessage
-
+        """Repair the history of a cut-off turn (see :meth:`Conversation.close_interrupted`)."""
         partial, self._interrupted_reply = self._interrupted_reply, ""
-        run_config = self.conversation.run_config
-        try:
-            snapshot = await self.runtime.graph.aget_state(run_config)
-        except Exception:  # pragma: no cover - checkpointer unavailable
-            logger.exception("Cannot read the interrupted turn's state")
-            return
-        messages = snapshot.values.get("messages", []) if snapshot else []
-        answered = {m.tool_call_id for m in messages if isinstance(m, ToolMessage)}
-        patch: list = []
-        for message in messages:
-            if not isinstance(message, AIMessage):
-                continue
-            open_calls = [c for c in message.tool_calls if c["id"] not in answered]
-            if open_calls:
-                # Re-add the call message with its results: a cancel that lands just before
-                # LangGraph commits the step can drop it, which would leave a tool result
-                # without a call (models reject that). Messages are matched by id, so when
-                # it is already stored this replaces it in place.
-                patch.append(message)
-                patch.extend(
-                    ToolMessage(INTERRUPTED_TOOL_RESULT, tool_call_id=c["id"]) for c in open_calls
-                )
-        if partial:
-            patch.append(AIMessage(f"{partial.strip()} {INTERRUPTED_MARK}"))
-        if patch:
-            await self.runtime.graph.aupdate_state(run_config, {"messages": patch}, as_node="agent")
-
-    async def _discard_message(self, message_id: str) -> None:
-        """Remove an unanswered user message from the checkpointed history."""
-        from langchain_core.messages import RemoveMessage
-
-        with contextlib.suppress(Exception):
-            await self.runtime.graph.aupdate_state(
-                self.conversation.run_config,
-                {"messages": [RemoveMessage(id=message_id)]},
-            )
+        await self.conversation.close_interrupted(partial)
 
     async def _run_turn(
         self,
@@ -467,33 +420,27 @@ class VoiceSession:
         resume: str | None = None,
     ) -> None:
         """Stream one agent run into speech; ``resume`` answers a pending confirmation."""
-        from langchain_core.messages import HumanMessage
-        from langgraph.types import Command
-
         turn = _Turn(lang, ended_at)
-        message = HumanMessage(text, id=uuid.uuid4().hex)
-        graph_input: Any = (
-            Command(resume=resume) if resume is not None else {"messages": [message], "lang": lang}
+        message_id = uuid.uuid4().hex
+        emit = self._tool_emitter(turn)
+        chunks = (
+            self.conversation.resume(resume, emit)
+            if resume is not None
+            else self.conversation.say(text, lang, message_id, emit)
         )
-        run_config = {
-            "configurable": {
-                **self.conversation.run_config["configurable"],
-                "emit": self._tool_emitter(turn),
-            }
-        }
         worker = asyncio.create_task(self._tts_worker(turn))
         self._status(Lane.THINKING, LaneState.ACTIVE)
         try:
             async with asyncio.timeout(self.config.llm.turn_timeout_s):
-                await self._stream(turn, graph_input, run_config)
-                await self._ask_if_paused(turn, run_config)
+                await self._stream(turn, chunks)
+                await self._ask_if_paused(turn)
         except asyncio.CancelledError:
             worker.cancel()
             if turn.reply:
                 self._interrupted_reply = turn.reply
                 self.bus.publish(ReplyEvent(turn.reply, interrupted=True))
             elif resume is None:
-                self._pending = _Pending(message.id or "", text, time.monotonic())
+                self._pending = _Pending(message_id, text, time.monotonic())
             raise
         except Exception as exc:  # timeout, Ollama down, ...
             turn.failed = True
@@ -533,18 +480,9 @@ class VoiceSession:
 
         return on_event
 
-    async def _stream(self, turn: _Turn, graph_input: Any, run_config: dict) -> None:
+    async def _stream(self, turn: _Turn, chunks: AsyncIterator[str]) -> None:
         """Feed the agent's streamed answer into the chunker and the UI."""
-        from langchain_core.messages import AIMessageChunk
-
-        async for chunk, meta in self.runtime.graph.astream(
-            graph_input, run_config, stream_mode="messages"
-        ):
-            if meta.get("langgraph_node") != "agent" or not isinstance(chunk, AIMessageChunk):
-                continue
-            content = chunk.content
-            if not isinstance(content, str) or not content:
-                continue
+        async for content in chunks:
             if turn.first_token is None:
                 turn.first_token = time.monotonic()
                 self._status(Lane.THINKING, LaneState.DONE)
@@ -555,13 +493,11 @@ class VoiceSession:
             for piece in turn.chunker.feed(content):
                 turn.say(piece)
 
-    async def _ask_if_paused(self, turn: _Turn, run_config: dict) -> None:
+    async def _ask_if_paused(self, turn: _Turn) -> None:
         """If a tool paused the graph for permission, show and speak the question."""
-        snapshot = await self.runtime.graph.aget_state(run_config)
-        interrupts = getattr(snapshot, "interrupts", ()) or ()
-        if not interrupts:
+        question = await self.conversation.pending_question()
+        if question is None:
             return
-        question = question_text(interrupts[0].value)
         self.confirmation = Confirmation(question)
         self.bus.publish(ConfirmEvent(question))
         turn.say(question)

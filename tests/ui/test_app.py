@@ -36,7 +36,8 @@ from voicemate.events import (
     ToolEvent,
     TranscriptEvent,
 )
-from voicemate.pipeline.orchestrator import ChatLine, VoiceSession
+from voicemate.pipeline.conversation import ChatLine
+from voicemate.pipeline.orchestrator import VoiceSession
 from voicemate.runtime import Runtime
 from voicemate.speech import Speech
 from voicemate.tts.voices import VoiceBank

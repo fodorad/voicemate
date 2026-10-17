@@ -33,13 +33,11 @@ from voicemate.events import (
     TokenEvent,
     TranscriptEvent,
 )
+from voicemate.pipeline.conversation import INTERRUPTED_MARK, INTERRUPTED_TOOL_RESULT, ChatLine
 from voicemate.pipeline.orchestrator import (
     APOLOGIES,
     FILLERS,
-    INTERRUPTED_MARK,
-    INTERRUPTED_TOOL_RESULT,
     PARTIAL_WINDOW_S,
-    ChatLine,
     VoiceSession,
     _Pending,
     turns_log_path,
@@ -399,44 +397,6 @@ class TestHold(SessionTestCase):
         await self.session.release()  # releasing twice is harmless
         await self.settle()
         self.assertEqual(self.llm.seen, [])
-
-
-class TestClosingAnInterruptedTurn(SessionTestCase):
-    async def seed(self, *messages):
-        config = {"configurable": {"thread_id": "test"}}
-        await self.runtime.graph.aupdate_state(
-            config, {"messages": list(messages)}, as_node="agent"
-        )
-
-    async def history(self):
-        state = await self.runtime.graph.aget_state({"configurable": {"thread_id": "test"}})
-        return state.values["messages"]
-
-    async def test_call_message_is_kept_once_next_to_its_cancelled_result(self):
-        from langchain_core.messages import AIMessage, HumanMessage
-
-        self.make_session(["x"])
-        call = AIMessage(
-            "",
-            tool_calls=[{"name": "get_time", "args": {}, "id": "call_9"}],
-            id="ai-with-call",
-        )
-        await self.seed(HumanMessage("what time is it", id="u1"), call)
-        await self.session._close_interrupted_turn()
-        messages = await self.history()
-        self.assertEqual([m.type for m in messages], ["human", "ai", "tool"])
-        self.assertEqual(messages[1].tool_calls[0]["id"], messages[2].tool_call_id)
-
-    async def test_answered_calls_are_left_alone(self):
-        from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
-
-        self.make_session(["x"])
-        call = AIMessage("", tool_calls=[{"name": "get_time", "args": {}, "id": "c1"}], id="a1")
-        await self.seed(
-            HumanMessage("time?", id="u1"), call, ToolMessage("noon", tool_call_id="c1")
-        )
-        await self.session._close_interrupted_turn()
-        self.assertEqual([m.type for m in await self.history()], ["human", "ai", "tool"])
 
 
 class FailingRecognizer:
