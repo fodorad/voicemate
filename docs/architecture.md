@@ -39,6 +39,40 @@ flowchart LR
 The speech models run on the CPU on purpose: the GPU and most of the memory belong to the
 language model (see the spec, §10).
 
+## Modules and seams
+
+Five deep modules keep the rules in one place each. Dashed lines are the seams: the interface
+other modules (and the tests) use. Behind each seam sits a real adapter and, in the tests, a
+small hand-written fake.
+
+```mermaid
+flowchart TB
+    UI[ui/app.py<br/>page + /ws/audio] -->|messages| PROTO[[audio.protocol<br/>browser messages]]
+    UI --> SESSION[VoiceSession<br/>plumbing: audio, ASR, graph stream, TTS]
+    SESSION -.-> POLICY[[TurnTaking<br/>what input means]]
+    SESSION -.-> CONV[[Conversation<br/>thread, history, repair, stream]]
+    SESSION -.-> SPEECH[[Speech<br/>async ASR + TTS, one worker each]]
+    CONV -.-> GRAPH[(LangGraph + checkpoint)]
+    GRAPH --> TOOLS[agent tools]
+    TOOLS -.-> RESEARCH[[Research<br/>cached search, listed addresses]]
+    RESEARCH --> MEM[(Memory)]
+    RESEARCH --> NET((web, arXiv, pages))
+    SPEECH --> MODELS[Parakeet · Piper · Kokoro]
+    classDef deep fill:#0f172a,color:#f8fafc,stroke:#0f172a;
+    class POLICY,CONV,SPEECH,RESEARCH,PROTO deep;
+```
+
+| Module | Owns | Faked in tests with |
+|---|---|---|
+| `pipeline.turn_taking` | hold and release, merging a cut-off question (20 s), answering a confirmation, barge-in. Pure: no event loop, no I/O | nothing needed: plain values in, decisions out |
+| `pipeline.conversation` | the current thread id (`data/conversation.json`), history lines, repair of an interrupted turn, discarding a cancelled message, streaming a turn, the pending question | in-memory LangGraph checkpointer + a scripted chat model |
+| `speech` | transcription and synthesis, one worker thread per model (MLX is not re-entrant), clean shutdown | scripted recognizer, tone synthesizer |
+| `agent.tools.research` | cache-first web and arXiv search, page and paper access, the listed addresses (anything else asks the user first), what leaves the machine | static search and arXiv backends, a local HTTP server |
+| `audio.protocol` | the browser to server messages (mic off, playback started and ended, stop) | a contract test reads `audio.js` and fails if either side drifts |
+
+`VoiceSession` keeps only plumbing: it feeds inputs to the policy and executes the decisions,
+and it imports nothing from LangGraph or LangChain (a test asserts that).
+
 ## The LangGraph agent
 
 This diagram is generated from the compiled graph (`graph.get_graph().draw_mermaid()`):

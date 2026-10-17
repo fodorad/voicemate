@@ -370,3 +370,42 @@ prompt.
   result without a call. Closing a turn now re-adds the call message with its results (the
   `add_messages` reducer replaces by id, so nothing is duplicated). Reproduced at about 1 in
   8 under CPU load; 0 in 40 after the fix.
+
+## 13. Architecture deepening (2026-10-17)
+
+An architecture review of v1.0.0 found five shallow spots. Fixes kept landing in the same
+few places (the interrupted-history bug in the session, the exfiltration fix in four tools).
+Each became a deep module behind a small interface; behaviour is unchanged, each landed as its
+own `refactor:` PR with the full local and remote gate green.
+
+| Module | Replaces |
+|---|---|
+| `audio.protocol` | message names defined separately in `audio.js` and Python |
+| `speech.Speech` | `Runtime.recognizer/voices/asr_executor/tts_executor`, the executor calls in the session, and a duplicated synthesis path for reminders |
+| `pipeline.conversation` | checkpoint access in four places in the session, and thread persistence in the UI `Server` |
+| `pipeline.turn_taking` | hold, cut-off question and confirmation flags spread over `VoiceSession` |
+| `agent.tools.research` | the same cache-first recipe in four tools, plus `ToolContext.offered_urls` and the address guard calls |
+
+Decisions made along the way:
+
+- **Interrupt before interpreting.** The old session cancelled a running turn first, and the
+  cancelled turn left the cut-off question that the next utterance may merge with. A pure
+  policy would decide before that happened, so it answers `Interrupt` without consuming any
+  state when a turn is running; the session cancels, then presents the same input again.
+- **Conversation owns streaming**, so the session needs no LangChain message types.
+- **Research asks through a callback**, so it stays free of LangGraph. The tool supplies the
+  question and the model sees the user's own words when they refuse.
+- **The browser protocol is checked by a contract test**, not generated: JS cannot import
+  Python types, and a regex over `audio.js` is cheap and catches drift.
+- `ToolContext` lost `search`, `offered_urls` and `allowed_private_hosts`; `Runtime` lost four
+  fields. The arXiv backend became injectable, so the arXiv tool is finally tested offline.
+
+Verification: 305 tests (was 223), coverage 91 %, 94-100 % on the new modules. The
+interrupted-history and session tests ran 40 times each under CPU load with no failure. A
+real-model end-to-end run (gemma4:e4b, isolated server) passed: spoken and typed turns,
+a web search answered from memory the second time, an unlisted page asking first and
+fetching after "Allow", a reload in the middle of that question (history and question
+restored), hold with two clips answered once, barge-in marking the cut-off reply, and
+New conversation starting empty. First audio 2.83-2.85 s for spoken chat turns (v1.0.0:
+2.9 s) and 1.8-5.2 s for tool turns (2.2-5.1 s), the same within noise.
+

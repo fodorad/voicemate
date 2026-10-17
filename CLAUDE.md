@@ -22,6 +22,13 @@ ASR → LangGraph stream → `SpeechChunker` → TTS → browser) → `agent/gra
 agent ⇄ ToolNode) with tools in `agent/tools/`, memory in `memory/` (LanceDB + SQLite).
 All UI state flows through `events.EventBus`.
 
+Five deep modules hold the rules (see `docs/architecture.md`): `pipeline/turn_taking.py`
+(pure: what input means), `pipeline/conversation.py` (thread, history, repair, streaming),
+`speech.py` (async ASR/TTS, owns the worker threads), `agent/tools/research.py` (cache-first
+search, listed addresses, page and paper access), `audio/protocol.py` (browser messages).
+`VoiceSession` is plumbing only and imports no LangGraph/LangChain; tools never touch stored
+documents or the address guard directly.
+
 ## Lessons that cost time (keep them)
 
 - **KV cache:** the system prompt must stay byte-identical across turns. Put anything that
