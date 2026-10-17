@@ -11,6 +11,7 @@ Submodules
    :maxdepth: 1
 
    /autoapi/voicemate/audio/codec/index
+   /autoapi/voicemate/audio/protocol/index
    /autoapi/voicemate/audio/vad/index
 
 

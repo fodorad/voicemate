@@ -226,6 +226,7 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/voicemate/audio/index.html">voicemate.audio</a><input aria-label="Toggle navigation of voicemate.audio" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/audio/codec/index.html">voicemate.audio.codec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/audio/protocol/index.html">voicemate.audio.protocol</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/audio/vad/index.html">voicemate.audio.vad</a></li>
 </ul>
 </li>
@@ -474,10 +475,10 @@
           <li><a href="autoapi/app/index.html#app.Server.config">(app.Server attribute)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.Config">Config (class in voicemate.config)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/agent/tools/base/index.html#voicemate.agent.tools.base.ToolContext.config">config (voicemate.agent.tools.base.ToolContext attribute)</a>
 
         <ul>
@@ -499,6 +500,10 @@
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.ConfirmEvent">ConfirmEvent (class in voicemate.events)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/graph/index.html#voicemate.agent.graph.AgentState.context">context (voicemate.agent.graph.AgentState attribute)</a>
+</li>
+        <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.CONTROL_MESSAGES">CONTROL_MESSAGES (in module voicemate.audio.protocol)</a>
+</li>
+        <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.ControlMessage">ControlMessage (in module voicemate.audio.protocol)</a>
 </li>
         <li><a href="autoapi/app/index.html#app.ConversationPage">ConversationPage (class in app)</a>
 </li>
@@ -561,6 +566,8 @@
         <li><a href="autoapi/voicemate/memory/notes/index.html#voicemate.memory.notes.Note.due">due (voicemate.memory.notes.Note attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/memory/notes/index.html#voicemate.memory.notes.NotesStore.due_reminders">due_reminders() (voicemate.memory.notes.NotesStore method)</a>
+</li>
+        <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.dump">dump() (in module voicemate.audio.protocol)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -866,10 +873,10 @@
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.Config.llm">llm (voicemate.config.Config attribute)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.LLMConfig">LLMConfig (class in voicemate.config)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/runtime/index.html#voicemate.runtime.Runtime.load">load() (voicemate.runtime.Runtime class method)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.load_config">load_config() (in module voicemate.config)</a>
@@ -890,6 +897,8 @@
           <li><a href="autoapi/voicemate/agent/model_select/index.html#voicemate.agent.model_select.logger">(in module voicemate.agent.model_select)</a>
 </li>
           <li><a href="autoapi/voicemate/asr/parakeet/index.html#voicemate.asr.parakeet.logger">(in module voicemate.asr.parakeet)</a>
+</li>
+          <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.logger">(in module voicemate.audio.protocol)</a>
 </li>
           <li><a href="autoapi/voicemate/bench/run/index.html#voicemate.bench.run.logger">(in module voicemate.bench.run)</a>
 </li>
@@ -986,6 +995,8 @@
 </li>
         <li><a href="autoapi/app/index.html#app.MIC_SHORTCUT">MIC_SHORTCUT (in module app)</a>
 </li>
+        <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.MicOff">MicOff (class in voicemate.audio.protocol)</a>
+</li>
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.microphone_stopped">microphone_stopped() (voicemate.pipeline.orchestrator.VoiceSession method)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/chunker/index.html#voicemate.pipeline.chunker.SpeechChunker.min_first_chars">min_first_chars (voicemate.pipeline.chunker.SpeechChunker attribute)</a>
@@ -1063,6 +1074,8 @@
           <li><a href="autoapi/voicemate/audio/index.html#module-voicemate.audio">voicemate.audio</a>
 </li>
           <li><a href="autoapi/voicemate/audio/codec/index.html#module-voicemate.audio.codec">voicemate.audio.codec</a>
+</li>
+          <li><a href="autoapi/voicemate/audio/protocol/index.html#module-voicemate.audio.protocol">voicemate.audio.protocol</a>
 </li>
           <li><a href="autoapi/voicemate/audio/vad/index.html#module-voicemate.audio.vad">voicemate.audio.vad</a>
 </li>
@@ -1207,8 +1220,12 @@
 </li>
         <li><a href="autoapi/voicemate/asr/parakeet/index.html#voicemate.asr.parakeet.ParakeetRecognizer">ParakeetRecognizer (class in voicemate.asr.parakeet)</a>
 </li>
-        <li><a href="autoapi/voicemate/models/index.html#voicemate.models.PiperVoiceId.parse">parse() (voicemate.models.PiperVoiceId class method)</a>
+        <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.parse">parse() (in module voicemate.audio.protocol)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/models/index.html#voicemate.models.PiperVoiceId.parse">(voicemate.models.PiperVoiceId class method)</a>
 </li>
+        </ul></li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.ASRConfig.partial_interval_s">partial_interval_s (voicemate.config.ASRConfig attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S">PARTIAL_WINDOW_S (in module voicemate.pipeline.orchestrator)</a>
@@ -1227,10 +1244,10 @@
 </li>
         <li><a href="autoapi/voicemate/models/index.html#voicemate.models.PIPER_REPO">PIPER_REPO (in module voicemate.models)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/models/index.html#voicemate.models.piper_voice_path">piper_voice_path() (in module voicemate.models)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/tts/piper/index.html#voicemate.tts.piper.PiperSynthesizer">PiperSynthesizer (class in voicemate.tts.piper)</a>
 </li>
         <li><a href="autoapi/voicemate/models/index.html#voicemate.models.PiperVoiceId">PiperVoiceId (class in voicemate.models)</a>
@@ -1238,6 +1255,10 @@
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.playback_ended">playback_ended() (voicemate.pipeline.orchestrator.VoiceSession method)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.playback_started">playback_started() (voicemate.pipeline.orchestrator.VoiceSession method)</a>
+</li>
+        <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.PlaybackEnded">PlaybackEnded (class in voicemate.audio.protocol)</a>
+</li>
+        <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.PlaybackStarted">PlaybackStarted (class in voicemate.audio.protocol)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.UIConfig.port">port (voicemate.config.UIConfig attribute)</a>
 </li>
@@ -1467,8 +1488,6 @@
 </li>
         <li><a href="autoapi/app/index.html#app.Server.shutdown">shutdown() (app.Server method)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.silero_model_path">silero_model_path() (in module voicemate.audio.vad)</a>
 </li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.SileroVAD">SileroVAD (class in voicemate.audio.vad)</a>
@@ -1479,6 +1498,8 @@
           <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryHit.similarity">(voicemate.memory.store.MemoryHit attribute)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/agent/tools/arxiv_tools/index.html#voicemate.agent.tools.arxiv_tools.slugify">slugify() (in module voicemate.agent.tools.arxiv_tools)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/search/index.html#voicemate.agent.tools.search.SearchResult.snippet">snippet (voicemate.agent.tools.search.SearchResult attribute)</a>
@@ -1509,8 +1530,18 @@
 </li>
         <li><a href="autoapi/app/index.html#app.Server.startup">startup() (app.Server method)</a>
 </li>
-        <li><a href="autoapi/voicemate/events/index.html#voicemate.events.StatusEvent.state">state (voicemate.events.StatusEvent attribute)</a>
+        <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.MicOff.state">state (voicemate.audio.protocol.MicOff attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.PlaybackEnded.state">(voicemate.audio.protocol.PlaybackEnded attribute)</a>
 </li>
+          <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.PlaybackStarted.state">(voicemate.audio.protocol.PlaybackStarted attribute)</a>
+</li>
+          <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.Stop.state">(voicemate.audio.protocol.Stop attribute)</a>
+</li>
+          <li><a href="autoapi/voicemate/events/index.html#voicemate.events.StatusEvent.state">(voicemate.events.StatusEvent attribute)</a>
+</li>
+        </ul></li>
         <li><a href="autoapi/app/index.html#app.STATIC_DIR">STATIC_DIR (in module app)</a>
 </li>
         <li><a href="autoapi/app/index.html#app.ConversationPage.stations">stations (app.ConversationPage attribute)</a>
@@ -1518,6 +1549,8 @@
         <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.stats">stats() (voicemate.memory.store.MemoryStore method)</a>
 </li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.StatusEvent">StatusEvent (class in voicemate.events)</a>
+</li>
+        <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.Stop">Stop (class in voicemate.audio.protocol)</a>
 </li>
         <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.store_search">store_search() (voicemate.memory.store.MemoryStore method)</a>
 </li>
@@ -1609,12 +1642,12 @@
 </li>
         <li><a href="autoapi/voicemate/bench/run/index.html#voicemate.bench.run.TOOL_CASES">TOOL_CASES (in module voicemate.bench.run)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/report/index.html#voicemate.report.Report.tool_counts">tool_counts (voicemate.report.Report attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/report/index.html#voicemate.report.Report.tool_first_audio">tool_first_audio (voicemate.report.Report attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/agent/graph/index.html#voicemate.agent.graph.AgentState.tool_rounds">tool_rounds (voicemate.agent.graph.AgentState attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/base/index.html#voicemate.agent.tools.base.ToolContext">ToolContext (class in voicemate.agent.tools.base)</a>
@@ -1657,6 +1690,16 @@
 </li>
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.turns_log_path">turns_log_path() (in module voicemate.pipeline.orchestrator)</a>
 </li>
+        <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.MicOff.type">type (voicemate.audio.protocol.MicOff attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.PlaybackEnded.type">(voicemate.audio.protocol.PlaybackEnded attribute)</a>
+</li>
+          <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.PlaybackStarted.type">(voicemate.audio.protocol.PlaybackStarted attribute)</a>
+</li>
+          <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.Stop.type">(voicemate.audio.protocol.Stop attribute)</a>
+</li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -1879,6 +1922,13 @@
 
         <ul>
           <li><a href="autoapi/voicemate/audio/codec/index.html#module-voicemate.audio.codec">module</a>
+</li>
+        </ul></li>
+        <li>
+    voicemate.audio.protocol
+
+        <ul>
+          <li><a href="autoapi/voicemate/audio/protocol/index.html#module-voicemate.audio.protocol">module</a>
 </li>
         </ul></li>
         <li>

@@ -1,0 +1,131 @@
+voicemate.audio.protocol
+========================
+
+.. py:module:: voicemate.audio.protocol
+
+.. autoapi-nested-parse::
+
+   Control messages between the browser and the server, defined in one place.
+
+   Audio itself travels as binary WebSocket frames (see :mod:`voicemate.audio.codec`); everything
+   else is a small JSON text message. ``static/audio.js`` implements the browser side, and a
+   contract test keeps it in step with the definitions here.
+
+   Browser → server: :class:`MicOff`, :class:`PlaybackStarted`, :class:`PlaybackEnded`.
+   Server → browser: :class:`Stop`.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.audio.protocol.logger
+   voicemate.audio.protocol.ControlMessage
+   voicemate.audio.protocol.CONTROL_MESSAGES
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.audio.protocol.MicOff
+   voicemate.audio.protocol.PlaybackStarted
+   voicemate.audio.protocol.PlaybackEnded
+   voicemate.audio.protocol.Stop
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.audio.protocol.dump
+   voicemate.audio.protocol.parse
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: MicOff
+
+   The user turned the microphone off.
+
+
+   .. py:attribute:: type
+      :value: 'mic'
+
+
+
+   .. py:attribute:: state
+      :value: 'off'
+
+
+
+.. py:class:: PlaybackStarted
+
+   The browser started playing assistant audio.
+
+
+   .. py:attribute:: type
+      :value: 'playback'
+
+
+
+   .. py:attribute:: state
+      :value: 'started'
+
+
+
+.. py:class:: PlaybackEnded
+
+   The browser finished (or dropped) all queued assistant audio.
+
+
+   .. py:attribute:: type
+      :value: 'playback'
+
+
+
+   .. py:attribute:: state
+      :value: 'ended'
+
+
+
+.. py:class:: Stop
+
+   Barge-in: the browser must drop queued speech.
+
+
+   .. py:attribute:: type
+      :value: 'stop'
+
+
+
+   .. py:attribute:: state
+      :value: None
+
+
+
+.. py:data:: ControlMessage
+
+.. py:data:: CONTROL_MESSAGES
+   :type:  tuple[ControlMessage, ...]
+
+.. py:function:: dump(message: ControlMessage) -> str
+
+   The JSON text sent over the WebSocket for ``message``.
+
+
+.. py:function:: parse(text: str) -> ControlMessage | None
+
+   Decode a JSON text message.
+
+   :returns: The message, or ``None`` (and a log line) when the text is malformed or unknown, so
+             a bad client can never break the session.
+
+
