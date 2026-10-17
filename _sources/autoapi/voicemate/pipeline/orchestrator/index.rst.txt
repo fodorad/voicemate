@@ -32,7 +32,6 @@ Attributes
    voicemate.pipeline.orchestrator.logger
    voicemate.pipeline.orchestrator.FILLERS
    voicemate.pipeline.orchestrator.APOLOGIES
-   voicemate.pipeline.orchestrator.MERGE_WINDOW_S
    voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S
    voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S
 
@@ -63,11 +62,6 @@ Module Contents
 
 .. py:data:: APOLOGIES
    :type:  dict[str, str]
-
-.. py:data:: MERGE_WINDOW_S
-   :type:  float
-   :value: 20.0
-
 
 .. py:data:: PARTIAL_WINDOW_S
    :type:  float
@@ -105,15 +99,7 @@ Module Contents
    .. py:attribute:: lang
 
 
-   .. py:attribute:: holding
-      :value: False
-
-
-
-   .. py:attribute:: confirmation
-      :type:  voicemate.agent.hitl.Confirmation | None
-      :value: None
-
+   .. py:attribute:: policy
 
 
    .. py:method:: start() -> None
@@ -143,6 +129,22 @@ Module Contents
 
 
       Id of this session's conversation thread.
+
+
+   .. py:property:: holding
+      :type: bool
+
+
+      pauses do not end their turn (see :meth:`hold`).
+
+      :type: True while the user holds
+
+
+   .. py:property:: confirmation
+      :type: voicemate.agent.hitl.Confirmation | None
+
+
+      The question the agent is waiting on (human-in-the-loop), if any.
 
 
    .. py:property:: busy

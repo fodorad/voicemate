@@ -1,0 +1,193 @@
+voicemate.pipeline.turn_taking
+==============================
+
+.. py:module:: voicemate.pipeline.turn_taking
+
+.. autoapi-nested-parse::
+
+   Turn-taking rules: what each thing the user does means for the conversation.
+
+   :class:`TurnTaking` is a small state machine with no event loop and no I/O. The voice session
+   tells it what happened (an utterance, typed text, a button, a cancelled turn, ...) as plain
+   values and executes the :data:`Decision` it returns. That keeps the rules (merging a
+   cut-off question, answering a confirmation, holding until the user is finished, barge-in)
+   testable without a graph, a microphone or a voice.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.pipeline.turn_taking.MERGE_WINDOW_S
+   voicemate.pipeline.turn_taking.Decision
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.pipeline.turn_taking.Begin
+   voicemate.pipeline.turn_taking.Collect
+   voicemate.pipeline.turn_taking.Interrupt
+   voicemate.pipeline.turn_taking.Ignore
+   voicemate.pipeline.turn_taking.TurnTaking
+
+
+Module Contents
+---------------
+
+.. py:data:: MERGE_WINDOW_S
+   :type:  float
+   :value: 20.0
+
+
+.. py:class:: Begin
+
+   Start a turn.
+
+   :ivar text: The user's words (a merged question already joined).
+   :ivar merged: ``text`` continues a question that was cut off.
+   :ivar resume: The user's words answer a pending confirmation (the turn resumes the run).
+   :ivar discard: Id of the cut-off message to remove from the history (when merged).
+   :ivar shown: The UI already shows ``text`` (it was collected during a hold).
+
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: merged
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: resume
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: discard
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: shown
+      :type:  bool
+      :value: False
+
+
+
+.. py:class:: Collect
+
+   Keep the words; the user is holding.
+
+   :ivar text: Everything collected so far, joined.
+   :ivar parts: How many separate inputs it holds.
+
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: parts
+      :type:  int
+
+
+.. py:class:: Interrupt
+
+   Stop what the assistant is doing (barge-in, or the user took the floor).
+
+   Returned for input while a turn is running too: nothing was consumed, so the caller
+   cancels the turn and presents the same input again.
+
+
+.. py:class:: Ignore
+
+   Nothing to do.
+
+
+.. py:data:: Decision
+
+.. py:class:: TurnTaking(merge_window_s: float = MERGE_WINDOW_S)
+
+   Decides what user input means. Times are monotonic seconds supplied by the caller.
+
+   :param merge_window_s: See :data:`MERGE_WINDOW_S`.
+
+   :ivar holding: While True, input is collected instead of answered.
+   :ivar question: The confirmation the agent is waiting on, if any.
+
+
+
+   .. py:attribute:: merge_window_s
+      :value: 20.0
+
+
+
+   .. py:attribute:: holding
+      :value: False
+
+
+
+   .. py:attribute:: question
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:method:: on_utterance(text: str, ended_at: float, turn_running: bool) -> Decision
+
+      The user said ``text``; it may continue a question that was just cut off.
+
+
+
+   .. py:method:: on_typed(text: str, now: float, turn_running: bool) -> Decision
+
+      The user typed ``text`` (typed input never merges).
+
+
+
+   .. py:method:: on_answer(text: str, now: float, turn_running: bool) -> Decision
+
+      The user answered the pending question with a button (works while holding).
+
+
+
+   .. py:method:: on_speech_start(busy: bool) -> Decision
+
+      The user started speaking: barge in if the assistant is busy.
+
+
+
+   .. py:method:: hold(busy: bool) -> Decision
+
+      The user wants time to think: collect input; a busy assistant must stop.
+
+
+
+   .. py:method:: release(turn_running: bool = False) -> Decision
+
+      The user is finished: everything collected becomes one turn.
+
+
+
+   .. py:method:: question_asked(question: str) -> None
+
+      The agent paused and waits for the user's answer.
+
+
+
+   .. py:method:: turn_cancelled(message_id: str, text: str, at: float, spoke: bool, resumed: bool) -> None
+
+      A turn was cancelled; remember its question if nothing was said and it was new.
+
+
+

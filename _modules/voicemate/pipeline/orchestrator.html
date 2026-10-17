@@ -249,6 +249,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/chunker/index.html">voicemate.pipeline.chunker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/conversation/index.html">voicemate.pipeline.conversation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/orchestrator/index.html">voicemate.pipeline.orchestrator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/turn_taking/index.html">voicemate.pipeline.turn_taking</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../autoapi/voicemate/report/index.html">voicemate.report</a></li>
@@ -325,7 +326,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncIterator</span><span class="p">,</span> <span class="n">Coroutine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncIterator</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Coroutine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -361,6 +362,7 @@
     <span class="n">ChatLine</span><span class="p">,</span>
     <span class="n">Conversation</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.turn_taking</span><span class="w"> </span><span class="kn">import</span> <span class="n">Begin</span><span class="p">,</span> <span class="n">Collect</span><span class="p">,</span> <span class="n">Decision</span><span class="p">,</span> <span class="n">Interrupt</span><span class="p">,</span> <span class="n">TurnTaking</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.runtime</span><span class="w"> </span><span class="kn">import</span> <span class="n">Runtime</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -374,25 +376,12 @@
     <span class="s2">"en"</span><span class="p">:</span> <span class="s2">"Sorry, that didn't work. Please try again."</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="c1">#: A question cut off before any answer is merged with the next utterance only if that</span>
-<span class="c1">#: utterance follows within this many seconds; later speech is a new question.</span>
-<span class="n">MERGE_WINDOW_S</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span>
-
 <span class="c1">#: Live partial transcripts only cover the most recent speech, so a long utterance never</span>
 <span class="c1">#: makes the final transcript wait behind a slow partial pass on the shared ASR thread.</span>
 <span class="n">PARTIAL_WINDOW_S</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span>
 
 <span class="c1">#: Seconds between checks for due reminders.</span>
 <span class="n">REMINDER_INTERVAL_S</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span>
-
-
-<span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">_Pending</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""A user message whose turn was cancelled before anything was said."""</span>
-
-    <span class="n">message_id</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">at</span><span class="p">:</span> <span class="nb">float</span>
 
 
 <span class="nd">@dataclass</span>
@@ -435,18 +424,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">bus</span> <span class="o">=</span> <span class="n">EventBus</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">segmenter</span> <span class="o">=</span> <span class="n">Segmenter</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">vad_factory</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">vad</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">assistant</span><span class="o">.</span><span class="n">default_language</span>
-        <span class="c1">#: While True, utterances are collected instead of answered (see :meth:`hold`).</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">holding</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_held</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1">#: The rules for what user input means (hold, merge, confirmation).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="n">TurnTaking</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_utterances</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="c1">#: Question the agent is waiting on (human-in-the-loop), if any.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">confirmation</span><span class="p">:</span> <span class="n">Confirmation</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_speaking</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_turn</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_partial</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reminders</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_partial_at</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span> <span class="n">_Pending</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interrupted_reply</span> <span class="o">=</span> <span class="s2">""</span>  <span class="c1"># partial reply of the turn cut off by the last barge-in</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
@@ -500,9 +485,24 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">thread_id</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">holding</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""True while the user holds: pauses do not end their turn (see :meth:`hold`)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">holding</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">confirmation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Confirmation</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The question the agent is waiting on (human-in-the-loop), if any."""</span>
+        <span class="n">question</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">question</span>
+        <span class="k">return</span> <span class="n">Confirmation</span><span class="p">(</span><span class="n">question</span><span class="p">)</span> <span class="k">if</span> <span class="n">question</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_turn_running</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_turn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_turn</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">busy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""True while a turn is being processed or its audio is playing."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_speaking</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_turn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_turn</span><span class="o">.</span><span class="n">done</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_speaking</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_turn_running</span>
 
 <div class="viewcode-block" id="VoiceSession.emit">
 <a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.emit">[docs]</a>
@@ -526,7 +526,7 @@
         <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">segmenter</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span><span class="n">pcm16_to_float32</span><span class="p">(</span><span class="n">pcm</span><span class="p">)):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">SpeechStart</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">(</span><span class="n">Lane</span><span class="o">.</span><span class="n">LISTENING</span><span class="p">,</span> <span class="n">LaneState</span><span class="o">.</span><span class="n">ACTIVE</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">busy</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">on_speech_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">busy</span><span class="p">),</span> <span class="n">Interrupt</span><span class="p">):</span>
                     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">interrupt</span><span class="p">()</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">SpeechEnd</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_utterance_ended</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
@@ -545,18 +545,17 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">submit_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Handle typed input like a spoken utterance (no ASR, never merged)."""</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">text</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">holding</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_collect</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">text</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_begin_turn</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">(),</span> <span class="n">continuation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
+            <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="p">(</span><span class="k">lambda</span> <span class="n">running</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">on_typed</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">now</span><span class="p">,</span> <span class="n">running</span><span class="p">),</span> <span class="n">now</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VoiceSession.answer_confirmation">
 <a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.answer_confirmation">[docs]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">answer_confirmation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Answer the pending human-in-the-loop question (e.g. from a UI button)."""</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirmation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_begin_turn</span><span class="p">(</span><span class="n">answer</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">(),</span> <span class="n">continuation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="p">(</span><span class="k">lambda</span> <span class="n">running</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">on_answer</span><span class="p">(</span><span class="n">answer</span><span class="p">,</span> <span class="n">now</span><span class="p">,</span> <span class="n">running</span><span class="p">),</span> <span class="n">now</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VoiceSession.interrupt">
@@ -617,9 +616,9 @@
 
 <span class="sd">        A running answer is stopped first: the user wants the floor.</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">busy</span><span class="p">:</span>
+        <span class="n">decision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">busy</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">decision</span><span class="p">,</span> <span class="n">Interrupt</span><span class="p">):</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">interrupt</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">holding</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">HoldEvent</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span></div>
 
 
@@ -633,21 +632,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_utterance_ended</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_utterances</span><span class="p">:</span>  <span class="c1"># transcripts still on their way join the question</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_utterances</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">holding</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">HoldEvent</span><span class="p">(</span><span class="kc">False</span><span class="p">))</span>
-        <span class="n">held</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_held</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_held</span><span class="p">,</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">held</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_begin_turn</span><span class="p">(</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">held</span><span class="p">),</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">(),</span> <span class="n">shown</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">release</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">HoldEvent</span><span class="p">(</span><span class="kc">False</span><span class="p">))</span></div>
 
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_collect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Add one held utterance; the UI shows the question growing in one bubble."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_held</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">langid</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">previous</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">)</span>
-        <span class="n">joined</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_held</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
-            <span class="n">TranscriptEvent</span><span class="p">(</span><span class="n">joined</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">,</span> <span class="n">merged</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_held</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="p">)</span>
 
 <div class="viewcode-block" id="VoiceSession.restore">
 <a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.restore">[docs]</a>
@@ -657,7 +644,7 @@
 <span class="sd">        Reopens a question the agent is still waiting on and returns what was said so far.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">question</span> <span class="o">:=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">pending_question</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">confirmation</span> <span class="o">=</span> <span class="n">Confirmation</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">question_asked</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">ConfirmEvent</span><span class="p">(</span><span class="n">question</span><span class="p">))</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">lines</span><span class="p">()</span></div>
 
@@ -701,11 +688,12 @@
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_audio</span><span class="p">,</span> <span class="n">audio</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">text</span><span class="p">):</span>
             <span class="k">return</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">holding</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_collect</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-            <span class="k">return</span>
         <span class="n">transcript</span> <span class="o">=</span> <span class="n">Transcript</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span> <span class="o">/</span> <span class="n">SAMPLE_RATE</span><span class="p">,</span> <span class="n">latency</span><span class="p">)</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_begin_turn</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">ended_at</span><span class="p">,</span> <span class="n">transcript</span><span class="p">,</span> <span class="n">continuation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">running</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">on_utterance</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">ended_at</span><span class="p">,</span> <span class="n">running</span><span class="p">),</span>
+            <span class="n">ended_at</span><span class="p">,</span>
+            <span class="n">transcript</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_audio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">audio</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">soundfile</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sf</span>
@@ -716,40 +704,47 @@
 
     <span class="c1"># ── turns ────────────────────────────────────────────────────────────────</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_begin_turn</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_input</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">decide</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">Decision</span><span class="p">],</span>
         <span class="n">ended_at</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">transcript</span><span class="p">:</span> <span class="n">Transcript</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">continuation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">shown</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""The single entry point for new user input: at most one turn runs at a time.</span>
+<span class="w">        </span><span class="sd">"""The single entry point for user input: at most one turn runs at a time.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            text: What the user said or typed.</span>
+<span class="sd">            decide: Asks the turn-taking policy what the input means, given whether a turn</span>
+<span class="sd">                is running.</span>
 <span class="sd">            ended_at: Monotonic time the user finished (latency reference).</span>
 <span class="sd">            transcript: ASR details when the input was spoken.</span>
-<span class="sd">            continuation: Spoken input may continue a question cut off moments ago.</span>
-<span class="sd">            shown: The UI already shows this text (collected during a hold).</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_turn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_turn</span><span class="o">.</span><span class="n">done</span><span class="p">():</span>
+        <span class="n">decision</span> <span class="o">=</span> <span class="n">decide</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_turn_running</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">decision</span><span class="p">,</span> <span class="n">Interrupt</span><span class="p">):</span>  <span class="c1"># the running turn stops, then the input counts</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">interrupt</span><span class="p">()</span>
-        <span class="n">resume</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirmation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># the user's words answer the pending question</span>
-            <span class="n">resume</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirmation</span> <span class="o">=</span> <span class="n">text</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="n">decision</span> <span class="o">=</span> <span class="n">decide</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">match</span> <span class="n">decision</span><span class="p">:</span>
+            <span class="k">case</span> <span class="n">Collect</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">parts</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">langid</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">previous</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
+                    <span class="n">TranscriptEvent</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">,</span> <span class="n">merged</span><span class="o">=</span><span class="n">parts</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">case</span> <span class="n">Begin</span><span class="p">():</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_begin_turn</span><span class="p">(</span><span class="n">decision</span><span class="p">,</span> <span class="n">ended_at</span><span class="p">,</span> <span class="n">transcript</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_begin_turn</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">begin</span><span class="p">:</span> <span class="n">Begin</span><span class="p">,</span> <span class="n">ended_at</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">transcript</span><span class="p">:</span> <span class="n">Transcript</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">begin</span><span class="o">.</span><span class="n">resume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">ConfirmEvent</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="nb">open</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-        <span class="n">pending</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">,</span> <span class="kc">None</span>
-        <span class="n">merged</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span>
-            <span class="n">resume</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">continuation</span> <span class="ow">and</span> <span class="n">pending</span> <span class="ow">and</span> <span class="n">ended_at</span> <span class="o">-</span> <span class="n">pending</span><span class="o">.</span><span class="n">at</span> <span class="o">&lt;=</span> <span class="n">MERGE_WINDOW_S</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">merged</span> <span class="ow">and</span> <span class="n">pending</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">pending</span><span class="o">.</span><span class="n">message_id</span><span class="p">)</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pending</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="n">begin</span><span class="o">.</span><span class="n">discard</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">begin</span><span class="o">.</span><span class="n">discard</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">begin</span><span class="o">.</span><span class="n">text</span>
         <span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">langid</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">previous</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="n">lang</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">TranscriptEvent</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="n">lang</span><span class="p">,</span> <span class="n">merged</span><span class="o">=</span><span class="n">merged</span> <span class="ow">or</span> <span class="n">shown</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_turn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run_turn</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">lang</span><span class="p">,</span> <span class="n">ended_at</span><span class="p">,</span> <span class="n">transcript</span><span class="p">,</span> <span class="n">resume</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
+            <span class="n">TranscriptEvent</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="n">lang</span><span class="p">,</span> <span class="n">merged</span><span class="o">=</span><span class="n">begin</span><span class="o">.</span><span class="n">merged</span> <span class="ow">or</span> <span class="n">begin</span><span class="o">.</span><span class="n">shown</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_turn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run_turn</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">lang</span><span class="p">,</span> <span class="n">ended_at</span><span class="p">,</span> <span class="n">transcript</span><span class="p">,</span> <span class="n">begin</span><span class="o">.</span><span class="n">resume</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_close_interrupted_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Repair the history of a cut-off turn (see :meth:`Conversation.close_interrupted`)."""</span>
@@ -784,8 +779,13 @@
             <span class="k">if</span> <span class="n">turn</span><span class="o">.</span><span class="n">reply</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_interrupted_reply</span> <span class="o">=</span> <span class="n">turn</span><span class="o">.</span><span class="n">reply</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">ReplyEvent</span><span class="p">(</span><span class="n">turn</span><span class="o">.</span><span class="n">reply</span><span class="p">,</span> <span class="n">interrupted</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-            <span class="k">elif</span> <span class="n">resume</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span> <span class="o">=</span> <span class="n">_Pending</span><span class="p">(</span><span class="n">message_id</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">turn_cancelled</span><span class="p">(</span>
+                <span class="n">message_id</span><span class="p">,</span>
+                <span class="n">text</span><span class="p">,</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">(),</span>
+                <span class="n">spoke</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">turn</span><span class="o">.</span><span class="n">reply</span><span class="p">),</span>
+                <span class="n">resumed</span><span class="o">=</span><span class="n">resume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="k">raise</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># timeout, Ollama down, ...</span>
             <span class="n">turn</span><span class="o">.</span><span class="n">failed</span> <span class="o">=</span> <span class="kc">True</span>
@@ -843,7 +843,7 @@
         <span class="n">question</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">pending_question</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">question</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">confirmation</span> <span class="o">=</span> <span class="n">Confirmation</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">question_asked</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">ConfirmEvent</span><span class="p">(</span><span class="n">question</span><span class="p">))</span>
         <span class="n">turn</span><span class="o">.</span><span class="n">say</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
 
