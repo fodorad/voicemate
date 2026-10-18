@@ -211,6 +211,40 @@ class TestTextTurns(SessionTestCase):
         self.assertIn("timed out", errors[0].message)
 
 
+class TestStatusOrder(SessionTestCase):
+    async def test_a_whole_utterance_in_one_chunk_keeps_the_lane_order_while_a_turn_runs(self):
+        self.make_session(["the answer"], transcripts=["second words"], delay=0.5)
+        await self.session.submit_text("first question")
+        await asyncio.sleep(0.05)  # the first turn is running
+        self.drain()
+        await self.session.feed_audio(b"".join(utterance_pcm()))  # speech and its end at once
+        await self.settle()
+        lanes = [
+            (e.lane, e.state)
+            for e in self.drain()
+            if isinstance(e, StatusEvent) and e.lane in (Lane.LISTENING, Lane.TRANSCRIBING)
+        ]
+        wanted = [
+            (Lane.LISTENING, LaneState.ACTIVE),
+            (Lane.LISTENING, LaneState.DONE),
+            (Lane.TRANSCRIBING, LaneState.ACTIVE),
+        ]
+        self.assertEqual([lane for lane in lanes if lane in wanted][:3], wanted)
+
+    async def test_the_running_turn_is_still_cancelled_by_the_new_speech(self):
+        self.make_session(["the answer"], transcripts=["second words"], delay=0.5)
+        await self.session.submit_text("first question")
+        await asyncio.sleep(0.05)
+        await self.session.feed_audio(b"".join(utterance_pcm()))
+        await self.settle()
+        events = self.drain()
+        replies = [e for e in events if isinstance(e, ReplyEvent) and e.text]
+        self.assertEqual([r.text.strip() for r in replies], ["the answer"])  # one turn only
+        self.assertTrue(any(isinstance(e, InterruptEvent) for e in events))
+        last_user = [m for m in self.llm.seen[-1] if m.type == "human"][-1]
+        self.assertTrue(str(last_user.content).endswith("second words"))  # answered the new speech
+
+
 class TestBargeIn(SessionTestCase):
     async def test_speech_during_playback_interrupts(self):
         self.make_session(["x"])

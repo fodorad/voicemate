@@ -174,13 +174,16 @@ class VoiceSession:
 
     async def feed_audio(self, pcm: bytes) -> None:
         """Consume one frame of 16 kHz mono PCM16 microphone audio."""
+        barge_in = False
         for event in self.listener.feed(pcm):
             if isinstance(event, SpeechStart):
                 self._status(Lane.LISTENING, LaneState.ACTIVE)
-                if isinstance(self.policy.on_speech_start(self.busy), Interrupt):
-                    await self.interrupt()
+                barge_in = isinstance(self.policy.on_speech_start(self.busy), Interrupt)
             elif isinstance(event, SpeechEnd):
                 self._status(Lane.LISTENING, LaneState.DONE)
+        # Only now may anything await: the lane events of this chunk are already in order.
+        if barge_in:
+            await self.interrupt()
 
     async def submit_text(self, text: str) -> None:
         """Handle typed input like a spoken utterance (no ASR, never merged)."""
