@@ -32,7 +32,10 @@ def build(ctx: ToolContext) -> list[BaseTool]:
     """Create the ``fetch_page`` tool."""
 
     async def fetch_page(url: str, config: RunnableConfig) -> str:
-        """Read the main text of a web page or online PDF (use after web_search for details).
+        """Read the main text of a web page or online PDF.
+
+        Use it for any address the user gives (it asks the user first when the address was not
+        in a search result) and after web_search when you need the details.
 
         Args:
             url: Full http(s) URL.
