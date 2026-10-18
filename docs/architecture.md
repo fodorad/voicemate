@@ -53,7 +53,8 @@ flowchart TB
     SESSION -.-> LISTEN[[Listener<br/>frames to utterances]]
     SESSION -.-> POLICY[[TurnTaking<br/>what input means]]
     SESSION -.-> REPLY[[Reply<br/>a turn's answer rules]]
-    SESSION -.-> REMIND[[Reminders<br/>due, once, announced]]
+    UI -.-> REMIND[[Reminders<br/>one watcher, due once, every tab]]
+    REMIND -.->|announce| SESSION
     SESSION -.-> CONV[[Conversation<br/>thread, history, repair, stream]]
     SESSION -.-> SPEECH[[Speech<br/>async ASR + TTS, one worker each]]
     LISTEN -.-> SPEECH
@@ -72,9 +73,9 @@ flowchart TB
 |---|---|---|
 | `pipeline.turn_taking` | hold and release, merging a cut-off question (20 s), answering a confirmation, barge-in. Pure: no event loop, no I/O | nothing needed: plain values in, decisions out |
 | `pipeline.conversation` | the current thread id (`data/conversation.json`), history lines, repair of an interrupted turn, discarding a cancelled message, streaming a turn, the pending question | in-memory LangGraph checkpointer + a scripted chat model |
-| `pipeline.listener` | the voice-activity segmenter, live partial transcripts (every interval, last 8 s), background transcription, what is still in flight (`settled`), flush on mic off | energy-based VAD + a controllable recognizer |
+| `pipeline.listener` | the voice-activity segmenter, live partial transcripts (every interval, last 8 s), background transcription, what is still in flight (`settled`), flush on mic off | an energy-based VAD double from the test helpers + a controllable recognizer |
 | `pipeline.reply` | one turn's answer: text to speakable sentences, the spoken filler for network tools, the apology, first-token and first-audio timings, the turn's metrics | an injected clock; plain calls |
-| `pipeline.reminders` | polling due reminders, marking each notified before announcing (once only), the language prefix, the 30 s watcher | a real notes database in a temp folder + a recording announcer |
+| `pipeline.reminders` | polling due reminders, marking each notified before announcing (once only), the language prefix, the 30 s watcher; the server runs one watcher and tells every open tab, and nothing is consumed while no tab is open | a real notes database in a temp folder + a recording announcer |
 | `speech` | transcription and synthesis, one worker thread per model (MLX is not re-entrant), clean shutdown | scripted recognizer, tone synthesizer |
 | `agent.tools.research` | cache-first web and arXiv search, page and paper access, the listed addresses (anything else asks the user first), what leaves the machine | static search and arXiv backends, a local HTTP server |
 | `memory.store` | one database and embedder with three narrow interfaces (`facts`, `episodes`, `research`) plus `recall`; each caller sees only its slice | hash-based embedder, injected clock |
