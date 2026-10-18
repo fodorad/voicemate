@@ -337,7 +337,10 @@
 <span class="w">    </span><span class="sd">"""Create the ``fetch_page`` tool."""</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch_page</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">RunnableConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Read the main text of a web page or online PDF (use after web_search for details).</span>
+<span class="w">        </span><span class="sd">"""Read the main text of a web page or online PDF.</span>
+
+<span class="sd">        Use it for any address the user gives (it asks the user first when the address was not</span>
+<span class="sd">        in a search result) and after web_search when you need the details.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            url: Full http(s) URL.</span>
