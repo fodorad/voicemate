@@ -25,15 +25,12 @@ import logging
 import time
 import uuid
 from collections.abc import AsyncIterator, Callable, Coroutine
-from dataclasses import dataclass, field
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
 from voicemate.agent.hitl import Confirmation
-from voicemate.agent.tools import EGRESS_TOOLS
 from voicemate.asr.base import Transcript
 from voicemate.audio.codec import float32_to_pcm16
 from voicemate.audio.vad import SpeechEnd, SpeechStart
@@ -56,47 +53,17 @@ from voicemate.events import (
     TranscriptEvent,
 )
 from voicemate.memory.notes import Note
-from voicemate.pipeline.chunker import SpeechChunker
 from voicemate.pipeline.conversation import (
     ChatLine,
     Conversation,
 )
 from voicemate.pipeline.listener import Listener, ListenerCallbacks, Utterance
 from voicemate.pipeline.reminders import Reminders, spoken_text
+from voicemate.pipeline.reply import Reply
 from voicemate.pipeline.turn_taking import Begin, Collect, Decision, Interrupt, TurnTaking
 from voicemate.runtime import Runtime
 
 logger = logging.getLogger(__name__)
-
-#: Spoken while a slow (network) tool runs and nothing has been said yet.
-FILLERS: dict[str, str] = {"hu": "Egy pillanat, utánanézek.", "en": "One moment, let me check."}
-
-#: Spoken when a turn fails or times out.
-APOLOGIES: dict[str, str] = {
-    "hu": "Elnézést, ez most nem sikerült. Kérlek, próbáld újra.",
-    "en": "Sorry, that didn't work. Please try again.",
-}
-
-
-@dataclass
-class _Turn:
-    """Mutable state of one turn while it streams."""
-
-    lang: str
-    ended_at: float
-    reply: str = ""
-    spoke: bool = False
-    first_token: float | None = None
-    first_audio: float | None = None
-    failed: bool = False
-    tools: list[str] = field(default_factory=list)
-    chunker: SpeechChunker = field(default_factory=SpeechChunker)
-    queue: asyncio.Queue[str | None] = field(default_factory=asyncio.Queue)
-
-    def say(self, text: str) -> None:
-        """Queue ``text`` for speech."""
-        self.spoke = True
-        self.queue.put_nowait(text)
 
 
 class VoiceSession:
@@ -383,100 +350,84 @@ class VoiceSession:
         resume: str | None = None,
     ) -> None:
         """Stream one agent run into speech; ``resume`` answers a pending confirmation."""
-        turn = _Turn(lang, ended_at)
+        reply = Reply(lang, ended_at)
         message_id = uuid.uuid4().hex
-        emit = self._tool_emitter(turn)
+        emit = self._tool_emitter(reply)
         chunks = (
             self.conversation.resume(resume, emit)
             if resume is not None
             else self.conversation.say(text, lang, message_id, emit)
         )
-        worker = asyncio.create_task(self._tts_worker(turn))
+        worker = asyncio.create_task(self._tts_worker(reply))
         self._status(Lane.THINKING, LaneState.ACTIVE)
         try:
             async with asyncio.timeout(self.config.llm.turn_timeout_s):
-                await self._stream(turn, chunks)
-                await self._ask_if_paused(turn)
+                await self._stream(reply, chunks)
+                await self._ask_if_paused(reply)
         except asyncio.CancelledError:
             worker.cancel()
-            if turn.reply:
-                self._interrupted_reply = turn.reply
-                self.bus.publish(ReplyEvent(turn.reply, interrupted=True))
+            if reply.text:
+                self._interrupted_reply = reply.text
+                self.bus.publish(ReplyEvent(reply.text, interrupted=True))
             self.policy.turn_cancelled(
                 message_id,
                 text,
                 time.monotonic(),
-                spoke=bool(turn.reply),
+                spoke=bool(reply.text),
                 resumed=resume is not None,
             )
             raise
         except Exception as exc:  # timeout, Ollama down, ...
-            turn.failed = True
             logger.exception("Turn failed")
-            reason = (
-                "timed out" if isinstance(exc, TimeoutError) else str(exc) or type(exc).__name__
-            )
-            self.bus.publish(ErrorEvent(f"Turn failed: {reason}"))
-            turn.say(APOLOGIES.get(lang, APOLOGIES["en"]))
+            self.bus.publish(ErrorEvent(f"Turn failed: {reply.fail(exc)}"))
         self._status(Lane.THINKING, LaneState.IDLE)
-        for piece in turn.chunker.flush():
-            turn.say(piece)
-        turn.queue.put_nowait(None)
+        reply.finish()
         self._status(Lane.GENERATING, LaneState.DONE)
         await worker
-        self.bus.publish(ReplyEvent(turn.reply))
-        self._finish_metrics(turn, transcript)
-        if turn.reply and self.runtime.memory is not None and not turn.failed:
+        self.bus.publish(ReplyEvent(reply.text))
+        self._publish_metrics(reply, transcript)
+        if reply.text and self.runtime.memory is not None and not reply.failed:
             memory = self.runtime.memory
             self._spawn(
-                asyncio.to_thread(memory.episodes.add, text, turn.reply, lang, self.thread_id)
+                asyncio.to_thread(memory.episodes.add, text, reply.text, lang, self.thread_id)
             )
 
-    def _tool_emitter(self, turn: _Turn):
-        """The ``emit`` callback for one turn: publishes events and speaks a filler."""
+    def _tool_emitter(self, reply: Reply):
+        """The ``emit`` callback for one turn: publishes events and tells the reply."""
 
         def on_event(event: Event) -> None:
             self.emit(event)
-            if not (isinstance(event, ToolEvent) and event.phase == "start"):
-                return
-            turn.tools.append(event.name)
-            if turn.first_token is None:
-                turn.first_token = time.monotonic()
-                self._status(Lane.THINKING, LaneState.DONE)
-            if not turn.spoke and event.name in EGRESS_TOOLS:
-                turn.say(FILLERS.get(turn.lang, FILLERS["en"]))
+            if isinstance(event, ToolEvent) and event.phase == "start":
+                if reply.on_tool_start(event.name):
+                    self._status(Lane.THINKING, LaneState.DONE)
 
         return on_event
 
-    async def _stream(self, turn: _Turn, chunks: AsyncIterator[str]) -> None:
-        """Feed the agent's streamed answer into the chunker and the UI."""
+    async def _stream(self, reply: Reply, chunks: AsyncIterator[str]) -> None:
+        """Feed the agent's streamed answer into the reply and the UI."""
         async for content in chunks:
-            if turn.first_token is None:
-                turn.first_token = time.monotonic()
+            if reply.mark_first_token():
                 self._status(Lane.THINKING, LaneState.DONE)
-            if not turn.reply:
+            if reply.add_text(content):
                 self._status(Lane.GENERATING, LaneState.ACTIVE)
-            turn.reply += content
             self.bus.publish(TokenEvent(content))
-            for piece in turn.chunker.feed(content):
-                turn.say(piece)
 
-    async def _ask_if_paused(self, turn: _Turn) -> None:
+    async def _ask_if_paused(self, reply: Reply) -> None:
         """If a tool paused the graph for permission, show and speak the question."""
         question = await self.conversation.pending_question()
         if question is None:
             return
         self.policy.question_asked(question)
         self.bus.publish(ConfirmEvent(question))
-        turn.say(question)
+        reply.say(question)
 
-    async def _tts_worker(self, turn: _Turn) -> None:
-        while (piece := await turn.queue.get()) is not None:
+    async def _tts_worker(self, reply: Reply) -> None:
+        while (piece := await reply.queue.get()) is not None:
             if self.runtime.speech is None:
                 continue
             self._status(Lane.SYNTHESIZING, LaneState.ACTIVE)
-            if await self._speak(piece, turn.lang) and turn.first_audio is None:
-                turn.first_audio = time.monotonic()
+            if await self._speak(piece, reply.lang):
+                reply.audio_started()
         self._status(Lane.SYNTHESIZING, LaneState.DONE)
 
     async def _speak(self, text: str, lang: str) -> bool:
@@ -490,23 +441,8 @@ class VoiceSession:
         self.bus.publish(AudioEvent(float32_to_pcm16(audio), rate))
         return True
 
-    def _finish_metrics(self, turn: _Turn, transcript: Transcript | None) -> None:
-        metrics: dict[str, Any] = {"lang": turn.lang, "tools": turn.tools}
-        if transcript is not None:
-            metrics["asr_s"] = round(transcript.latency_seconds, 3)
-            metrics["audio_s"] = round(transcript.audio_seconds, 2)
-        for key, value in (
-            ("first_token_s", turn.first_token),
-            ("first_audio_s", turn.first_audio),
-        ):
-            if value is not None:
-                metrics[key] = round(value - turn.ended_at, 3)
-        metrics.update(
-            total_s=round(time.monotonic() - turn.ended_at, 3),
-            chars_out=len(turn.reply),
-            failed=turn.failed,
-            ts=datetime.now().isoformat(timespec="seconds"),
-        )
+    def _publish_metrics(self, reply: Reply, transcript: Transcript | None) -> None:
+        metrics = reply.metrics(transcript)
         self.bus.publish(MetricsEvent(metrics))
         log = turns_log_path(self.config.data_path)
         try:

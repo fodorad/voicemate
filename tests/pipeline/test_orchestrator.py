@@ -36,11 +36,10 @@ from voicemate.events import (
 from voicemate.pipeline.conversation import INTERRUPTED_MARK, INTERRUPTED_TOOL_RESULT, ChatLine
 from voicemate.pipeline.listener import PARTIAL_WINDOW_S
 from voicemate.pipeline.orchestrator import (
-    APOLOGIES,
-    FILLERS,
     VoiceSession,
     turns_log_path,
 )
+from voicemate.pipeline.reply import APOLOGIES, FILLERS
 from voicemate.runtime import Runtime
 from voicemate.speech import Speech
 from voicemate.tts.voices import VoiceBank
