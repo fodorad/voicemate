@@ -11,8 +11,12 @@ is configuration only and must never appear in code.
 - `make check` = ruff lint + format check, ty, unittest with coverage (≥ 90 %), Sphinx `-W`.
 - `make test-integration` runs model/network/`say` tests (`VOICEMATE_INTEGRATION=1`).
 - Tests use `unittest`, random arrays and the deterministic protocol implementations in
-  `tests/helpers.py` (ScriptedChatModel, ScriptedRecognizer, ToneSynthesizer,
-  HashingEmbedder, StaticSearchBackend). No mocks or patches.
+  `tests/helpers.py` (ScriptedChatModel, ScriptedRecognizer, ToneSynthesizer, EnergyVAD,
+  HashingEmbedder, StaticSearchBackend). No mocks or patches. Test doubles live there, never
+  in `voicemate/`.
+- No production code that only tests use: tests go through public behaviour. Architecture rules
+  (imports, purity, memory slices) are checked on the syntax tree with the AST helpers in
+  `tests/helpers.py`, not by matching source text.
 - Git: GitHub Flow (`feat/*` → PR → squash-merge); never add AI/Claude attribution.
 
 ## Architecture in one breath
@@ -25,7 +29,7 @@ All UI state flows through `events.EventBus`.
 Deep modules hold the rules (see `docs/architecture.md`): `pipeline/turn_taking.py` (pure:
 what input means), `pipeline/conversation.py` (thread, history, repair, streaming),
 `pipeline/listener.py` (frames to utterances, partials, flush/settle), `pipeline/reply.py` (a
-turn's answer: sentences, filler, apology, metrics), `pipeline/reminders.py`, `speech.py`
+turn's answer: sentences, filler, apology, metrics), `pipeline/reminders.py` (one watcher per server), `speech.py`
 (async ASR/TTS, owns the worker threads), `agent/tools/research.py` (cache-first search, listed
 addresses, page and paper access), `memory/store.py` (one database; `facts`, `episodes`,
 `research` views), `ui/rail.py` (lane rules, no UI framework) and `audio/protocol.py` (browser

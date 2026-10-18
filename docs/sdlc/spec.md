@@ -453,3 +453,32 @@ turn (round 1: 2.83-2.85 s); other turns vary between 1.7 and 5.0 s with free me
 (11.4 GB free on this run), the same range as before. Observed: a browser tab in a hidden
 window renders updates late, which delayed the first reminder toast; not a server issue.
 
+## 15. Low findings and dead code (2026-10-18)
+
+The round-2 review left five Low findings, and a sweep for dead code found more. Done in four
+`refactor:` PRs plus this one:
+
+- **Removed code only tests used or nothing used:** `unpack_audio_frame`, `EventBus.listen` and
+  `subscriber_count`, `ResearchMemory.search_documents`, `MemoryStore.stats`, `Listener.stop`,
+  `VoiceSession.confirmation` and `hitl.Confirmation`, `Rail.view`, `langid.LANGUAGES`, the
+  unread fields `MemoryHit.similarity`, `CachedSearch.similarity` and `ReminderEvent.note_id`.
+  `EnergyVAD`, a test double, moved to `tests/helpers.py`. Tests now assert through public
+  behaviour (searches and `recall` instead of `stats`, `session.policy.question`, the views
+  returned by `Rail.apply`). A reference scan plus vulture finds nothing unreferenced.
+- **Architecture tests read the syntax tree** (imports, async syntax, calls, attribute access)
+  through helpers in `tests/helpers.py`, which have tests of their own, so a comment or string
+  can no longer satisfy or break a rule.
+- **Status order:** `feed_audio` publishes the lane statuses of every event in a chunk before it
+  awaits the barge-in interrupt, so a whole utterance arriving in one chunk while a turn runs
+  yields listening active, listening done, transcribing active.
+- **One reminder watcher per server** instead of one per tab: the server announces each due
+  reminder to every open session (each speaks it only when idle and not holding), and
+  `Reminders` has a `ready` gate so nothing is consumed while no tab is open. The session lost
+  `start` and `check_reminders`.
+
+Verification: 372 tests, coverage 92 %. The session, listener and policy tests ran 40 times
+under CPU load with no failure. A real-model smoke run with two Chrome tabs showed the same
+reminder as a toast and in the notes panel of both tabs, and a spoken turn still worked. The
+machine was swapping during that run (5 GB of swap, 3.1 GB free), so its 8 s first-words figure
+says nothing about the code.
+
