@@ -47,6 +47,7 @@ from voicemate.events import (
 from voicemate.pipeline.conversation import ChatLine, ThreadStore
 from voicemate.pipeline.orchestrator import VoiceSession
 from voicemate.runtime import Runtime
+from voicemate.ui.rail import Rail
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +151,7 @@ class ConversationPage:
         self.config = config
         self.on_new_conversation = on_new_conversation
         self.stations: dict[Lane, tuple[ui.element, ui.label, ui.label]] = {}
-        self.started: dict[Lane, float] = {}
+        self.rail = Rail(lane for lane, _, _ in RAIL)
         self.reply: ui.label | None = None
         self.last_user: ui.label | None = None
         self.mic_on = False
@@ -352,30 +353,15 @@ class ConversationPage:
             handler(event)
 
     def _status(self, event: StatusEvent) -> None:
-        if event.lane is Lane.LISTENING and event.state is LaneState.ACTIVE:
-            for lane in self.stations:
-                self._set_station(lane, LaneState.IDLE)
-            self.started.clear()
-        self._set_station(event.lane, event.state)
-        _, ms, detail = self.stations[event.lane]
-        if event.state is LaneState.ACTIVE:
-            self.started.setdefault(event.lane, event.ts)
-            ms.set_text("")
-        elif event.state is LaneState.DONE and event.lane in self.started:
-            ms.set_text(f"{(event.ts - self.started[event.lane]) * 1000:.0f} ms")
-        if event.lane is Lane.TOOL and event.detail:
-            detail.set_text(event.detail)
-
-    def _set_station(self, lane: Lane, state: LaneState) -> None:
-        station, ms, detail = self.stations[lane]
-        station.classes(remove="is-active is-done")
-        if state is LaneState.ACTIVE:
-            station.classes(add="is-active")
-        elif state is LaneState.DONE:
-            station.classes(add="is-done")
-        else:
-            ms.set_text("")
-            detail.set_text("")
+        for lane, view in self.rail.apply(event).items():
+            station, ms, detail = self.stations[lane]
+            station.classes(remove="is-active is-done")
+            if view.state is LaneState.ACTIVE:
+                station.classes(add="is-active")
+            elif view.state is LaneState.DONE:
+                station.classes(add="is-done")
+            ms.set_text(view.duration)
+            detail.set_text(view.detail)
 
     def _transcript(self, event: TranscriptEvent) -> None:
         if not event.final:
