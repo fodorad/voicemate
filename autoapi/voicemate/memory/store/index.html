@@ -348,8 +348,17 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.memory.store.Recall" title="voicemate.memory.store.Recall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Recall</span></code></a></p></td>
 <td><p>Everything memory knows that is relevant to one user message.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.memory.store.MemoryStore" title="voicemate.memory.store.MemoryStore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryStore</span></code></a></p></td>
-<td><p>LanceDB-backed memory.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.memory.store.Facts" title="voicemate.memory.store.Facts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Facts</span></code></a></p></td>
+<td><p>Durable facts about the user (&quot;Adam is looking for ML jobs in Budapest&quot;).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.memory.store.Episodes" title="voicemate.memory.store.Episodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Episodes</span></code></a></p></td>
+<td><p>Finished exchanges between the user and the assistant.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.memory.store.ResearchMemory" title="voicemate.memory.store.ResearchMemory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResearchMemory</span></code></a></p></td>
+<td><p>Stored searches and the text chunks of pages, abstracts and papers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.memory.store.MemoryStore" title="voicemate.memory.store.MemoryStore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryStore</span></code></a></p></td>
+<td><p>LanceDB-backed memory: one database, three narrow interfaces.</p></td>
 </tr>
 </tbody>
 </table>
@@ -471,9 +480,88 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="voicemate.memory.store.Facts">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.memory.store.</span></span><span class="sig-name descname"><span class="pre">Facts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_Index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#Facts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.Facts" title="Link to this definition">¶</a></dt>
+<dd><p>Durable facts about the user (“Adam is looking for ML jobs in Budapest”).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.memory.store.Facts.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#Facts.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.Facts.add" title="Link to this definition">¶</a></dt>
+<dd><p>Store a fact, replacing a near-duplicate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True when an existing fact was replaced.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.memory.store.Facts.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.memory.store.MemoryHit" title="voicemate.memory.store.MemoryHit"><span class="pre">MemoryHit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#Facts.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.Facts.search" title="Link to this definition">¶</a></dt>
+<dd><p>Facts relevant to <code class="docutils literal notranslate"><span class="pre">query</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="voicemate.memory.store.Episodes">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.memory.store.</span></span><span class="sig-name descname"><span class="pre">Episodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_Index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#Episodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.Episodes" title="Link to this definition">¶</a></dt>
+<dd><p>Finished exchanges between the user and the assistant.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.memory.store.Episodes.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#Episodes.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.Episodes.add" title="Link to this definition">¶</a></dt>
+<dd><p>Store one finished exchange.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.memory.store.Episodes.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.memory.store.MemoryHit" title="voicemate.memory.store.MemoryHit"><span class="pre">MemoryHit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#Episodes.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.Episodes.search" title="Link to this definition">¶</a></dt>
+<dd><p>Past exchanges relevant to <code class="docutils literal notranslate"><span class="pre">query</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="voicemate.memory.store.ResearchMemory">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.memory.store.</span></span><span class="sig-name descname"><span class="pre">ResearchMemory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_Index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#ResearchMemory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.ResearchMemory" title="Link to this definition">¶</a></dt>
+<dd><p>Stored searches and the text chunks of pages, abstracts and papers.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.memory.store.ResearchMemory.store_search">
+<span class="sig-name descname"><span class="pre">store_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ttl_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#ResearchMemory.store_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.ResearchMemory.store_search" title="Link to this definition">¶</a></dt>
+<dd><p>Remember the results of a web or arXiv search.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.memory.store.ResearchMemory.cached_search">
+<span class="sig-name descname"><span class="pre">cached_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#voicemate.memory.store.CachedSearch" title="voicemate.memory.store.CachedSearch"><span class="pre">CachedSearch</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#ResearchMemory.cached_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.ResearchMemory.cached_search" title="Link to this definition">¶</a></dt>
+<dd><p>A fresh stored search whose query is similar enough to <code class="docutils literal notranslate"><span class="pre">query</span></code>, if any.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.memory.store.ResearchMemory.add_documents">
+<span class="sig-name descname"><span class="pre">add_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chunks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ttl_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#ResearchMemory.add_documents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.ResearchMemory.add_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Store text chunks of one document (page, abstract or paper).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.memory.store.ResearchMemory.documents_for_url">
+<span class="sig-name descname"><span class="pre">documents_for_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.memory.store.MemoryHit" title="voicemate.memory.store.MemoryHit"><span class="pre">MemoryHit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#ResearchMemory.documents_for_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.ResearchMemory.documents_for_url" title="Link to this definition">¶</a></dt>
+<dd><p>Fresh stored chunks of <code class="docutils literal notranslate"><span class="pre">url</span></code> in document order (newest copy first).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.memory.store.ResearchMemory.search_documents">
+<span class="sig-name descname"><span class="pre">search_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.memory.store.MemoryHit" title="voicemate.memory.store.MemoryHit"><span class="pre">MemoryHit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#ResearchMemory.search_documents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.ResearchMemory.search_documents" title="Link to this definition">¶</a></dt>
+<dd><p>Fresh research chunks relevant to <code class="docutils literal notranslate"><span class="pre">query</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.memory.store.</span></span><span class="sig-name descname"><span class="pre">MemoryStore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../embedder/index.html#voicemate.memory.embedder.Embedder" title="voicemate.memory.embedder.Embedder"><span class="pre">voicemate.memory.embedder.Embedder</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/index.html#voicemate.config.MemoryConfig" title="voicemate.config.MemoryConfig"><span class="pre">voicemate.config.MemoryConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">clock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">time.time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore" title="Link to this definition">¶</a></dt>
-<dd><p>LanceDB-backed memory.</p>
+<dd><p>LanceDB-backed memory: one database, three narrow interfaces.</p>
+<p>Callers use only the slice they need: <a class="reference internal" href="#voicemate.memory.store.MemoryStore.facts" title="voicemate.memory.store.MemoryStore.facts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">facts</span></code></a>, <a class="reference internal" href="#voicemate.memory.store.MemoryStore.episodes" title="voicemate.memory.store.MemoryStore.episodes"><code class="xref py py-attr docutils literal notranslate"><span class="pre">episodes</span></code></a> or <a class="reference internal" href="#voicemate.memory.store.MemoryStore.research" title="voicemate.memory.store.MemoryStore.research"><code class="xref py py-attr docutils literal notranslate"><span class="pre">research</span></code></a>;
+<a class="reference internal" href="#voicemate.memory.store.MemoryStore.recall" title="voicemate.memory.store.MemoryStore.recall"><code class="xref py py-meth docutils literal notranslate"><span class="pre">recall()</span></code></a> combines them for the agent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -485,78 +573,19 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.embedder">
-<span class="sig-name descname"><span class="pre">embedder</span></span><a class="headerlink" href="#voicemate.memory.store.MemoryStore.embedder" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.facts">
+<span class="sig-name descname"><span class="pre">facts</span></span><a class="headerlink" href="#voicemate.memory.store.MemoryStore.facts" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.config">
-<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#voicemate.memory.store.MemoryStore.config" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.episodes">
+<span class="sig-name descname"><span class="pre">episodes</span></span><a class="headerlink" href="#voicemate.memory.store.MemoryStore.episodes" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.clock">
-<span class="sig-name descname"><span class="pre">clock</span></span><a class="headerlink" href="#voicemate.memory.store.MemoryStore.clock" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.research">
+<span class="sig-name descname"><span class="pre">research</span></span><a class="headerlink" href="#voicemate.memory.store.MemoryStore.research" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.add_fact">
-<span class="sig-name descname"><span class="pre">add_fact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore.add_fact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore.add_fact" title="Link to this definition">¶</a></dt>
-<dd><p>Store a fact, replacing a near-duplicate.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>True when an existing fact was replaced.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.search_facts">
-<span class="sig-name descname"><span class="pre">search_facts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.memory.store.MemoryHit" title="voicemate.memory.store.MemoryHit"><span class="pre">MemoryHit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore.search_facts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore.search_facts" title="Link to this definition">¶</a></dt>
-<dd><p>Facts relevant to <code class="docutils literal notranslate"><span class="pre">query</span></code>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.add_episode">
-<span class="sig-name descname"><span class="pre">add_episode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore.add_episode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore.add_episode" title="Link to this definition">¶</a></dt>
-<dd><p>Store one finished exchange.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.search_episodes">
-<span class="sig-name descname"><span class="pre">search_episodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.memory.store.MemoryHit" title="voicemate.memory.store.MemoryHit"><span class="pre">MemoryHit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore.search_episodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore.search_episodes" title="Link to this definition">¶</a></dt>
-<dd><p>Past exchanges relevant to <code class="docutils literal notranslate"><span class="pre">query</span></code>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.store_search">
-<span class="sig-name descname"><span class="pre">store_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ttl_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore.store_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore.store_search" title="Link to this definition">¶</a></dt>
-<dd><p>Remember the results of a web or arXiv search.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.cached_search">
-<span class="sig-name descname"><span class="pre">cached_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#voicemate.memory.store.CachedSearch" title="voicemate.memory.store.CachedSearch"><span class="pre">CachedSearch</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore.cached_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore.cached_search" title="Link to this definition">¶</a></dt>
-<dd><p>A fresh stored search whose query is similar enough to <code class="docutils literal notranslate"><span class="pre">query</span></code>, if any.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.add_documents">
-<span class="sig-name descname"><span class="pre">add_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chunks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ttl_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore.add_documents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore.add_documents" title="Link to this definition">¶</a></dt>
-<dd><p>Store text chunks of one document (page, abstract or paper).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.documents_for_url">
-<span class="sig-name descname"><span class="pre">documents_for_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.memory.store.MemoryHit" title="voicemate.memory.store.MemoryHit"><span class="pre">MemoryHit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore.documents_for_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore.documents_for_url" title="Link to this definition">¶</a></dt>
-<dd><p>Fresh stored chunks of <code class="docutils literal notranslate"><span class="pre">url</span></code> in document order (newest copy first).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.search_documents">
-<span class="sig-name descname"><span class="pre">search_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.memory.store.MemoryHit" title="voicemate.memory.store.MemoryHit"><span class="pre">MemoryHit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore.search_documents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore.search_documents" title="Link to this definition">¶</a></dt>
-<dd><p>Fresh research chunks relevant to <code class="docutils literal notranslate"><span class="pre">query</span></code>.</p>
-</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.recall">
@@ -656,19 +685,28 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <li><a class="reference internal" href="#voicemate.memory.store.Recall.is_empty"><code class="docutils literal notranslate"><span class="pre">Recall.is_empty</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#voicemate.memory.store.Facts"><code class="docutils literal notranslate"><span class="pre">Facts</span></code></a><ul>
+<li><a class="reference internal" href="#voicemate.memory.store.Facts.add"><code class="docutils literal notranslate"><span class="pre">Facts.add()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.memory.store.Facts.search"><code class="docutils literal notranslate"><span class="pre">Facts.search()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#voicemate.memory.store.Episodes"><code class="docutils literal notranslate"><span class="pre">Episodes</span></code></a><ul>
+<li><a class="reference internal" href="#voicemate.memory.store.Episodes.add"><code class="docutils literal notranslate"><span class="pre">Episodes.add()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.memory.store.Episodes.search"><code class="docutils literal notranslate"><span class="pre">Episodes.search()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#voicemate.memory.store.ResearchMemory"><code class="docutils literal notranslate"><span class="pre">ResearchMemory</span></code></a><ul>
+<li><a class="reference internal" href="#voicemate.memory.store.ResearchMemory.store_search"><code class="docutils literal notranslate"><span class="pre">ResearchMemory.store_search()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.memory.store.ResearchMemory.cached_search"><code class="docutils literal notranslate"><span class="pre">ResearchMemory.cached_search()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.memory.store.ResearchMemory.add_documents"><code class="docutils literal notranslate"><span class="pre">ResearchMemory.add_documents()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.memory.store.ResearchMemory.documents_for_url"><code class="docutils literal notranslate"><span class="pre">ResearchMemory.documents_for_url()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.memory.store.ResearchMemory.search_documents"><code class="docutils literal notranslate"><span class="pre">ResearchMemory.search_documents()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#voicemate.memory.store.MemoryStore"><code class="docutils literal notranslate"><span class="pre">MemoryStore</span></code></a><ul>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.embedder"><code class="docutils literal notranslate"><span class="pre">MemoryStore.embedder</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.config"><code class="docutils literal notranslate"><span class="pre">MemoryStore.config</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.clock"><code class="docutils literal notranslate"><span class="pre">MemoryStore.clock</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.add_fact"><code class="docutils literal notranslate"><span class="pre">MemoryStore.add_fact()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.search_facts"><code class="docutils literal notranslate"><span class="pre">MemoryStore.search_facts()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.add_episode"><code class="docutils literal notranslate"><span class="pre">MemoryStore.add_episode()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.search_episodes"><code class="docutils literal notranslate"><span class="pre">MemoryStore.search_episodes()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.store_search"><code class="docutils literal notranslate"><span class="pre">MemoryStore.store_search()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.cached_search"><code class="docutils literal notranslate"><span class="pre">MemoryStore.cached_search()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.add_documents"><code class="docutils literal notranslate"><span class="pre">MemoryStore.add_documents()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.documents_for_url"><code class="docutils literal notranslate"><span class="pre">MemoryStore.documents_for_url()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.search_documents"><code class="docutils literal notranslate"><span class="pre">MemoryStore.search_documents()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.facts"><code class="docutils literal notranslate"><span class="pre">MemoryStore.facts</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.episodes"><code class="docutils literal notranslate"><span class="pre">MemoryStore.episodes</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.research"><code class="docutils literal notranslate"><span class="pre">MemoryStore.research</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.recall"><code class="docutils literal notranslate"><span class="pre">MemoryStore.recall()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.stats"><code class="docutils literal notranslate"><span class="pre">MemoryStore.stats()</span></code></a></li>
 </ul>

@@ -36,6 +36,9 @@ Classes
    voicemate.memory.store.MemoryHit
    voicemate.memory.store.CachedSearch
    voicemate.memory.store.Recall
+   voicemate.memory.store.Facts
+   voicemate.memory.store.Episodes
+   voicemate.memory.store.ResearchMemory
    voicemate.memory.store.MemoryStore
 
 
@@ -136,26 +139,12 @@ Module Contents
       True when nothing relevant was found.
 
 
-.. py:class:: MemoryStore(path: pathlib.Path, embedder: voicemate.memory.embedder.Embedder, config: voicemate.config.MemoryConfig, clock: collections.abc.Callable[[], float] = time.time)
+.. py:class:: Facts(index: _Index)
 
-   LanceDB-backed memory.
-
-   :param path: Database directory.
-   :param embedder: Text embedder.
-   :param config: Similarity thresholds.
-   :param clock: Time source (injectable for tests).
+   Durable facts about the user ("Adam is looking for ML jobs in Budapest").
 
 
-   .. py:attribute:: embedder
-
-
-   .. py:attribute:: config
-
-
-   .. py:attribute:: clock
-
-
-   .. py:method:: add_fact(text: str) -> bool
+   .. py:method:: add(text: str) -> bool
 
       Store a fact, replacing a near-duplicate.
 
@@ -163,22 +152,32 @@ Module Contents
 
 
 
-   .. py:method:: search_facts(query: str, limit: int = 5) -> list[MemoryHit]
+   .. py:method:: search(query: str, limit: int = 5) -> list[MemoryHit]
 
       Facts relevant to ``query``.
 
 
 
-   .. py:method:: add_episode(user: str, assistant: str, lang: str, thread_id: str) -> None
+.. py:class:: Episodes(index: _Index)
+
+   Finished exchanges between the user and the assistant.
+
+
+   .. py:method:: add(user: str, assistant: str, lang: str, thread_id: str) -> None
 
       Store one finished exchange.
 
 
 
-   .. py:method:: search_episodes(query: str, limit: int = 3) -> list[MemoryHit]
+   .. py:method:: search(query: str, limit: int = 3) -> list[MemoryHit]
 
       Past exchanges relevant to ``query``.
 
+
+
+.. py:class:: ResearchMemory(index: _Index)
+
+   Stored searches and the text chunks of pages, abstracts and papers.
 
 
    .. py:method:: store_search(query: str, kind: str, results: list[dict[str, Any]], ttl_days: float) -> None
@@ -209,6 +208,28 @@ Module Contents
 
       Fresh research chunks relevant to ``query``.
 
+
+
+.. py:class:: MemoryStore(path: pathlib.Path, embedder: voicemate.memory.embedder.Embedder, config: voicemate.config.MemoryConfig, clock: collections.abc.Callable[[], float] = time.time)
+
+   LanceDB-backed memory: one database, three narrow interfaces.
+
+   Callers use only the slice they need: :attr:`facts`, :attr:`episodes` or :attr:`research`;
+   :meth:`recall` combines them for the agent.
+
+   :param path: Database directory.
+   :param embedder: Text embedder.
+   :param config: Similarity thresholds.
+   :param clock: Time source (injectable for tests).
+
+
+   .. py:attribute:: facts
+
+
+   .. py:attribute:: episodes
+
+
+   .. py:attribute:: research
 
 
    .. py:method:: recall(query: str) -> Recall

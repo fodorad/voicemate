@@ -407,24 +407,11 @@
     <span class="k">return</span> <span class="s2">"'"</span> <span class="o">+</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">"''"</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"'"</span>
 
 
-<div class="viewcode-block" id="MemoryStore">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MemoryStore</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""LanceDB-backed memory.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        path: Database directory.</span>
-<span class="sd">        embedder: Text embedder.</span>
-<span class="sd">        config: Similarity thresholds.</span>
-<span class="sd">        clock: Time source (injectable for tests).</span>
-<span class="sd">    """</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Index</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The database, embedder and similarity search shared by the concept interfaces."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
-        <span class="n">embedder</span><span class="p">:</span> <span class="n">Embedder</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">:</span> <span class="n">MemoryConfig</span><span class="p">,</span>
-        <span class="n">clock</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">embedder</span><span class="p">:</span> <span class="n">Embedder</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MemoryConfig</span><span class="p">,</span> <span class="n">clock</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">float</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">embedder</span> <span class="o">=</span> <span class="n">embedder</span>
@@ -463,7 +450,7 @@
                 <span class="p">(</span><span class="s2">"ttl_days"</span><span class="p">,</span> <span class="n">num</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tables</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
                 <span class="n">name</span><span class="p">,</span>
                 <span class="n">schema</span><span class="o">=</span><span class="n">pa</span><span class="o">.</span><span class="n">schema</span><span class="p">([</span><span class="n">pa</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">vector</span><span class="p">]),</span>
@@ -472,15 +459,13 @@
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">columns</span> <span class="ow">in</span> <span class="n">schemas</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>
 
-    <span class="c1"># ── helpers ──────────────────────────────────────────────────────────────</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedder</span><span class="o">.</span><span class="n">embed</span><span class="p">([</span><span class="n">text</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_fresh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fresh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"created + ttl_days * </span><span class="si">{</span><span class="n">DAY</span><span class="si">}</span><span class="s2"> &gt;= </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_search</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">table</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -488,7 +473,7 @@
         <span class="n">min_similarity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">where</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-        <span class="n">builder</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">LanceVectorQueryBuilder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">vector</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+        <span class="n">builder</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">LanceVectorQueryBuilder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">vector</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
         <span class="n">query</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">distance_type</span><span class="p">(</span><span class="s2">"cosine"</span><span class="p">)</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">where</span><span class="p">:</span>
             <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">where</span><span class="p">,</span> <span class="n">prefilter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -501,43 +486,61 @@
         <span class="k">return</span> <span class="n">rows</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_hit</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MemoryHit</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hit</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MemoryHit</span><span class="p">:</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"text"</span><span class="p">,</span> <span class="s2">"similarity"</span><span class="p">,</span> <span class="s2">"created"</span><span class="p">)}</span>
         <span class="k">return</span> <span class="n">MemoryHit</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"similarity"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"created"</span><span class="p">],</span> <span class="n">meta</span><span class="p">)</span>
 
-    <span class="c1"># ── facts ────────────────────────────────────────────────────────────────</span>
 
-<div class="viewcode-block" id="MemoryStore.add_fact">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.add_fact">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_fact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="Facts">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Facts">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Facts</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Durable facts about the user ("Adam is looking for ML jobs in Budapest")."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">_Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">index</span>
+
+<div class="viewcode-block" id="Facts.add">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Facts.add">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Store a fact, replacing a near-duplicate.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            True when an existing fact was replaced.</span>
 <span class="sd">        """</span>
-        <span class="n">vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vector</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-        <span class="n">duplicates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search</span><span class="p">(</span><span class="s2">"facts"</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fact_dedupe_similarity</span><span class="p">)</span>
+        <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="n">ix</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">duplicates</span> <span class="o">=</span> <span class="n">ix</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">"facts"</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ix</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fact_dedupe_similarity</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">duplicates</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="s2">"facts"</span><span class="p">]</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">"id = </span><span class="si">{</span><span class="n">_sql_str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">'id'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span> <span class="s2">"created"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="p">(),</span> <span class="s2">"vector"</span><span class="p">:</span> <span class="n">vector</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="s2">"facts"</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">row</span><span class="p">])</span>
+            <span class="n">ix</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">"facts"</span><span class="p">]</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">"id = </span><span class="si">{</span><span class="n">_sql_str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">'id'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span> <span class="s2">"created"</span><span class="p">:</span> <span class="n">ix</span><span class="o">.</span><span class="n">clock</span><span class="p">(),</span> <span class="s2">"vector"</span><span class="p">:</span> <span class="n">vector</span><span class="p">}</span>
+        <span class="n">ix</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">"facts"</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">row</span><span class="p">])</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">duplicates</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MemoryStore.search_facts">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.search_facts">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">search_facts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MemoryHit</span><span class="p">]:</span>
+<div class="viewcode-block" id="Facts.search">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Facts.search">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MemoryHit</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Facts relevant to ``query``."""</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search</span><span class="p">(</span><span class="s2">"facts"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vector</span><span class="p">(</span><span class="n">query</span><span class="p">),</span> <span class="n">limit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fact_min_similarity</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span></div>
+        <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">ix</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">"facts"</span><span class="p">,</span> <span class="n">ix</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="n">query</span><span class="p">),</span> <span class="n">limit</span><span class="p">,</span> <span class="n">ix</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fact_min_similarity</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">ix</span><span class="o">.</span><span class="n">hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span></div>
+</div>
 
 
-    <span class="c1"># ── episodes ─────────────────────────────────────────────────────────────</span>
 
-<div class="viewcode-block" id="MemoryStore.add_episode">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.add_episode">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assistant</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thread_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Episodes">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Episodes">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Episodes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Finished exchanges between the user and the assistant."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">_Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">index</span>
+
+<div class="viewcode-block" id="Episodes.add">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Episodes.add">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assistant</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thread_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Store one finished exchange."""</span>
+        <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
         <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"User: </span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="se">\n</span><span class="s2">Assistant: </span><span class="si">{</span><span class="n">assistant</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">row</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">"id"</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">,</span>
@@ -546,52 +549,61 @@
             <span class="s2">"assistant"</span><span class="p">:</span> <span class="n">assistant</span><span class="p">,</span>
             <span class="s2">"lang"</span><span class="p">:</span> <span class="n">lang</span><span class="p">,</span>
             <span class="s2">"thread_id"</span><span class="p">:</span> <span class="n">thread_id</span><span class="p">,</span>
-            <span class="s2">"created"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="p">(),</span>
-            <span class="s2">"vector"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vector</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
+            <span class="s2">"created"</span><span class="p">:</span> <span class="n">ix</span><span class="o">.</span><span class="n">clock</span><span class="p">(),</span>
+            <span class="s2">"vector"</span><span class="p">:</span> <span class="n">ix</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="s2">"episodes"</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">row</span><span class="p">])</span></div>
+        <span class="n">ix</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">"episodes"</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">row</span><span class="p">])</span></div>
 
 
-<div class="viewcode-block" id="MemoryStore.search_episodes">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.search_episodes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">search_episodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MemoryHit</span><span class="p">]:</span>
+<div class="viewcode-block" id="Episodes.search">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Episodes.search">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MemoryHit</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Past exchanges relevant to ``query``."""</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search</span><span class="p">(</span>
-            <span class="s2">"episodes"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vector</span><span class="p">(</span><span class="n">query</span><span class="p">),</span> <span class="n">limit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">recall_min_similarity</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span></div>
+        <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">ix</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">"episodes"</span><span class="p">,</span> <span class="n">ix</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="n">query</span><span class="p">),</span> <span class="n">limit</span><span class="p">,</span> <span class="n">ix</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">recall_min_similarity</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">ix</span><span class="o">.</span><span class="n">hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span></div>
+</div>
 
 
-    <span class="c1"># ── research cache ───────────────────────────────────────────────────────</span>
 
-<div class="viewcode-block" id="MemoryStore.store_search">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.store_search">[docs]</a>
+<div class="viewcode-block" id="ResearchMemory">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResearchMemory</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Stored searches and the text chunks of pages, abstracts and papers."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">_Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">index</span>
+
+<div class="viewcode-block" id="ResearchMemory.store_search">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.store_search">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">store_search</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">ttl_days</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Remember the results of a web or arXiv search."""</span>
+        <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
         <span class="n">row</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">"id"</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">,</span>
             <span class="s2">"text"</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
             <span class="s2">"kind"</span><span class="p">:</span> <span class="n">kind</span><span class="p">,</span>
             <span class="s2">"results"</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-            <span class="s2">"created"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="p">(),</span>
+            <span class="s2">"created"</span><span class="p">:</span> <span class="n">ix</span><span class="o">.</span><span class="n">clock</span><span class="p">(),</span>
             <span class="s2">"ttl_days"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">ttl_days</span><span class="p">),</span>
-            <span class="s2">"vector"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vector</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
+            <span class="s2">"vector"</span><span class="p">:</span> <span class="n">ix</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="s2">"searches"</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">row</span><span class="p">])</span></div>
+        <span class="n">ix</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">"searches"</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">row</span><span class="p">])</span></div>
 
 
-<div class="viewcode-block" id="MemoryStore.cached_search">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.cached_search">[docs]</a>
+<div class="viewcode-block" id="ResearchMemory.cached_search">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.cached_search">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cached_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CachedSearch</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""A fresh stored search whose query is similar enough to ``query``, if any."""</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search</span><span class="p">(</span>
+        <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">ix</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
             <span class="s2">"searches"</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_vector</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
+            <span class="n">ix</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
             <span class="mi">1</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">search_cache_similarity</span><span class="p">,</span>
-            <span class="n">where</span><span class="o">=</span><span class="sa">f</span><span class="s2">"kind = </span><span class="si">{</span><span class="n">_sql_str</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span><span class="si">}</span><span class="s2"> AND </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_fresh</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">ix</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">search_cache_similarity</span><span class="p">,</span>
+            <span class="n">where</span><span class="o">=</span><span class="sa">f</span><span class="s2">"kind = </span><span class="si">{</span><span class="n">_sql_str</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span><span class="si">}</span><span class="s2"> AND </span><span class="si">{</span><span class="n">ix</span><span class="o">.</span><span class="n">fresh</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -601,18 +613,19 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MemoryStore.add_documents">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.add_documents">[docs]</a>
+<div class="viewcode-block" id="ResearchMemory.add_documents">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.add_documents">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_documents</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">chunks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ttl_days</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Store text chunks of one document (page, abstract or paper)."""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">chunks</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">vectors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedder</span><span class="o">.</span><span class="n">embed</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>
-        <span class="n">now</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+        <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+        <span class="n">vectors</span> <span class="o">=</span> <span class="n">ix</span><span class="o">.</span><span class="n">embedder</span><span class="o">.</span><span class="n">embed</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">ix</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
         <span class="n">document</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="s2">"documents"</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+        <span class="n">ix</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">"documents"</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="p">{</span>
                     <span class="c1"># "&lt;document&gt;-&lt;position&gt;": sorting by id restores the chunk order.</span>
@@ -630,14 +643,15 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MemoryStore.documents_for_url">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.documents_for_url">[docs]</a>
+<div class="viewcode-block" id="ResearchMemory.documents_for_url">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.documents_for_url">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">documents_for_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MemoryHit</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Fresh stored chunks of ``url`` in document order (newest copy first)."""</span>
+        <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="s2">"documents"</span><span class="p">]</span>
+            <span class="n">ix</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">"documents"</span><span class="p">]</span>
             <span class="o">.</span><span class="n">search</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="sa">f</span><span class="s2">"url = </span><span class="si">{</span><span class="n">_sql_str</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="si">}</span><span class="s2"> AND </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_fresh</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="sa">f</span><span class="s2">"url = </span><span class="si">{</span><span class="n">_sql_str</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="si">}</span><span class="s2"> AND </span><span class="si">{</span><span class="n">ix</span><span class="o">.</span><span class="n">fresh</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">10_000</span><span class="p">)</span>
             <span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
         <span class="p">)</span>
@@ -648,37 +662,66 @@
         <span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="MemoryStore.search_documents">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.search_documents">[docs]</a>
+<div class="viewcode-block" id="ResearchMemory.search_documents">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.search_documents">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">search_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MemoryHit</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Fresh research chunks relevant to ``query``."""</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search</span><span class="p">(</span>
+        <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">ix</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
             <span class="s2">"documents"</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_vector</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
+            <span class="n">ix</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
             <span class="n">limit</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">recall_min_similarity</span><span class="p">,</span>
-            <span class="n">where</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fresh</span><span class="p">(),</span>
+            <span class="n">ix</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">recall_min_similarity</span><span class="p">,</span>
+            <span class="n">where</span><span class="o">=</span><span class="n">ix</span><span class="o">.</span><span class="n">fresh</span><span class="p">(),</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">ix</span><span class="o">.</span><span class="n">hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span></div>
+</div>
 
 
-    <span class="c1"># ── combined ─────────────────────────────────────────────────────────────</span>
+
+<div class="viewcode-block" id="MemoryStore">
+<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MemoryStore</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""LanceDB-backed memory: one database, three narrow interfaces.</span>
+
+<span class="sd">    Callers use only the slice they need: :attr:`facts`, :attr:`episodes` or :attr:`research`;</span>
+<span class="sd">    :meth:`recall` combines them for the agent.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path: Database directory.</span>
+<span class="sd">        embedder: Text embedder.</span>
+<span class="sd">        config: Similarity thresholds.</span>
+<span class="sd">        clock: Time source (injectable for tests).</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">embedder</span><span class="p">:</span> <span class="n">Embedder</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">MemoryConfig</span><span class="p">,</span>
+        <span class="n">clock</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">_Index</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">embedder</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">clock</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">facts</span> <span class="o">=</span> <span class="n">Facts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">episodes</span> <span class="o">=</span> <span class="n">Episodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">research</span> <span class="o">=</span> <span class="n">ResearchMemory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MemoryStore.recall">
 <a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.recall">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">recall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Recall</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Facts, episodes and research relevant to ``query`` (one embedding pass)."""</span>
-        <span class="n">vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vector</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-        <span class="n">cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="n">ix</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">ix</span><span class="o">.</span><span class="n">config</span>
         <span class="k">return</span> <span class="n">Recall</span><span class="p">(</span>
-            <span class="n">facts</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search</span><span class="p">(</span><span class="s2">"facts"</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">fact_min_similarity</span><span class="p">)],</span>
+            <span class="n">facts</span><span class="o">=</span><span class="p">[</span><span class="n">ix</span><span class="o">.</span><span class="n">hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">ix</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">"facts"</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">fact_min_similarity</span><span class="p">)],</span>
             <span class="n">episodes</span><span class="o">=</span><span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search</span><span class="p">(</span><span class="s2">"episodes"</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">recall_min_similarity</span><span class="p">)</span>
+                <span class="n">ix</span><span class="o">.</span><span class="n">hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">ix</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">"episodes"</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">recall_min_similarity</span><span class="p">)</span>
             <span class="p">],</span>
             <span class="n">documents</span><span class="o">=</span><span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search</span><span class="p">(</span>
-                    <span class="s2">"documents"</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">recall_min_similarity</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fresh</span><span class="p">()</span>
+                <span class="n">ix</span><span class="o">.</span><span class="n">hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">ix</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+                    <span class="s2">"documents"</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">recall_min_similarity</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">ix</span><span class="o">.</span><span class="n">fresh</span><span class="p">()</span>
                 <span class="p">)</span>
             <span class="p">],</span>
         <span class="p">)</span></div>
@@ -688,7 +731,7 @@
 <a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.stats">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Row count per table."""</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">table</span><span class="o">.</span><span class="n">count_rows</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">table</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">table</span><span class="o">.</span><span class="n">count_rows</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">table</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
 </div>
 
 </pre></div>

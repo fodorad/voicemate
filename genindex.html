@@ -323,12 +323,14 @@
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.LaneState.ACTIVE">ACTIVE (voicemate.events.LaneState attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/memory/notes/index.html#voicemate.memory.notes.NotesStore.add">add() (voicemate.memory.notes.NotesStore method)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Episodes.add">(voicemate.memory.store.Episodes method)</a>
 </li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.add_documents">add_documents() (voicemate.memory.store.MemoryStore method)</a>
+          <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Facts.add">(voicemate.memory.store.Facts method)</a>
 </li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.add_episode">add_episode() (voicemate.memory.store.MemoryStore method)</a>
-</li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.add_fact">add_fact() (voicemate.memory.store.MemoryStore method)</a>
+        </ul></li>
+        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.add_documents">add_documents() (voicemate.memory.store.ResearchMemory method)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/graph/index.html#voicemate.agent.graph.AgentState">AgentState (class in voicemate.agent.graph)</a>
 </li>
@@ -469,7 +471,7 @@
   <h2>C</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.cached_search">cached_search() (voicemate.memory.store.MemoryStore method)</a>
+        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.cached_search">cached_search() (voicemate.memory.store.ResearchMemory method)</a>
 </li>
         <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.CachedSearch">CachedSearch (class in voicemate.memory.store)</a>
 </li>
@@ -488,8 +490,6 @@
         <li><a href="autoapi/voicemate/memory/text/index.html#voicemate.memory.text.CHUNK_CHARS">CHUNK_CHARS (in module voicemate.memory.text)</a>
 </li>
         <li><a href="autoapi/voicemate/memory/text/index.html#voicemate.memory.text.chunk_text">chunk_text() (in module voicemate.memory.text)</a>
-</li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.clock">clock (voicemate.memory.store.MemoryStore attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/memory/notes/index.html#voicemate.memory.notes.NotesStore.close">close() (voicemate.memory.notes.NotesStore method)</a>
 
@@ -517,8 +517,6 @@
 
         <ul>
           <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.Segmenter.config">(voicemate.audio.vad.Segmenter attribute)</a>
-</li>
-          <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.config">(voicemate.memory.store.MemoryStore attribute)</a>
 </li>
           <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.config">(voicemate.pipeline.orchestrator.VoiceSession attribute)</a>
 </li>
@@ -607,7 +605,7 @@
 </li>
         <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Recall.documents">documents (voicemate.memory.store.Recall attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.documents_for_url">documents_for_url() (voicemate.memory.store.MemoryStore method)</a>
+        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.documents_for_url">documents_for_url() (voicemate.memory.store.ResearchMemory method)</a>
 </li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.LaneState.DONE">DONE (voicemate.events.LaneState attribute)</a>
 </li>
@@ -643,8 +641,6 @@
 </li>
         <li><a href="autoapi/voicemate/memory/embedder/index.html#voicemate.memory.embedder.Embedder">Embedder (class in voicemate.memory.embedder)</a>
 </li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.embedder">embedder (voicemate.memory.store.MemoryStore attribute)</a>
-</li>
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.emit">emit() (voicemate.pipeline.orchestrator.VoiceSession method)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/base/index.html#voicemate.agent.tools.base.emitter">emitter() (in module voicemate.agent.tools.base)</a>
@@ -655,10 +651,10 @@
 </li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.EnergyVAD">EnergyVAD (class in voicemate.audio.vad)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.TTSVoiceConfig.engine">engine (voicemate.config.TTSVoiceConfig attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/models/index.html#voicemate.models.ensure_all">ensure_all() (in module voicemate.models)</a>
 </li>
         <li><a href="autoapi/voicemate/models/index.html#voicemate.models.ensure_kokoro">ensure_kokoro() (in module voicemate.models)</a>
@@ -667,8 +663,14 @@
 </li>
         <li><a href="autoapi/voicemate/memory/notes/index.html#voicemate.memory.notes.NotesStore.entries">entries() (voicemate.memory.notes.NotesStore method)</a>
 </li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Recall.episodes">episodes (voicemate.memory.store.Recall attribute)</a>
+        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Episodes">Episodes (class in voicemate.memory.store)</a>
 </li>
+        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.episodes">episodes (voicemate.memory.store.MemoryStore attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Recall.episodes">(voicemate.memory.store.Recall attribute)</a>
+</li>
+        </ul></li>
         <li><a href="autoapi/voicemate/report/index.html#voicemate.report.Report.error_rate">error_rate (voicemate.report.Report attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.ErrorEvent">ErrorEvent (class in voicemate.events)</a>
@@ -693,8 +695,14 @@
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.MemoryConfig.fact_min_similarity">fact_min_similarity (voicemate.config.MemoryConfig attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Recall.facts">facts (voicemate.memory.store.Recall attribute)</a>
+        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Facts">Facts (class in voicemate.memory.store)</a>
 </li>
+        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.facts">facts (voicemate.memory.store.MemoryStore attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Recall.facts">(voicemate.memory.store.Recall attribute)</a>
+</li>
+        </ul></li>
         <li><a href="autoapi/app/index.html#app.Server.fake_mic_name">fake_mic_name() (app.Server method)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.LLMConfig.fallback_profile">fallback_profile (voicemate.config.LLMConfig attribute)</a>
@@ -721,10 +729,10 @@
 </li>
         <li><a href="autoapi/voicemate/agent/tools/files/index.html#voicemate.agent.tools.files.FileOperations.find">find() (voicemate.agent.tools.files.FileOperations method)</a>
 </li>
-        <li><a href="autoapi/voicemate/agent/model_select/index.html#voicemate.agent.model_select.ModelChoice.fits">fits (voicemate.agent.model_select.ModelChoice attribute)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/voicemate/agent/model_select/index.html#voicemate.agent.model_select.ModelChoice.fits">fits (voicemate.agent.model_select.ModelChoice attribute)</a>
+</li>
         <li><a href="autoapi/voicemate/audio/codec/index.html#voicemate.audio.codec.float32_to_pcm16">float32_to_pcm16() (in module voicemate.audio.codec)</a>
 </li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.Segmenter.flush">flush() (voicemate.audio.vad.Segmenter method)</a>
@@ -1543,13 +1551,19 @@
 </li>
         <li><a href="autoapi/voicemate/agent/tools/base/index.html#voicemate.agent.tools.base.report">report() (in module voicemate.agent.tools.base)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/audio/codec/index.html#voicemate.audio.codec.resample">resample() (in module voicemate.audio.codec)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research">Research (class in voicemate.agent.tools.research)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/base/index.html#voicemate.agent.tools.base.ToolContext.research">research (voicemate.agent.tools.base.ToolContext attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.research">(voicemate.memory.store.MemoryStore attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory">ResearchMemory (class in voicemate.memory.store)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.LLMConfig.reserve_gb">reserve_gb (voicemate.config.LLMConfig attribute)</a>
 </li>
@@ -1654,14 +1668,14 @@
 </li>
           <li><a href="autoapi/voicemate/memory/notes/index.html#voicemate.memory.notes.NotesStore.search">(voicemate.memory.notes.NotesStore method)</a>
 </li>
+          <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Episodes.search">(voicemate.memory.store.Episodes method)</a>
+</li>
+          <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.Facts.search">(voicemate.memory.store.Facts method)</a>
+</li>
         </ul></li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.MemoryConfig.search_cache_similarity">search_cache_similarity (voicemate.config.MemoryConfig attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.search_documents">search_documents() (voicemate.memory.store.MemoryStore method)</a>
-</li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.search_episodes">search_episodes() (voicemate.memory.store.MemoryStore method)</a>
-</li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.search_facts">search_facts() (voicemate.memory.store.MemoryStore method)</a>
+        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.search_documents">search_documents() (voicemate.memory.store.ResearchMemory method)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/search/index.html#voicemate.agent.tools.search.SearchBackend">SearchBackend (class in voicemate.agent.tools.search)</a>
 </li>
@@ -1771,7 +1785,7 @@
 </li>
         <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.Stop">Stop (class in voicemate.audio.protocol)</a>
 </li>
-        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.store_search">store_search() (voicemate.memory.store.MemoryStore method)</a>
+        <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.store_search">store_search() (voicemate.memory.store.ResearchMemory method)</a>
 </li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.Segmenter.strict">strict (voicemate.audio.vad.Segmenter attribute)</a>
 </li>
