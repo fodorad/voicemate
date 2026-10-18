@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.0.1](https://github.com/fodorad/voicemate/compare/voicemate-v1.0.0...voicemate-v1.0.1) (2026-10-18)
+
+
+### Bug Fixes
+
+* **agent:** read addresses the user gives with fetch_page ([#18](https://github.com/fodorad/voicemate/issues/18)) ([d538213](https://github.com/fodorad/voicemate/commit/d5382136d6f758d920b1b549c5dc9275fbacf91b))
+* repair the arXiv integration test, raise the coverage gate and quiet the test output ([#25](https://github.com/fodorad/voicemate/issues/25)) ([b75613d](https://github.com/fodorad/voicemate/commit/b75613d9b6a40b77391f2506ce0ad54e7d61327a))
+
+
+### Documentation
+
+* describe the cleanup ([#30](https://github.com/fodorad/voicemate/issues/30)) ([f053f42](https://github.com/fodorad/voicemate/commit/f053f42927ad1e15ee24b595521a9ad8f87d9cf2))
+* describe the deepened modules ([#16](https://github.com/fodorad/voicemate/issues/16)) ([0e8e3f4](https://github.com/fodorad/voicemate/commit/0e8e3f41f4956cd85ef187fa2a8b92e879813cad))
+* describe the round-2 modules ([#24](https://github.com/fodorad/voicemate/issues/24)) ([cae7c42](https://github.com/fodorad/voicemate/commit/cae7c42aed41a6e0774594a5ae1a63515864855f))
+
 ## [1.0.0](https://github.com/fodorad/voicemate/compare/voicemate-v0.1.0...voicemate-v1.0.0) (2026-10-07)
 
 
