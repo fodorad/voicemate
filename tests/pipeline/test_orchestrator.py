@@ -34,10 +34,10 @@ from voicemate.events import (
     TranscriptEvent,
 )
 from voicemate.pipeline.conversation import INTERRUPTED_MARK, INTERRUPTED_TOOL_RESULT, ChatLine
+from voicemate.pipeline.listener import PARTIAL_WINDOW_S
 from voicemate.pipeline.orchestrator import (
     APOLOGIES,
     FILLERS,
-    PARTIAL_WINDOW_S,
     VoiceSession,
     turns_log_path,
 )
@@ -100,7 +100,7 @@ class SessionTestCase(unittest.IsolatedAsyncioTestCase):
     async def speak_half(self):
         for frame in utterance_pcm()[:40]:  # stopped in the middle of a sentence
             await self.session.feed_audio(frame)
-        self.assertTrue(self.session.segmenter.in_speech)
+        self.assertTrue(self.session.listener.in_speech)
 
     async def speak(self, speech_s=0.8):
         for frame in utterance_pcm(speech_s):
@@ -150,8 +150,8 @@ class TestVoiceTurn(SessionTestCase):
         self.assertFalse(self.session.busy)
 
     async def test_partial_transcripts_during_long_speech(self):
+        self.ctx.config.asr.partial_interval_s = 0.5  # read when the session is built
         self.make_session(["Ok."], transcripts=["long question"], repeat=True)
-        self.ctx.config.asr.partial_interval_s = 0.5
         await self.speak(speech_s=2.0)
         await self.settle()
         partials = [e for e in self.drain() if isinstance(e, TranscriptEvent) and not e.final]
@@ -161,7 +161,7 @@ class TestVoiceTurn(SessionTestCase):
         self.make_session(["Here I am."], transcripts=["Are you there?"])
         await self.speak_half()
         self.session.microphone_stopped()
-        self.assertFalse(self.session.segmenter.in_speech)
+        self.assertFalse(self.session.listener.in_speech)
         await self.settle()
         finals = [e.text for e in self.drain() if isinstance(e, TranscriptEvent) and e.final]
         self.assertEqual(finals, ["Are you there?"])
@@ -214,7 +214,7 @@ class TestBargeIn(SessionTestCase):
     async def test_speech_during_playback_interrupts(self):
         self.make_session(["x"])
         self.session.playback_started()
-        self.assertTrue(self.session.segmenter.strict)
+        self.assertTrue(self.session.listener.strict)
         await self.speak()
         events = self.drain()
         self.assertTrue(any(isinstance(e, InterruptEvent) for e in events))
@@ -242,7 +242,7 @@ class TestBargeIn(SessionTestCase):
         self.make_session(["x"])
         self.session.playback_started()
         self.session.playback_ended()
-        self.assertFalse(self.session.segmenter.strict)
+        self.assertFalse(self.session.listener.strict)
         self.assertFalse(self.session.busy)
 
 
@@ -436,8 +436,8 @@ class TestTurnDiscipline(SessionTestCase):
         self.assertFalse(self.session.busy)
 
     async def test_long_speech_partials_cover_only_recent_audio(self):
+        self.ctx.config.asr.partial_interval_s = 0.5  # read when the session is built
         self.make_session(["Ok."], transcripts=["words"], repeat=True)
-        self.ctx.config.asr.partial_interval_s = 0.5
         await self.speak(speech_s=PARTIAL_WINDOW_S + 2)
         await self.settle()
         partials = [e.text for e in self.drain() if isinstance(e, TranscriptEvent) and not e.final]

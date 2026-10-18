@@ -35,8 +35,8 @@ import numpy as np
 from voicemate.agent.hitl import Confirmation
 from voicemate.agent.tools import EGRESS_TOOLS
 from voicemate.asr.base import Transcript
-from voicemate.audio.codec import SAMPLE_RATE, float32_to_pcm16, pcm16_to_float32
-from voicemate.audio.vad import Segmenter, SpeechEnd, SpeechStart
+from voicemate.audio.codec import float32_to_pcm16
+from voicemate.audio.vad import SpeechEnd, SpeechStart
 from voicemate.events import (
     AudioEvent,
     ConfirmEvent,
@@ -61,6 +61,7 @@ from voicemate.pipeline.conversation import (
     ChatLine,
     Conversation,
 )
+from voicemate.pipeline.listener import Listener, ListenerCallbacks, Utterance
 from voicemate.pipeline.reminders import Reminders, spoken_text
 from voicemate.pipeline.turn_taking import Begin, Collect, Decision, Interrupt, TurnTaking
 from voicemate.runtime import Runtime
@@ -75,10 +76,6 @@ APOLOGIES: dict[str, str] = {
     "hu": "Elnézést, ez most nem sikerült. Kérlek, próbáld újra.",
     "en": "Sorry, that didn't work. Please try again.",
 }
-
-#: Live partial transcripts only cover the most recent speech, so a long utterance never
-#: makes the final transcript wait behind a slow partial pass on the shared ASR thread.
-PARTIAL_WINDOW_S: float = 8.0
 
 
 @dataclass
@@ -117,19 +114,29 @@ class VoiceSession:
             runtime.graph, thread_id or f"session-{uuid.uuid4().hex[:12]}"
         )
         self.bus = EventBus()
-        self.segmenter = Segmenter(runtime.vad_factory(), self.config.vad)
+        self.listener = Listener(
+            runtime.vad_factory(),
+            self.config.vad,
+            self._transcribe,
+            self._spawn,
+            ListenerCallbacks(
+                on_partial=self._on_partial,
+                on_transcribing=self._on_transcribing,
+                on_utterance=self._on_utterance,
+                on_error=self._on_recognition_error,
+            ),
+            partial_interval_s=self.config.asr.partial_interval_s,
+            audio_dir=self.config.data_path / "audio" if self.config.save_audio else None,
+        )
         self.lang = self.config.assistant.default_language
         #: The rules for what user input means (hold, merge, confirmation).
         self.policy = TurnTaking()
-        self._utterances: set[asyncio.Task] = set()
         self._speaking = False
         self._turn: asyncio.Task | None = None
-        self._partial: asyncio.Task | None = None
         self._reminders: asyncio.Task | None = None
         self._reminders_due = (
             Reminders(runtime.notes, self._announce_reminder) if runtime.notes else None
         )
-        self._last_partial_at = 0.0
         self._interrupted_reply = ""  # partial reply of the turn cut off by the last barge-in
         self._tasks: set[asyncio.Task] = set()
 
@@ -207,21 +214,13 @@ class VoiceSession:
 
     async def feed_audio(self, pcm: bytes) -> None:
         """Consume one frame of 16 kHz mono PCM16 microphone audio."""
-        for event in self.segmenter.feed(pcm16_to_float32(pcm)):
+        for event in self.listener.feed(pcm):
             if isinstance(event, SpeechStart):
                 self._status(Lane.LISTENING, LaneState.ACTIVE)
                 if isinstance(self.policy.on_speech_start(self.busy), Interrupt):
                     await self.interrupt()
             elif isinstance(event, SpeechEnd):
-                self._utterance_ended(event)
-        self._maybe_partial()
-
-    def _utterance_ended(self, event: SpeechEnd) -> None:
-        self._status(Lane.LISTENING, LaneState.DONE)
-        self._last_partial_at = 0.0
-        task = self._spawn(self._handle_utterance(event.audio))
-        self._utterances.add(task)
-        task.add_done_callback(self._utterances.discard)
+                self._status(Lane.LISTENING, LaneState.DONE)
 
     async def submit_text(self, text: str) -> None:
         """Handle typed input like a spoken utterance (no ASR, never merged)."""
@@ -239,7 +238,7 @@ class VoiceSession:
         """Barge-in: stop the current turn and tell the browser to stop playback."""
         self.bus.publish(InterruptEvent())
         self._speaking = False
-        self.segmenter.strict = False
+        self.listener.strict = False
         if self._turn is not None and not self._turn.done():
             self._turn.cancel()
             with contextlib.suppress(asyncio.CancelledError, Exception):
@@ -251,13 +250,13 @@ class VoiceSession:
     def playback_started(self) -> None:
         """The browser started playing assistant audio."""
         self._speaking = True
-        self.segmenter.strict = True
+        self.listener.strict = True
         self._status(Lane.SPEAKING, LaneState.ACTIVE)
 
     def playback_ended(self) -> None:
         """The browser finished playing all queued audio."""
         self._speaking = False
-        self.segmenter.strict = False
+        self.listener.strict = False
         self._status(Lane.SPEAKING, LaneState.DONE)
 
     def microphone_stopped(self) -> None:
@@ -266,11 +265,8 @@ class VoiceSession:
         A sentence still in progress is ended here, and a hold is released, because turning
         the microphone off means "I'm done talking".
         """
-        end = self.segmenter.flush()
-        if end is not None:
-            self._utterance_ended(end)
-        else:
-            self._status(Lane.LISTENING, LaneState.IDLE)
+        end = self.listener.flush()
+        self._status(Lane.LISTENING, LaneState.IDLE if end is None else LaneState.DONE)
         if self.holding:
             self._spawn(self.release())
 
@@ -288,10 +284,9 @@ class VoiceSession:
         """The user is finished: send everything said (or typed) during the hold."""
         if not self.holding:
             return
-        if (end := self.segmenter.flush()) is not None:
-            self._utterance_ended(end)
-        while self._utterances:  # transcripts still on their way join the question
-            await asyncio.wait(set(self._utterances))
+        if self.listener.flush() is not None:
+            self._status(Lane.LISTENING, LaneState.DONE)
+        await self.listener.settled()  # transcripts still on their way join the question
         await self._input(self.policy.release, time.monotonic())
         self.bus.publish(HoldEvent(False))
 
@@ -311,52 +306,24 @@ class VoiceSession:
         speech = self.runtime.speech
         return "" if speech is None else await speech.transcribe(audio)
 
-    def _maybe_partial(self) -> None:
-        """Schedule a live partial transcript every ``partial_interval_s`` of speech."""
-        if not self.segmenter.in_speech or (self._partial and not self._partial.done()):
-            return
-        seconds = self.segmenter.speech_seconds
-        if seconds - self._last_partial_at < self.config.asr.partial_interval_s:
-            return
-        self._last_partial_at = seconds
-        audio = self.segmenter.current_audio
-        window = int(PARTIAL_WINDOW_S * SAMPLE_RATE)
-        self._partial = self._spawn(self._publish_partial(audio[-window:], len(audio) > window))
+    def _on_partial(self, text: str) -> None:
+        self.bus.publish(TranscriptEvent(text, final=False))
 
-    async def _publish_partial(self, audio: np.ndarray, truncated: bool) -> None:
-        text = await self._transcribe(audio)
-        if text and self.segmenter.in_speech:
-            self.bus.publish(TranscriptEvent(f"… {text}" if truncated else text, final=False))
+    def _on_transcribing(self, state: LaneState) -> None:
+        self._status(Lane.TRANSCRIBING, state)
 
-    async def _handle_utterance(self, audio: np.ndarray) -> None:
-        ended_at = time.monotonic()
-        self._status(Lane.TRANSCRIBING, LaneState.ACTIVE)
-        try:
-            text = await self._transcribe(audio)
-        except Exception as exc:
-            logger.exception("Speech recognition failed")
-            self._status(Lane.TRANSCRIBING, LaneState.IDLE)
-            self.bus.publish(ErrorEvent(f"Speech recognition failed: {exc}"))
-            return
-        latency = time.monotonic() - ended_at
-        self._status(Lane.TRANSCRIBING, LaneState.DONE)
-        if self.config.save_audio:
-            await asyncio.to_thread(self._save_audio, audio)
-        if not any(ch.isalnum() for ch in text):
-            return
-        transcript = Transcript(text, "", len(audio) / SAMPLE_RATE, latency)
+    def _on_recognition_error(self, error: Exception) -> None:
+        self.bus.publish(ErrorEvent(f"Speech recognition failed: {error}"))
+
+    async def _on_utterance(self, utterance: Utterance) -> None:
+        transcript = Transcript(utterance.text, "", utterance.audio_seconds, utterance.latency_s)
         await self._input(
-            lambda running: self.policy.on_utterance(text.strip(), ended_at, running),
-            ended_at,
+            lambda running: self.policy.on_utterance(
+                utterance.text.strip(), utterance.ended_at, running
+            ),
+            utterance.ended_at,
             transcript,
         )
-
-    def _save_audio(self, audio: np.ndarray) -> None:
-        import soundfile as sf
-
-        folder = self.config.data_path / "audio"
-        folder.mkdir(parents=True, exist_ok=True)
-        sf.write(folder / f"{datetime.now():%Y%m%d-%H%M%S-%f}.wav", audio, SAMPLE_RATE)
 
     # ── turns ────────────────────────────────────────────────────────────────
 
