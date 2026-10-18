@@ -47,7 +47,7 @@ def build(ctx: ToolContext) -> list[BaseTool]:
         Args:
             fact: One self-contained sentence in English, e.g. "Adam prefers short answers".
         """
-        replaced = await asyncio.to_thread(ctx.memory.add_fact, fact.strip())
+        replaced = await asyncio.to_thread(ctx.memory.facts.add, fact.strip())
         report(config, "remember", {"fact": fact}, "memory", fact)
         return "Updated an existing memory." if replaced else "Remembered."
 

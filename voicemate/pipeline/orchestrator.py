@@ -462,7 +462,7 @@ class VoiceSession:
         if turn.reply and self.runtime.memory is not None and not turn.failed:
             memory = self.runtime.memory
             self._spawn(
-                asyncio.to_thread(memory.add_episode, text, turn.reply, lang, self.thread_id)
+                asyncio.to_thread(memory.episodes.add, text, turn.reply, lang, self.thread_id)
             )
 
     def _tool_emitter(self, turn: _Turn):
