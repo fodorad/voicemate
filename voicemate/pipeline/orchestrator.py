@@ -57,7 +57,7 @@ from voicemate.pipeline.conversation import (
     Conversation,
 )
 from voicemate.pipeline.listener import Listener, ListenerCallbacks, Utterance
-from voicemate.pipeline.reminders import Reminders, spoken_text
+from voicemate.pipeline.reminders import spoken_text
 from voicemate.pipeline.reply import Reply
 from voicemate.pipeline.turn_taking import Begin, Collect, Decision, Interrupt, TurnTaking
 from voicemate.runtime import Runtime
@@ -99,19 +99,10 @@ class VoiceSession:
         self.policy = TurnTaking()
         self._speaking = False
         self._turn: asyncio.Task | None = None
-        self._reminders: asyncio.Task | None = None
-        self._reminders_due = (
-            Reminders(runtime.notes, self._announce_reminder) if runtime.notes else None
-        )
         self._interrupted_reply = ""  # partial reply of the turn cut off by the last barge-in
         self._tasks: set[asyncio.Task] = set()
 
     # ── lifecycle ────────────────────────────────────────────────────────────
-
-    def start(self) -> None:
-        """Start background duties (reminder watcher)."""
-        if self._reminders_due is not None and self._reminders is None:
-            self._reminders = self._spawn(self._reminders_due.watch())
 
     async def close(self) -> None:
         """Cancel everything this session is doing."""
@@ -122,7 +113,7 @@ class VoiceSession:
 
     async def wait_idle(self) -> None:
         """Wait until no utterance, turn or follow-up task is in progress."""
-        while pending := [t for t in self._tasks if t is not self._reminders and not t.done()]:
+        while pending := [t for t in self._tasks if not t.done()]:
             await asyncio.wait(pending)
 
     def _spawn(self, coro: Coroutine[Any, Any, Any]) -> asyncio.Task:
@@ -450,11 +441,7 @@ class VoiceSession:
 
     # ── reminders ────────────────────────────────────────────────────────────
 
-    async def check_reminders(self) -> int:
-        """Announce due reminders once; returns how many were announced."""
-        return await self._reminders_due.check() if self._reminders_due else 0
-
-    async def _announce_reminder(self, note: Note) -> None:
+    async def announce_reminder(self, note: Note) -> None:
         """A reminder is always shown in the UI; it is also spoken when the assistant is idle."""
         self.bus.publish(ReminderEvent(note.text))
         if not self.busy and not self.holding:

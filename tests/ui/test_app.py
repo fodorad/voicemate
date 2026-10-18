@@ -6,6 +6,7 @@ Widgets are inspected directly after events flow through the page's real event p
 import asyncio
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -25,6 +26,7 @@ from voicemate.agent.graph import build_graph
 from voicemate.agent.model_select import ModelChoice
 from voicemate.agent.tools import build_tools
 from voicemate.events import (
+    AudioEvent,
     ConfirmEvent,
     ErrorEvent,
     HoldEvent,
@@ -32,6 +34,7 @@ from voicemate.events import (
     LaneState,
     MetricsEvent,
     NotesChangedEvent,
+    ReminderEvent,
     StatusEvent,
     ToolEvent,
     TranscriptEvent,
@@ -297,6 +300,52 @@ class TestServer(UITestCase):
         lines = await reopened.restore()
         self.assertEqual([line.text for line in lines], ["Hello", "Hi Adam."])
         await server.shutdown()
+
+    async def test_every_open_tab_hears_a_reminder_exactly_once(self):
+        server = Server(self.ctx.config, self.runtime())
+        _, first = await server.open_session()
+        _, second = await server.open_session()
+        buses = [first.bus.subscribe(), second.bus.subscribe()]
+        self.ctx.notes.add("call the doctor", "reminder", due="2020-01-01T09:00")
+        reminders = server.make_reminders()
+        self.assertEqual(await reminders.check(), 1)
+        for bus in buses:
+            events = [bus.get_nowait() for _ in range(bus.qsize())]
+            self.assertEqual(
+                [e.text for e in events if isinstance(e, ReminderEvent)], ["call the doctor"]
+            )
+            self.assertTrue(any(isinstance(e, AudioEvent) for e in events))
+        self.assertEqual(await reminders.check(), 0)  # announced once, to everyone
+        await server.shutdown()
+
+    async def test_a_reminder_waits_until_a_tab_is_open(self):
+        server = Server(self.ctx.config, self.runtime())
+        self.ctx.notes.add("call the doctor", "reminder", due="2020-01-01T09:00")
+        reminders = server.make_reminders()
+        self.assertEqual(await reminders.check(), 0)  # nobody to tell: not consumed
+        _, session = await server.open_session()
+        bus = session.bus.subscribe()
+        self.assertEqual(await reminders.check(), 1)
+        self.assertTrue(
+            any(isinstance(bus.get_nowait(), ReminderEvent) for _ in range(bus.qsize()))
+        )
+        await server.shutdown()
+
+    async def test_there_is_no_watcher_without_a_notes_database(self):
+        server = Server(self.ctx.config, replace(self.runtime(), notes=None))
+        self.assertIsNone(server.make_reminders())
+        server.start_reminders()  # nothing to start
+        await server.shutdown()
+
+    async def test_the_watcher_runs_until_shutdown(self):
+        server = Server(self.ctx.config, self.runtime())
+        server.start_reminders()
+        watcher = server._watcher
+        self.assertFalse(watcher.done())
+        server.start_reminders()  # starting twice keeps the one watcher
+        self.assertIs(server._watcher, watcher)
+        await server.shutdown()
+        self.assertTrue(watcher.done())
 
     def test_fake_mic_needs_opt_in_and_a_plain_file_name(self):
         server = Server(self.ctx.config)

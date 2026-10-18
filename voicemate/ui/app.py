@@ -9,6 +9,7 @@ travel over a plain WebSocket so the binary stream stays out of NiceGUI's own so
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import io
 import json
 import logging
@@ -44,8 +45,10 @@ from voicemate.events import (
     ToolEvent,
     TranscriptEvent,
 )
+from voicemate.memory.notes import Note
 from voicemate.pipeline.conversation import ChatLine, ThreadStore
 from voicemate.pipeline.orchestrator import VoiceSession
+from voicemate.pipeline.reminders import Reminders
 from voicemate.runtime import Runtime
 from voicemate.ui.rail import Rail
 
@@ -454,6 +457,7 @@ class Server:
         self.runtime = runtime
         self.sessions: dict[str, VoiceSession] = {}
         self.threads = ThreadStore(config.data_path / "conversation.json")
+        self._watcher: asyncio.Task | None = None
 
     def thread_id(self) -> str:
         """The current conversation; it survives page reloads and server restarts."""
@@ -470,8 +474,28 @@ class Server:
         sid = uuid.uuid4().hex
         session = VoiceSession(self.runtime, thread_id=self.thread_id())
         self.sessions[sid] = session
-        session.start()
         return sid, session
+
+    # ── reminders ────────────────────────────────────────────────────────────
+
+    async def announce_reminder(self, note: Note) -> None:
+        """Tell every open tab about a due reminder (each speaks it only when idle)."""
+        for session in list(self.sessions.values()):
+            await session.announce_reminder(note)
+
+    def make_reminders(self) -> Reminders | None:
+        """The reminder checker for this server (None when there is no notes database)."""
+        if self.runtime is None or self.runtime.notes is None:
+            return None
+        return Reminders(
+            self.runtime.notes, self.announce_reminder, ready=lambda: bool(self.sessions)
+        )
+
+    def start_reminders(self) -> None:
+        """Start the one reminder watcher of this server (a no-op when it already runs)."""
+        reminders = self.make_reminders()
+        if reminders is not None and self._watcher is None:
+            self._watcher = background_tasks.create(reminders.watch(), name="reminders")
 
     async def startup(self) -> None:  # pragma: no cover - loads every model
         """Load every model before the first page is served."""
@@ -479,9 +503,14 @@ class Server:
         asyncio.get_running_loop().add_signal_handler(signal.SIGUSR2, _dump_tasks)
         if self.runtime is None:
             self.runtime = await Runtime.load(self.config)
+        self.start_reminders()
 
     async def shutdown(self) -> None:
-        """Close sessions and release the runtime."""
+        """Stop the reminder watcher, close sessions and release the runtime."""
+        if self._watcher is not None:
+            self._watcher.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await self._watcher
         for session in list(self.sessions.values()):
             await session.close()
         if self.runtime is not None:

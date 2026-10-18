@@ -33,6 +33,7 @@ from voicemate.events import (
     TokenEvent,
     TranscriptEvent,
 )
+from voicemate.memory.notes import Note
 from voicemate.pipeline.conversation import INTERRUPTED_MARK, INTERRUPTED_TOOL_RESULT, ChatLine
 from voicemate.pipeline.listener import PARTIAL_WINDOW_S
 from voicemate.pipeline.orchestrator import (
@@ -533,22 +534,41 @@ class TestConfirmation(SessionTestCase):
         self.assertFalse(self.session.busy)
 
 
-class TestReminders(SessionTestCase):
-    async def test_due_reminder_is_announced_once(self):
+class TestReminderAnnouncement(SessionTestCase):
+    NOTE = Note(1, "call the doctor", "reminder", "2020-01-01T09:00", False, "2020-01-01T08:00")
+
+    async def test_an_idle_session_shows_and_speaks_it(self):
         self.make_session(["x"])
-        self.ctx.notes.add("call the doctor", "reminder", due="2020-01-01T09:00")
-        self.assertEqual(await self.session.check_reminders(), 1)
+        await self.session.announce_reminder(self.NOTE)
+        events = self.drain()
+        self.assertEqual([e.text for e in events if isinstance(e, ReminderEvent)], [self.NOTE.text])
+        self.assertTrue(any(isinstance(e, AudioEvent) for e in events))
+        self.assertEqual(self.voice.calls, ["Reminder: call the doctor"])
+
+    async def test_a_holding_session_only_shows_it(self):
+        self.make_session(["x"])
+        await self.session.hold()
+        self.drain()
+        await self.session.announce_reminder(self.NOTE)
         events = self.drain()
         self.assertTrue(any(isinstance(e, ReminderEvent) for e in events))
-        self.assertTrue(any(isinstance(e, AudioEvent) for e in events))
-        self.assertEqual(await self.session.check_reminders(), 0)
+        self.assertFalse(any(isinstance(e, AudioEvent) for e in events))
 
-    async def test_watcher_starts_and_stops(self):
+    async def test_a_busy_session_only_shows_it(self):
+        self.make_session(["slow answer"], delay=0.5)
+        await self.session.submit_text("a question")
+        await asyncio.sleep(0.05)
+        self.drain()
+        await self.session.announce_reminder(self.NOTE)
+        events = self.drain()
+        self.assertTrue(any(isinstance(e, ReminderEvent) for e in events))
+        self.assertEqual(self.voice.calls, [])
+
+    async def test_hungarian_gets_the_hungarian_prefix(self):
         self.make_session(["x"])
-        self.session.start()
-        await asyncio.sleep(0.01)
-        await self.session.close()
-        self.assertTrue(self.session._reminders.done())
+        self.session.lang = "hu"
+        await self.session.announce_reminder(self.NOTE)
+        self.assertEqual(self.voice.calls, ["Emlékeztető: call the doctor"])
 
 
 if __name__ == "__main__":
