@@ -112,7 +112,7 @@ class TestGraph(GraphTestCase):
         self.assertTrue(humans_other[0].endswith("three"))
 
     async def test_recall_puts_memories_into_the_prompt(self):
-        self.ctx.memory.add_fact("Adam is looking for machine learning jobs")
+        self.ctx.memory.facts.add("Adam is looking for machine learning jobs")
         graph = self.graph(["Sure."])
         await self.turn(graph, "machine learning jobs", lang="en")
         self.assertIn("Adam is looking for machine learning jobs", self.prompt_of(0))

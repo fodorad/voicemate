@@ -93,22 +93,11 @@ def _sql_str(value: str) -> str:
     return "'" + value.replace("'", "''") + "'"
 
 
-class MemoryStore:
-    """LanceDB-backed memory.
-
-    Args:
-        path: Database directory.
-        embedder: Text embedder.
-        config: Similarity thresholds.
-        clock: Time source (injectable for tests).
-    """
+class _Index:
+    """The database, embedder and similarity search shared by the concept interfaces."""
 
     def __init__(
-        self,
-        path: Path,
-        embedder: Embedder,
-        config: MemoryConfig,
-        clock: Callable[[], float] = time.time,
+        self, path: Path, embedder: Embedder, config: MemoryConfig, clock: Callable[[], float]
     ) -> None:
         path.mkdir(parents=True, exist_ok=True)
         self.embedder = embedder
@@ -147,7 +136,7 @@ class MemoryStore:
                 ("ttl_days", num),
             ],
         }
-        self._tables = {
+        self.tables = {
             name: self._db.create_table(
                 name,
                 schema=pa.schema([pa.field(n, t) for n, t in columns] + [vector]),
@@ -156,15 +145,13 @@ class MemoryStore:
             for name, columns in schemas.items()
         }
 
-    # ── helpers ──────────────────────────────────────────────────────────────
-
-    def _vector(self, text: str) -> np.ndarray:
+    def vector(self, text: str) -> np.ndarray:
         return self.embedder.embed([text])[0]
 
-    def _fresh(self) -> str:
+    def fresh(self) -> str:
         return f"created + ttl_days * {DAY} >= {self.clock()}"
 
-    def _search(
+    def search(
         self,
         table: str,
         vector: np.ndarray,
@@ -172,7 +159,7 @@ class MemoryStore:
         min_similarity: float,
         where: str | None = None,
     ) -> list[dict[str, Any]]:
-        builder = cast(LanceVectorQueryBuilder, self._tables[table].search(vector.tolist()))
+        builder = cast(LanceVectorQueryBuilder, self.tables[table].search(vector.tolist()))
         query = builder.distance_type("cosine").limit(limit)
         if where:
             query = query.where(where, prefilter=True)
@@ -185,35 +172,48 @@ class MemoryStore:
         return rows
 
     @staticmethod
-    def _hit(row: dict[str, Any]) -> MemoryHit:
+    def hit(row: dict[str, Any]) -> MemoryHit:
         meta = {k: v for k, v in row.items() if k not in ("text", "similarity", "created")}
         return MemoryHit(row["text"], row["similarity"], row["created"], meta)
 
-    # ── facts ────────────────────────────────────────────────────────────────
 
-    def add_fact(self, text: str) -> bool:
+class Facts:
+    """Durable facts about the user ("Adam is looking for ML jobs in Budapest")."""
+
+    def __init__(self, index: _Index) -> None:
+        self._index = index
+
+    def add(self, text: str) -> bool:
         """Store a fact, replacing a near-duplicate.
 
         Returns:
             True when an existing fact was replaced.
         """
-        vector = self._vector(text)
-        duplicates = self._search("facts", vector, 1, self.config.fact_dedupe_similarity)
+        ix = self._index
+        vector = ix.vector(text)
+        duplicates = ix.search("facts", vector, 1, ix.config.fact_dedupe_similarity)
         for row in duplicates:
-            self._tables["facts"].delete(f"id = {_sql_str(row['id'])}")
-        row = {"id": uuid.uuid4().hex, "text": text, "created": self.clock(), "vector": vector}
-        self._tables["facts"].add([row])
+            ix.tables["facts"].delete(f"id = {_sql_str(row['id'])}")
+        row = {"id": uuid.uuid4().hex, "text": text, "created": ix.clock(), "vector": vector}
+        ix.tables["facts"].add([row])
         return bool(duplicates)
 
-    def search_facts(self, query: str, limit: int = 5) -> list[MemoryHit]:
+    def search(self, query: str, limit: int = 5) -> list[MemoryHit]:
         """Facts relevant to ``query``."""
-        rows = self._search("facts", self._vector(query), limit, self.config.fact_min_similarity)
-        return [self._hit(r) for r in rows]
+        ix = self._index
+        rows = ix.search("facts", ix.vector(query), limit, ix.config.fact_min_similarity)
+        return [ix.hit(r) for r in rows]
 
-    # ── episodes ─────────────────────────────────────────────────────────────
 
-    def add_episode(self, user: str, assistant: str, lang: str, thread_id: str) -> None:
+class Episodes:
+    """Finished exchanges between the user and the assistant."""
+
+    def __init__(self, index: _Index) -> None:
+        self._index = index
+
+    def add(self, user: str, assistant: str, lang: str, thread_id: str) -> None:
         """Store one finished exchange."""
+        ix = self._index
         text = f"User: {user}\nAssistant: {assistant}"
         row = {
             "id": uuid.uuid4().hex,
@@ -222,43 +222,49 @@ class MemoryStore:
             "assistant": assistant,
             "lang": lang,
             "thread_id": thread_id,
-            "created": self.clock(),
-            "vector": self._vector(text),
+            "created": ix.clock(),
+            "vector": ix.vector(text),
         }
-        self._tables["episodes"].add([row])
+        ix.tables["episodes"].add([row])
 
-    def search_episodes(self, query: str, limit: int = 3) -> list[MemoryHit]:
+    def search(self, query: str, limit: int = 3) -> list[MemoryHit]:
         """Past exchanges relevant to ``query``."""
-        rows = self._search(
-            "episodes", self._vector(query), limit, self.config.recall_min_similarity
-        )
-        return [self._hit(r) for r in rows]
+        ix = self._index
+        rows = ix.search("episodes", ix.vector(query), limit, ix.config.recall_min_similarity)
+        return [ix.hit(r) for r in rows]
 
-    # ── research cache ───────────────────────────────────────────────────────
+
+class ResearchMemory:
+    """Stored searches and the text chunks of pages, abstracts and papers."""
+
+    def __init__(self, index: _Index) -> None:
+        self._index = index
 
     def store_search(
         self, query: str, kind: str, results: list[dict[str, Any]], ttl_days: float
     ) -> None:
         """Remember the results of a web or arXiv search."""
+        ix = self._index
         row = {
             "id": uuid.uuid4().hex,
             "text": query,
             "kind": kind,
             "results": json.dumps(results, ensure_ascii=False),
-            "created": self.clock(),
+            "created": ix.clock(),
             "ttl_days": float(ttl_days),
-            "vector": self._vector(query),
+            "vector": ix.vector(query),
         }
-        self._tables["searches"].add([row])
+        ix.tables["searches"].add([row])
 
     def cached_search(self, query: str, kind: str) -> CachedSearch | None:
         """A fresh stored search whose query is similar enough to ``query``, if any."""
-        rows = self._search(
+        ix = self._index
+        rows = ix.search(
             "searches",
-            self._vector(query),
+            ix.vector(query),
             1,
-            self.config.search_cache_similarity,
-            where=f"kind = {_sql_str(kind)} AND {self._fresh()}",
+            ix.config.search_cache_similarity,
+            where=f"kind = {_sql_str(kind)} AND {ix.fresh()}",
         )
         if not rows:
             return None
@@ -273,10 +279,11 @@ class MemoryStore:
         """Store text chunks of one document (page, abstract or paper)."""
         if not chunks:
             return
-        vectors = self.embedder.embed(chunks)
-        now = self.clock()
+        ix = self._index
+        vectors = ix.embedder.embed(chunks)
+        now = ix.clock()
         document = uuid.uuid4().hex
-        self._tables["documents"].add(
+        ix.tables["documents"].add(
             [
                 {
                     # "<document>-<position>": sorting by id restores the chunk order.
@@ -295,10 +302,11 @@ class MemoryStore:
 
     def documents_for_url(self, url: str) -> list[MemoryHit]:
         """Fresh stored chunks of ``url`` in document order (newest copy first)."""
+        ix = self._index
         rows = (
-            self._tables["documents"]
+            ix.tables["documents"]
             .search()
-            .where(f"url = {_sql_str(url)} AND {self._fresh()}")
+            .where(f"url = {_sql_str(url)} AND {ix.fresh()}")
             .limit(10_000)
             .to_list()
         )
@@ -310,34 +318,60 @@ class MemoryStore:
 
     def search_documents(self, query: str, limit: int = 4) -> list[MemoryHit]:
         """Fresh research chunks relevant to ``query``."""
-        rows = self._search(
+        ix = self._index
+        rows = ix.search(
             "documents",
-            self._vector(query),
+            ix.vector(query),
             limit,
-            self.config.recall_min_similarity,
-            where=self._fresh(),
+            ix.config.recall_min_similarity,
+            where=ix.fresh(),
         )
-        return [self._hit(r) for r in rows]
+        return [ix.hit(r) for r in rows]
 
-    # ── combined ─────────────────────────────────────────────────────────────
+
+class MemoryStore:
+    """LanceDB-backed memory: one database, three narrow interfaces.
+
+    Callers use only the slice they need: :attr:`facts`, :attr:`episodes` or :attr:`research`;
+    :meth:`recall` combines them for the agent.
+
+    Args:
+        path: Database directory.
+        embedder: Text embedder.
+        config: Similarity thresholds.
+        clock: Time source (injectable for tests).
+    """
+
+    def __init__(
+        self,
+        path: Path,
+        embedder: Embedder,
+        config: MemoryConfig,
+        clock: Callable[[], float] = time.time,
+    ) -> None:
+        self._index = _Index(path, embedder, config, clock)
+        self.facts = Facts(self._index)
+        self.episodes = Episodes(self._index)
+        self.research = ResearchMemory(self._index)
 
     def recall(self, query: str) -> Recall:
         """Facts, episodes and research relevant to ``query`` (one embedding pass)."""
-        vector = self._vector(query)
-        cfg = self.config
+        ix = self._index
+        vector = ix.vector(query)
+        cfg = ix.config
         return Recall(
-            facts=[self._hit(r) for r in self._search("facts", vector, 5, cfg.fact_min_similarity)],
+            facts=[ix.hit(r) for r in ix.search("facts", vector, 5, cfg.fact_min_similarity)],
             episodes=[
-                self._hit(r) for r in self._search("episodes", vector, 3, cfg.recall_min_similarity)
+                ix.hit(r) for r in ix.search("episodes", vector, 3, cfg.recall_min_similarity)
             ],
             documents=[
-                self._hit(r)
-                for r in self._search(
-                    "documents", vector, 4, cfg.recall_min_similarity, where=self._fresh()
+                ix.hit(r)
+                for r in ix.search(
+                    "documents", vector, 4, cfg.recall_min_similarity, where=ix.fresh()
                 )
             ],
         )
 
     def stats(self) -> dict[str, int]:
         """Row count per table."""
-        return {name: table.count_rows() for name, table in self._tables.items()}
+        return {name: table.count_rows() for name, table in self._index.tables.items()}

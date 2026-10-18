@@ -156,7 +156,7 @@ class Research:
         Raises:
             ToolError: If the backend fails (rate limit, network).
         """
-        cached = await asyncio.to_thread(self.memory.cached_search, query, "web")
+        cached = await asyncio.to_thread(self.memory.research.cached_search, query, "web")
         if cached is not None:
             self._listed.update(r.get("url", "") for r in cached.results)
             return Found(
@@ -169,11 +169,11 @@ class Research:
         rows = [asdict(h) for h in hits]
         self._listed.update(h.url for h in hits)
         ttl = ttl_days_for(query, "web")
-        await asyncio.to_thread(self.memory.store_search, query, "web", rows, ttl)
+        await asyncio.to_thread(self.memory.research.store_search, query, "web", rows, ttl)
         for hit in hits:
             if hit.snippet:
                 await asyncio.to_thread(
-                    self.memory.add_documents,
+                    self.memory.research.add_documents,
                     [f"{hit.title}: {hit.snippet}"],
                     hit.url,
                     hit.title,
@@ -192,7 +192,7 @@ class Research:
         Raises:
             ToolError: If arXiv cannot be reached.
         """
-        cached = await asyncio.to_thread(self.memory.cached_search, query, "arxiv")
+        cached = await asyncio.to_thread(self.memory.research.cached_search, query, "arxiv")
         if cached is not None:
             self._listed.update(
                 f"https://arxiv.org/abs/{r.get('arxiv_id', '')}" for r in cached.results
@@ -208,10 +208,10 @@ class Research:
         rows = [asdict(p) for p in papers]
         self._listed.update(p.abs_url for p in papers)
         ttl = ttl_days_for(query, "arxiv")
-        await asyncio.to_thread(self.memory.store_search, query, "arxiv", rows, ttl)
+        await asyncio.to_thread(self.memory.research.store_search, query, "arxiv", rows, ttl)
         for paper in papers:
             await asyncio.to_thread(
-                self.memory.add_documents,
+                self.memory.research.add_documents,
                 [f"{paper.title}. {paper.summary}"],
                 paper.abs_url,
                 paper.title,
@@ -232,7 +232,7 @@ class Research:
                 the download fails, or the page has no readable text.
         """
         await check_url(url, self.allowed_private_hosts)
-        stored = await asyncio.to_thread(self.memory.documents_for_url, url)
+        stored = await asyncio.to_thread(self.memory.research.documents_for_url, url)
         if stored:
             text = "\n\n".join(hit.text for hit in stored)
             return Page(url, text, True, stored[0].created)
@@ -258,7 +258,7 @@ class Research:
         if not text.strip():
             raise ToolError("No readable text on that page")
         await asyncio.to_thread(
-            self.memory.add_documents,
+            self.memory.research.add_documents,
             chunk_text(text),
             url,
             title,
@@ -291,10 +291,10 @@ class Research:
 
     async def index_paper(self, paper: Paper, text: str) -> None:
         """Store the paper's full text for recall, once (the abstract is stored by searches)."""
-        indexed = await asyncio.to_thread(self.memory.documents_for_url, paper.abs_url)
+        indexed = await asyncio.to_thread(self.memory.research.documents_for_url, paper.abs_url)
         if len(indexed) <= 1 and text:
             await asyncio.to_thread(
-                self.memory.add_documents,
+                self.memory.research.add_documents,
                 chunk_text(text),
                 paper.abs_url,
                 paper.title,

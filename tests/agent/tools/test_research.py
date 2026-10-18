@@ -86,7 +86,7 @@ class TestWebSearch(ResearchTestCase):
 
     async def test_results_become_recallable_documents(self):
         await self.research.web("mixture of experts survey")
-        hits = self.memory.search_documents("mixture of experts routes tokens")
+        hits = self.memory.research.search_documents("mixture of experts routes tokens")
         self.assertIn("https://example.org/moe", [h.meta.get("url") for h in hits])
 
     async def test_max_results_limits_the_backend(self):
@@ -182,7 +182,7 @@ class TestPages(ResearchTestCase):
         self.assertIn("Low-rank adaptation", page.text)
         self.assertEqual(_Handler.requests, 1)
         self.assertTrue(self.research.is_listed(self.url))  # no second question
-        self.assertTrue(self.memory.documents_for_url(self.url))
+        self.assertTrue(self.memory.research.documents_for_url(self.url))
 
     async def test_no_never_contacts_the_site_and_passes_the_words_on(self):
         with self.assertRaisesRegex(ToolError, "did not approve.*not that one"):
@@ -259,18 +259,18 @@ class TestPapers(ResearchTestCase):
     async def test_the_full_text_is_indexed_once_next_to_the_abstract(self):
         await self.research.papers("sparse experts routing", max_results=2)  # stores abstracts
         paper = self.arxiv.papers[0]
-        before = len(self.memory.documents_for_url(paper.abs_url))
+        before = len(self.memory.research.documents_for_url(paper.abs_url))
         text = "Section one. " + "Experts are routed by a learned gate. " * 120
         await self.research.index_paper(paper, text)
-        indexed = len(self.memory.documents_for_url(paper.abs_url))
+        indexed = len(self.memory.research.documents_for_url(paper.abs_url))
         self.assertGreater(indexed, before)
         await self.research.index_paper(paper, text)
-        self.assertEqual(len(self.memory.documents_for_url(paper.abs_url)), indexed)
+        self.assertEqual(len(self.memory.research.documents_for_url(paper.abs_url)), indexed)
 
     async def test_empty_text_is_not_indexed(self):
         paper = self.arxiv.papers[0]
         await self.research.index_paper(paper, "")
-        self.assertEqual(self.memory.documents_for_url(paper.abs_url), [])
+        self.assertEqual(self.memory.research.documents_for_url(paper.abs_url), [])
 
     async def test_the_pdf_is_downloaded_through_the_guarded_client(self):
         class Pdf(http.server.BaseHTTPRequestHandler):
