@@ -8,7 +8,13 @@ from pathlib import Path
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
-from tests.helpers import make_scripted_chat_model, make_tool_context, tool_call
+from tests.helpers import (
+    imported_modules,
+    make_scripted_chat_model,
+    make_tool_context,
+    module_source,
+    tool_call,
+)
 from voicemate.agent.graph import build_graph
 from voicemate.agent.tools import build_tools
 from voicemate.events import ToolEvent
@@ -258,11 +264,11 @@ class TestStreaming(ConversationTestCase):
 
 class TestSessionIsFrameworkFree(unittest.TestCase):
     def test_the_session_imports_no_agent_framework(self):
-        source = (
-            Path(__file__).resolve().parents[2] / "voicemate" / "pipeline" / "orchestrator.py"
-        ).read_text()
-        for name in ("langgraph", "langchain"):
-            self.assertNotIn(name, source)
+        imports = imported_modules(module_source("pipeline/orchestrator.py"))
+        framework = {
+            m for m in imports if m.split(".")[0] in ("langgraph", "langchain", "langchain_core")
+        }
+        self.assertEqual(framework, set())
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 import unittest
-from pathlib import Path
 
+from tests.helpers import called_names, imported_modules, module_source, uses_async_syntax
 from voicemate.pipeline.turn_taking import (
     MERGE_WINDOW_S,
     Begin,
@@ -190,11 +190,10 @@ class TestBargeIn(unittest.TestCase):
 
 class TestPurity(unittest.TestCase):
     def test_the_module_needs_no_event_loop_or_io(self):
-        source = (
-            Path(__file__).resolve().parents[2] / "voicemate" / "pipeline" / "turn_taking.py"
-        ).read_text()
-        for word in ("asyncio", "open(", "import time", "logging"):
-            self.assertNotIn(word, source)
+        source = module_source("pipeline/turn_taking.py")
+        self.assertEqual(imported_modules(source), {"__future__", "dataclasses"})
+        self.assertFalse(uses_async_syntax(source))
+        self.assertNotIn("open", called_names(source))
 
 
 if __name__ == "__main__":

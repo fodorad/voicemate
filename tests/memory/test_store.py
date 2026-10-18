@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tests.helpers import HashingEmbedder
+from tests.helpers import HashingEmbedder, attributes_of, module_source
 from voicemate.config import MemoryConfig
 from voicemate.memory.store import DAY, MemoryStore
 
@@ -141,11 +141,9 @@ class TestMemoryStore(unittest.TestCase):
 class TestCallersSeeOnlyTheirSlice(unittest.TestCase):
     """Each caller reaches memory through one concept interface (or recall)."""
 
-    ROOT = Path(__file__).resolve().parents[2] / "voicemate"
-
     def uses(self, relative: str) -> set[str]:
-        source = (self.ROOT / relative).read_text()
-        return {c for c in ("facts", "episodes", "research") if f"memory.{c}." in source}
+        views = {"facts", "episodes", "research"}
+        return attributes_of(module_source(relative), "memory") & views
 
     def test_research_touches_only_research_memory(self):
         self.assertEqual(self.uses("agent/tools/research.py"), {"research"})

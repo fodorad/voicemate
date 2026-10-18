@@ -1,6 +1,6 @@
 import unittest
-from pathlib import Path
 
+from tests.helpers import imported_modules, module_source
 from voicemate.events import Lane, LaneState, StatusEvent
 from voicemate.ui.rail import LaneView, Rail
 
@@ -81,8 +81,8 @@ class TestRail(unittest.TestCase):
         )
 
     def test_the_rail_needs_no_ui_framework(self):
-        source = (Path(__file__).resolve().parents[2] / "voicemate" / "ui" / "rail.py").read_text()
-        self.assertNotIn("nicegui", source)
+        imports = imported_modules(module_source("ui/rail.py"))
+        self.assertEqual({m for m in imports if m.split(".")[0] == "nicegui"}, set())
 
 
 if __name__ == "__main__":

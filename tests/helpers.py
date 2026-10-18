@@ -6,10 +6,63 @@ production models so the pipeline logic can be exercised without downloading wei
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import re
+from pathlib import Path
 
 import numpy as np
+
+#: The ``voicemate`` package directory, for tests that read the source of an architecture rule.
+PACKAGE_DIR: Path = Path(__file__).resolve().parents[1] / "voicemate"
+
+
+def module_source(relative: str) -> str:
+    """Source text of a module of the package, e.g. ``"pipeline/orchestrator.py"``."""
+    return (PACKAGE_DIR / relative).read_text()
+
+
+def imported_modules(source: str) -> set[str]:
+    """Dotted names of every module a source imports (``import a.b`` and ``from a.b import c``)."""
+    names: set[str] = set()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import):
+            names.update(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            names.add(node.module)
+    return names
+
+
+def uses_async_syntax(source: str) -> bool:
+    """True if the source uses ``async def``, ``await``, ``async for`` or ``async with``."""
+    kinds = (ast.AsyncFunctionDef, ast.Await, ast.AsyncFor, ast.AsyncWith)
+    return any(isinstance(node, kinds) for node in ast.walk(ast.parse(source)))
+
+
+def called_names(source: str) -> set[str]:
+    """Names of the functions and methods the source calls (``open(...)``, ``x.write(...)``)."""
+    names: set[str] = set()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Call):
+            func = node.func
+            if isinstance(func, ast.Name):
+                names.add(func.id)
+            elif isinstance(func, ast.Attribute):
+                names.add(func.attr)
+    return names
+
+
+def attributes_of(source: str, owner: str) -> set[str]:
+    """Attribute names accessed on something called ``owner``: ``owner.x`` and ``a.owner.x``."""
+    found: set[str] = set()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Attribute):
+            value = node.value
+            if (isinstance(value, ast.Name) and value.id == owner) or (
+                isinstance(value, ast.Attribute) and value.attr == owner
+            ):
+                found.add(node.attr)
+    return found
 
 
 class EnergyVAD:
