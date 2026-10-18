@@ -55,11 +55,13 @@ from voicemate.events import (
     ToolEvent,
     TranscriptEvent,
 )
+from voicemate.memory.notes import Note
 from voicemate.pipeline.chunker import SpeechChunker
 from voicemate.pipeline.conversation import (
     ChatLine,
     Conversation,
 )
+from voicemate.pipeline.reminders import Reminders, spoken_text
 from voicemate.pipeline.turn_taking import Begin, Collect, Decision, Interrupt, TurnTaking
 from voicemate.runtime import Runtime
 
@@ -77,9 +79,6 @@ APOLOGIES: dict[str, str] = {
 #: Live partial transcripts only cover the most recent speech, so a long utterance never
 #: makes the final transcript wait behind a slow partial pass on the shared ASR thread.
 PARTIAL_WINDOW_S: float = 8.0
-
-#: Seconds between checks for due reminders.
-REMINDER_INTERVAL_S: float = 30.0
 
 
 @dataclass
@@ -127,6 +126,9 @@ class VoiceSession:
         self._turn: asyncio.Task | None = None
         self._partial: asyncio.Task | None = None
         self._reminders: asyncio.Task | None = None
+        self._reminders_due = (
+            Reminders(runtime.notes, self._announce_reminder) if runtime.notes else None
+        )
         self._last_partial_at = 0.0
         self._interrupted_reply = ""  # partial reply of the turn cut off by the last barge-in
         self._tasks: set[asyncio.Task] = set()
@@ -135,8 +137,8 @@ class VoiceSession:
 
     def start(self) -> None:
         """Start background duties (reminder watcher)."""
-        if self.runtime.notes is not None and self._reminders is None:
-            self._reminders = self._spawn(self._watch_reminders())
+        if self._reminders_due is not None and self._reminders is None:
+            self._reminders = self._spawn(self._reminders_due.watch())
 
     async def close(self) -> None:
         """Cancel everything this session is doing."""
@@ -550,29 +552,14 @@ class VoiceSession:
     # ── reminders ────────────────────────────────────────────────────────────
 
     async def check_reminders(self) -> int:
-        """Announce due reminders once; returns how many were announced.
+        """Announce due reminders once; returns how many were announced."""
+        return await self._reminders_due.check() if self._reminders_due else 0
 
-        A reminder is always shown in the UI; it is also spoken when the assistant is idle.
-        """
-        notes = self.runtime.notes
-        if notes is None:
-            return 0
-        due = await asyncio.to_thread(notes.due_reminders)
-        for note in due:
-            await asyncio.to_thread(notes.mark_notified, note.id)
-            self.bus.publish(ReminderEvent(note.id, note.text))
-            if not self.busy and not self.holding:
-                prefix = "Emlékeztető: " if self.lang == "hu" else "Reminder: "
-                await self._speak(prefix + note.text, self.lang)
-        return len(due)
-
-    async def _watch_reminders(self) -> None:
-        while True:
-            try:
-                await self.check_reminders()
-            except Exception:  # pragma: no cover - keep watching whatever happens
-                logger.exception("Reminder check failed")
-            await asyncio.sleep(REMINDER_INTERVAL_S)
+    async def _announce_reminder(self, note: Note) -> None:
+        """A reminder is always shown in the UI; it is also spoken when the assistant is idle."""
+        self.bus.publish(ReminderEvent(note.id, note.text))
+        if not self.busy and not self.holding:
+            await self._speak(spoken_text(note, self.lang), self.lang)
 
 
 def turns_log_path(data_path: Path) -> Path:
