@@ -82,12 +82,6 @@ Module Contents
    .. py:attribute:: policy
 
 
-   .. py:method:: start() -> None
-
-      Start background duties (reminder watcher).
-
-
-
    .. py:method:: close() -> None
       :async:
 
@@ -214,11 +208,11 @@ Module Contents
 
 
 
-   .. py:method:: check_reminders() -> int
+   .. py:method:: announce_reminder(note: voicemate.memory.notes.Note) -> None
       :async:
 
 
-      Announce due reminders once; returns how many were announced.
+      A reminder is always shown in the UI; it is also spoken when the assistant is idle.
 
 
 

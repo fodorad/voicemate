@@ -347,6 +347,8 @@
 <span class="sd">        notes: The notes database.</span>
 <span class="sd">        announce: Called with every due reminder (after it was marked notified).</span>
 <span class="sd">        interval_s: Seconds between checks while watching.</span>
+<span class="sd">        ready: Whether anyone can be told right now; while it is false nothing is consumed,</span>
+<span class="sd">            so a reminder that falls due with no one listening is announced later.</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -354,15 +356,19 @@
         <span class="n">notes</span><span class="p">:</span> <span class="n">NotesStore</span><span class="p">,</span>
         <span class="n">announce</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Note</span><span class="p">],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]],</span>
         <span class="n">interval_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">REMINDER_INTERVAL_S</span><span class="p">,</span>
+        <span class="n">ready</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">notes</span> <span class="o">=</span> <span class="n">notes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">announce</span> <span class="o">=</span> <span class="n">announce</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">interval_s</span> <span class="o">=</span> <span class="n">interval_s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ready</span> <span class="o">=</span> <span class="n">ready</span>
 
 <div class="viewcode-block" id="Reminders.check">
 <a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/reminders/index.html#voicemate.pipeline.reminders.Reminders.check">[docs]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Announce the reminders that are due now; returns how many there were."""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ready</span><span class="p">():</span>
+            <span class="k">return</span> <span class="mi">0</span>
         <span class="n">due</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">due_reminders</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">due</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">mark_notified</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>

@@ -58,13 +58,15 @@ Module Contents
    What to say for ``note`` in ``lang``.
 
 
-.. py:class:: Reminders(notes: voicemate.memory.notes.NotesStore, announce: collections.abc.Callable[[voicemate.memory.notes.Note], collections.abc.Awaitable[None]], interval_s: float = REMINDER_INTERVAL_S)
+.. py:class:: Reminders(notes: voicemate.memory.notes.NotesStore, announce: collections.abc.Callable[[voicemate.memory.notes.Note], collections.abc.Awaitable[None]], interval_s: float = REMINDER_INTERVAL_S, ready: collections.abc.Callable[[], bool] = lambda: True)
 
    Finds due reminders and announces each exactly once.
 
    :param notes: The notes database.
    :param announce: Called with every due reminder (after it was marked notified).
    :param interval_s: Seconds between checks while watching.
+   :param ready: Whether anyone can be told right now; while it is false nothing is consumed,
+                 so a reminder that falls due with no one listening is announced later.
 
 
    .. py:attribute:: notes
@@ -76,6 +78,9 @@ Module Contents
    .. py:attribute:: interval_s
       :value: 30.0
 
+
+
+   .. py:attribute:: ready
 
 
    .. py:method:: check() -> int

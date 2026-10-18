@@ -220,6 +220,26 @@ Module Contents
 
 
 
+   .. py:method:: announce_reminder(note: voicemate.memory.notes.Note) -> None
+      :async:
+
+
+      Tell every open tab about a due reminder (each speaks it only when idle).
+
+
+
+   .. py:method:: make_reminders() -> voicemate.pipeline.reminders.Reminders | None
+
+      The reminder checker for this server (None when there is no notes database).
+
+
+
+   .. py:method:: start_reminders() -> None
+
+      Start the one reminder watcher of this server (a no-op when it already runs).
+
+
+
    .. py:method:: startup() -> None
       :async:
 
@@ -232,7 +252,7 @@ Module Contents
       :async:
 
 
-      Close sessions and release the runtime.
+      Stop the reminder watcher, close sessions and release the runtime.
 
 
 
