@@ -86,7 +86,7 @@ class TestWebSearch(ResearchTestCase):
 
     async def test_results_become_recallable_documents(self):
         await self.research.web("mixture of experts survey")
-        hits = self.memory.research.search_documents("mixture of experts routes tokens")
+        hits = self.memory.recall("mixture of experts routes tokens").documents
         self.assertIn("https://example.org/moe", [h.meta.get("url") for h in hits])
 
     async def test_max_results_limits_the_backend(self):

@@ -1,4 +1,3 @@
-import asyncio
 import unittest
 
 from voicemate.events import (
@@ -39,25 +38,6 @@ class TestEventBus(unittest.IsolatedAsyncioTestCase):
         for text in ("a", "b", "c"):
             bus.publish(TokenEvent(text))
         self.assertEqual([queue.get_nowait().text for _ in range(2)], ["b", "c"])
-
-    async def test_listen_iterates_until_cancelled(self):
-        bus = EventBus()
-        received: list[str] = []
-
-        async def consume():
-            async for event in bus.listen():
-                received.append(event.text)
-
-        task = asyncio.create_task(consume())
-        await asyncio.sleep(0)
-        bus.publish(TokenEvent("one"))
-        bus.publish(TokenEvent("two"))
-        await asyncio.sleep(0.01)
-        task.cancel()
-        with self.assertRaises(asyncio.CancelledError):
-            await task
-        self.assertEqual(received, ["one", "two"])
-        self.assertEqual(bus.subscriber_count, 0)
 
 
 class TestStatusEvent(unittest.TestCase):

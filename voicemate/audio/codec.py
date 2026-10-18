@@ -68,15 +68,3 @@ def resample(audio: np.ndarray, rate_in: int, rate_out: int) -> np.ndarray:
 def pack_audio_frame(pcm: bytes, sample_rate: int) -> bytes:
     """Prefix PCM16 bytes with their sample rate for the browser player."""
     return _HEADER.pack(sample_rate) + pcm
-
-
-def unpack_audio_frame(frame: bytes) -> tuple[int, bytes]:
-    """Split a packed frame into ``(sample_rate, pcm)``.
-
-    Raises:
-        ValueError: If the frame is shorter than its header.
-    """
-    if len(frame) < _HEADER.size:
-        raise ValueError("Audio frame shorter than its header")
-    (sample_rate,) = _HEADER.unpack_from(frame)
-    return sample_rate, frame[_HEADER.size :]

@@ -14,6 +14,7 @@ from nicegui import Client, core, ui
 from nicegui.page import page as nicegui_page
 
 from tests.helpers import (
+    EnergyVAD,
     ScriptedRecognizer,
     ToneSynthesizer,
     make_scripted_chat_model,
@@ -23,7 +24,6 @@ from tests.helpers import (
 from voicemate.agent.graph import build_graph
 from voicemate.agent.model_select import ModelChoice
 from voicemate.agent.tools import build_tools
-from voicemate.audio.vad import EnergyVAD
 from voicemate.events import (
     ConfirmEvent,
     ErrorEvent,

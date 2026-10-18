@@ -5,8 +5,9 @@ from pathlib import Path
 
 import numpy as np
 
+from tests.helpers import EnergyVAD
 from voicemate.audio.codec import SAMPLE_RATE, float32_to_pcm16
-from voicemate.audio.vad import EnergyVAD, SpeechEnd, SpeechStart
+from voicemate.audio.vad import SpeechEnd, SpeechStart
 from voicemate.config import VADConfig
 from voicemate.events import LaneState
 from voicemate.pipeline.listener import PARTIAL_WINDOW_S, Listener, ListenerCallbacks, Utterance
@@ -74,11 +75,12 @@ class ListenerTestCase(unittest.IsolatedAsyncioTestCase):
             rec.callbacks(),
             **kwargs,
         )
-        self.addAsyncCleanup(self.cleanup, listener)
+        self.addAsyncCleanup(self.cleanup)
         return listener
 
-    async def cleanup(self, listener: Listener) -> None:
-        listener.stop()
+    async def cleanup(self) -> None:
+        for task in self.tasks:
+            task.cancel()
         await asyncio.gather(*self.tasks, return_exceptions=True)
 
     def feed_all(self, listener: Listener, pcm: list[bytes]) -> list:
@@ -207,18 +209,6 @@ class TestFlushSettleStop(ListenerTestCase):
         rec.gate.set()
         await waiting
         self.assertEqual([h.text for h in rec.heard], ["slow one"])  # callback finished too
-
-    async def test_stop_cancels_pending_work(self):
-        rec = Recording(["never"])
-        rec.gate = asyncio.Event()
-        listener = self.make(rec)
-        self.feed_all(listener, frames())
-        await asyncio.sleep(0.02)
-        listener.stop()
-        await asyncio.wait_for(listener.settled(), 1)
-        rec.gate.set()
-        await asyncio.sleep(0.02)
-        self.assertEqual(rec.heard, [])
 
     async def test_strict_mode_is_forwarded_to_the_detector(self):
         listener = self.make(Recording())

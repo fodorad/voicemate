@@ -40,13 +40,11 @@ class MemoryHit:
 
     Attributes:
         text: Stored text.
-        similarity: Cosine similarity to the query (1 = identical).
         created: Unix timestamp when it was stored.
         meta: Table-specific extra fields (e.g. ``url``, ``title``, ``thread_id``).
     """
 
     text: str
-    similarity: float
     created: float
     meta: dict[str, Any] = field(default_factory=dict)
 
@@ -59,13 +57,11 @@ class CachedSearch:
         query: The original query.
         results: The stored result list.
         retrieved_at: Unix timestamp of the original web request.
-        similarity: Similarity between the new and the stored query.
     """
 
     query: str
     results: list[dict[str, Any]]
     retrieved_at: float
-    similarity: float
 
 
 @dataclass
@@ -174,7 +170,7 @@ class _Index:
     @staticmethod
     def hit(row: dict[str, Any]) -> MemoryHit:
         meta = {k: v for k, v in row.items() if k not in ("text", "similarity", "created")}
-        return MemoryHit(row["text"], row["similarity"], row["created"], meta)
+        return MemoryHit(row["text"], row["created"], meta)
 
 
 class Facts:
@@ -269,9 +265,7 @@ class ResearchMemory:
         if not rows:
             return None
         row = rows[0]
-        return CachedSearch(
-            row["text"], json.loads(row["results"]), row["created"], row["similarity"]
-        )
+        return CachedSearch(row["text"], json.loads(row["results"]), row["created"])
 
     def add_documents(
         self, chunks: list[str], url: str, title: str, source: str, ttl_days: float
@@ -312,21 +306,8 @@ class ResearchMemory:
         )
         rows.sort(key=lambda r: (-r["created"], r["id"]))
         return [
-            MemoryHit(r["text"], 1.0, r["created"], {"url": r["url"], "title": r["title"]})
-            for r in rows
+            MemoryHit(r["text"], r["created"], {"url": r["url"], "title": r["title"]}) for r in rows
         ]
-
-    def search_documents(self, query: str, limit: int = 4) -> list[MemoryHit]:
-        """Fresh research chunks relevant to ``query``."""
-        ix = self._index
-        rows = ix.search(
-            "documents",
-            ix.vector(query),
-            limit,
-            ix.config.recall_min_similarity,
-            where=ix.fresh(),
-        )
-        return [ix.hit(r) for r in rows]
 
 
 class MemoryStore:
@@ -371,7 +352,3 @@ class MemoryStore:
                 )
             ],
         )
-
-    def stats(self) -> dict[str, int]:
-        """Row count per table."""
-        return {name: table.count_rows() for name, table in self._index.tables.items()}

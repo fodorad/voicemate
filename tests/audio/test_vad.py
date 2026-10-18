@@ -3,9 +3,9 @@ import unittest
 
 import numpy as np
 
+from tests.helpers import EnergyVAD
 from voicemate.audio.codec import SAMPLE_RATE
 from voicemate.audio.vad import (
-    EnergyVAD,
     Segmenter,
     SileroVAD,
     SpeechEnd,

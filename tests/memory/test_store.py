@@ -19,13 +19,15 @@ class TestMemoryStore(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.clock = Clock()
-        config = MemoryConfig(
+        self.config = MemoryConfig(
             search_cache_similarity=0.9,
             fact_min_similarity=0.3,
             recall_min_similarity=0.3,
             fact_dedupe_similarity=0.95,
         )
-        self.store = MemoryStore(Path(self.tmp.name), HashingEmbedder(), config, clock=self.clock)
+        self.store = MemoryStore(
+            Path(self.tmp.name), HashingEmbedder(), self.config, clock=self.clock
+        )
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -37,13 +39,12 @@ class TestMemoryStore(unittest.TestCase):
         hits = self.store.facts.search("machine learning jobs")
         self.assertEqual(len(hits), 1)
         self.assertIn("Budapest", hits[0].text)
-        self.assertGreater(hits[0].similarity, 0.3)
 
     def test_identical_fact_replaces_instead_of_duplicating(self):
         self.store.facts.add("Adam likes green tea")
         replaced = self.store.facts.add("Adam likes green tea")
         self.assertTrue(replaced)
-        self.assertEqual(self.store.stats()["facts"], 1)
+        self.assertEqual(len(self.store.facts.search("Adam likes green tea")), 1)
 
     def test_unrelated_query_returns_nothing(self):
         self.store.facts.add("Adam likes green tea")
@@ -87,11 +88,11 @@ class TestMemoryStore(unittest.TestCase):
         )
         chunks = self.store.research.documents_for_url("https://x.org/lora")
         self.assertEqual(len(chunks), 2)
-        hits = self.store.research.search_documents("low rank adapters LoRA")
+        hits = self.store.recall("low rank adapters LoRA").documents
         self.assertEqual(hits[0].meta["url"], "https://x.org/lora")
         self.clock.now += 40 * DAY
         self.assertEqual(self.store.research.documents_for_url("https://x.org/lora"), [])
-        self.assertEqual(self.store.research.search_documents("low rank adapters LoRA"), [])
+        self.assertEqual(self.store.recall("low rank adapters LoRA").documents, [])
 
     def test_document_chunks_come_back_in_order(self):
         chunks = [f"chunk number {i}" for i in range(25)]
@@ -121,7 +122,7 @@ class TestMemoryStore(unittest.TestCase):
     def test_store_reopens_existing_tables(self):
         self.store.facts.add("persisted fact")
         reopened = MemoryStore(Path(self.tmp.name), HashingEmbedder(), MemoryConfig())
-        self.assertEqual(reopened.stats()["facts"], 1)
+        self.assertEqual(len(reopened.facts.search("persisted fact")), 1)
 
     def test_every_concept_survives_a_reopen(self):
         self.store.facts.add("Adam studies speech recognition")
@@ -129,10 +130,7 @@ class TestMemoryStore(unittest.TestCase):
         self.store.research.store_search("ctc loss survey", "web", [{"url": "u"}], ttl_days=30)
         self.store.research.add_documents(["CTC sums over alignments."], "u", "t", "web", 30)
         reopened = MemoryStore(
-            Path(self.tmp.name), HashingEmbedder(), self.store._index.config, clock=self.clock
-        )
-        self.assertEqual(
-            reopened.stats(), {"facts": 1, "episodes": 1, "searches": 1, "documents": 1}
+            Path(self.tmp.name), HashingEmbedder(), self.config, clock=self.clock
         )
         self.assertTrue(reopened.facts.search("speech recognition"))
         self.assertTrue(reopened.episodes.search("what is CTC"))

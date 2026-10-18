@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import asyncio
 import time
-from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Literal
@@ -155,11 +154,9 @@ class ReminderEvent:
     """A reminder became due.
 
     Attributes:
-        note_id: Notes-store id.
         text: Reminder text.
     """
 
-    note_id: int
     text: str
 
 
@@ -234,11 +231,6 @@ class EventBus:
         self._maxsize = maxsize
         self._queues: list[asyncio.Queue[Event]] = []
 
-    @property
-    def subscriber_count(self) -> int:
-        """Number of active subscribers."""
-        return len(self._queues)
-
     def subscribe(self) -> asyncio.Queue[Event]:
         """Register a new subscriber queue."""
         queue: asyncio.Queue[Event] = asyncio.Queue(maxsize=self._maxsize)
@@ -256,12 +248,3 @@ class EventBus:
             if queue.full():
                 queue.get_nowait()
             queue.put_nowait(event)
-
-    async def listen(self) -> AsyncIterator[Event]:
-        """Iterate over events until the consuming task is cancelled."""
-        queue = self.subscribe()
-        try:
-            while True:
-                yield await queue.get()
-        finally:
-            self.unsubscribe(queue)

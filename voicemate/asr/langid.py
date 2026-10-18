@@ -11,9 +11,6 @@ from __future__ import annotations
 
 import re
 
-#: Supported language codes.
-LANGUAGES: tuple[str, str] = ("hu", "en")
-
 #: Hungarian function words and very frequent short words.
 HU_WORDS: frozenset[str] = frozenset(
     """a az egy és is hogy nem van volt lesz mi mit mik mennyi milyen melyik hol hova honnan
