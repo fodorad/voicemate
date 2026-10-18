@@ -1100,6 +1100,35 @@ turn (round 1: 2.83-2.85 s); other turns vary between 1.7 and 5.0 s with free me
 (11.4 GB free on this run), the same range as before. Observed: a browser tab in a hidden
 window renders updates late, which delayed the first reminder toast; not a server issue.</p>
 </section>
+<section id="low-findings-and-dead-code-2026-10-18">
+<h2>15. Low findings and dead code (2026-10-18)<a class="headerlink" href="#low-findings-and-dead-code-2026-10-18" title="Link to this heading">¶</a></h2>
+<p>The round-2 review left five Low findings, and a sweep for dead code found more. Done in four
+<code class="docutils literal notranslate"><span class="pre">refactor:</span></code> PRs plus this one:</p>
+<ul class="simple">
+<li><p><strong>Removed code only tests used or nothing used:</strong> <code class="docutils literal notranslate"><span class="pre">unpack_audio_frame</span></code>, <code class="docutils literal notranslate"><span class="pre">EventBus.listen</span></code> and
+<code class="docutils literal notranslate"><span class="pre">subscriber_count</span></code>, <code class="docutils literal notranslate"><span class="pre">ResearchMemory.search_documents</span></code>, <code class="docutils literal notranslate"><span class="pre">MemoryStore.stats</span></code>, <code class="docutils literal notranslate"><span class="pre">Listener.stop</span></code>,
+<code class="docutils literal notranslate"><span class="pre">VoiceSession.confirmation</span></code> and <code class="docutils literal notranslate"><span class="pre">hitl.Confirmation</span></code>, <code class="docutils literal notranslate"><span class="pre">Rail.view</span></code>, <code class="docutils literal notranslate"><span class="pre">langid.LANGUAGES</span></code>, the
+unread fields <code class="docutils literal notranslate"><span class="pre">MemoryHit.similarity</span></code>, <code class="docutils literal notranslate"><span class="pre">CachedSearch.similarity</span></code> and <code class="docutils literal notranslate"><span class="pre">ReminderEvent.note_id</span></code>.
+<code class="docutils literal notranslate"><span class="pre">EnergyVAD</span></code>, a test double, moved to <code class="docutils literal notranslate"><span class="pre">tests/helpers.py</span></code>. Tests now assert through public
+behaviour (searches and <code class="docutils literal notranslate"><span class="pre">recall</span></code> instead of <code class="docutils literal notranslate"><span class="pre">stats</span></code>, <code class="docutils literal notranslate"><span class="pre">session.policy.question</span></code>, the views
+returned by <code class="docutils literal notranslate"><span class="pre">Rail.apply</span></code>). A reference scan plus vulture finds nothing unreferenced.</p></li>
+<li><p><strong>Architecture tests read the syntax tree</strong> (imports, async syntax, calls, attribute access)
+through helpers in <code class="docutils literal notranslate"><span class="pre">tests/helpers.py</span></code>, which have tests of their own, so a comment or string
+can no longer satisfy or break a rule.</p></li>
+<li><p><strong>Status order:</strong> <code class="docutils literal notranslate"><span class="pre">feed_audio</span></code> publishes the lane statuses of every event in a chunk before it
+awaits the barge-in interrupt, so a whole utterance arriving in one chunk while a turn runs
+yields listening active, listening done, transcribing active.</p></li>
+<li><p><strong>One reminder watcher per server</strong> instead of one per tab: the server announces each due
+reminder to every open session (each speaks it only when idle and not holding), and
+<code class="docutils literal notranslate"><span class="pre">Reminders</span></code> has a <code class="docutils literal notranslate"><span class="pre">ready</span></code> gate so nothing is consumed while no tab is open. The session lost
+<code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">check_reminders</span></code>.</p></li>
+</ul>
+<p>Verification: 372 tests, coverage 92 %. The session, listener and policy tests ran 40 times
+under CPU load with no failure. A real-model smoke run with two Chrome tabs showed the same
+reminder as a toast and in the notes panel of both tabs, and a spoken turn still worked. The
+machine was swapping during that run (5 GB of swap, 3.1 GB free), so its 8 s first-words figure
+says nothing about the code.</p>
+</section>
 </section>
 
         </article>
@@ -1178,6 +1207,7 @@ window renders updates late, which delayed the first reminder toast; not a serve
 <li><a class="reference internal" href="#first-test-drive-2026-10-07">12. First test drive (2026-10-07)</a></li>
 <li><a class="reference internal" href="#architecture-deepening-2026-10-17">13. Architecture deepening (2026-10-17)</a></li>
 <li><a class="reference internal" href="#architecture-round-2-2026-10-18">14. Architecture round 2 (2026-10-18)</a></li>
+<li><a class="reference internal" href="#low-findings-and-dead-code-2026-10-18">15. Low findings and dead code (2026-10-18)</a></li>
 </ul>
 </li>
 </ul>

@@ -362,7 +362,8 @@ small hand-written fake.</p>
     SESSION -.-&gt; LISTEN[[Listener&lt;br/&gt;frames to utterances]]
     SESSION -.-&gt; POLICY[[TurnTaking&lt;br/&gt;what input means]]
     SESSION -.-&gt; REPLY[[Reply&lt;br/&gt;a turn's answer rules]]
-    SESSION -.-&gt; REMIND[[Reminders&lt;br/&gt;due, once, announced]]
+    UI -.-&gt; REMIND[[Reminders&lt;br/&gt;one watcher, due once, every tab]]
+    REMIND -.-&gt;|announce| SESSION
     SESSION -.-&gt; CONV[[Conversation&lt;br/&gt;thread, history, repair, stream]]
     SESSION -.-&gt; SPEECH[[Speech&lt;br/&gt;async ASR + TTS, one worker each]]
     LISTEN -.-&gt; SPEECH
@@ -394,14 +395,14 @@ small hand-written fake.</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.listener</span></code></p></td>
 <td><p>the voice-activity segmenter, live partial transcripts (every interval, last 8 s), background transcription, what is still in flight (<code class="docutils literal notranslate"><span class="pre">settled</span></code>), flush on mic off</p></td>
-<td><p>energy-based VAD + a controllable recognizer</p></td>
+<td><p>an energy-based VAD double from the test helpers + a controllable recognizer</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.reply</span></code></p></td>
 <td><p>one turn’s answer: text to speakable sentences, the spoken filler for network tools, the apology, first-token and first-audio timings, the turn’s metrics</p></td>
 <td><p>an injected clock; plain calls</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.reminders</span></code></p></td>
-<td><p>polling due reminders, marking each notified before announcing (once only), the language prefix, the 30 s watcher</p></td>
+<td><p>polling due reminders, marking each notified before announcing (once only), the language prefix, the 30 s watcher; the server runs one watcher and tells every open tab, and nothing is consumed while no tab is open</p></td>
 <td><p>a real notes database in a temp folder + a recording announcer</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">speech</span></code></p></td>
