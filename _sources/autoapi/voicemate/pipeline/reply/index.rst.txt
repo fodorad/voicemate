@@ -1,0 +1,158 @@
+voicemate.pipeline.reply
+========================
+
+.. py:module:: voicemate.pipeline.reply
+
+.. autoapi-nested-parse::
+
+   The reply of one turn: what is said, when, and how long it took.
+
+   A :class:`Reply` is created for each turn. The session feeds it the streamed answer text and the
+   agent's tool events; it decides what becomes speech (complete sentences, a spoken filler while
+   a network tool runs, an apology when the turn fails), remembers the answer text (so an
+   interrupted reply can be kept in the history) and the timings, and builds the turn's metrics.
+   Cancelling, the timeout, the speech worker and publishing events stay with the session.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.pipeline.reply.FILLERS
+   voicemate.pipeline.reply.APOLOGIES
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.pipeline.reply.Reply
+
+
+Module Contents
+---------------
+
+.. py:data:: FILLERS
+   :type:  dict[str, str]
+
+.. py:data:: APOLOGIES
+   :type:  dict[str, str]
+
+.. py:class:: Reply(lang: str, ended_at: float, clock: collections.abc.Callable[[], float] = time.monotonic)
+
+   State and rules of one turn's answer.
+
+   :param lang: Reply language of the turn.
+   :param ended_at: Monotonic time the user finished (reference for the timings).
+   :param clock: Monotonic time source (injectable for tests).
+
+   :ivar text: The answer written so far.
+   :ivar spoke: Something was queued for speech.
+   :ivar failed: The turn failed.
+   :ivar tools: Names of the tools the agent started.
+   :ivar first_token: Monotonic time of the first token or tool start, if any.
+   :ivar first_audio: Monotonic time the first audio was ready, if any.
+   :ivar queue: Speech to synthesize, in order; ``None`` marks the end.
+
+
+
+   .. py:attribute:: lang
+
+
+   .. py:attribute:: ended_at
+
+
+   .. py:attribute:: text
+      :value: ''
+
+
+
+   .. py:attribute:: spoke
+      :value: False
+
+
+
+   .. py:attribute:: failed
+      :value: False
+
+
+
+   .. py:attribute:: tools
+      :type:  list[str]
+      :value: []
+
+
+
+   .. py:attribute:: first_token
+      :type:  float | None
+      :value: None
+
+
+
+   .. py:attribute:: first_audio
+      :type:  float | None
+      :value: None
+
+
+
+   .. py:attribute:: queue
+      :type:  asyncio.Queue[str | None]
+
+
+   .. py:method:: say(text: str) -> None
+
+      Queue ``text`` for speech.
+
+
+
+   .. py:method:: mark_first_token() -> bool
+
+      Record the first sign of progress; True only the first time.
+
+
+
+   .. py:method:: audio_started() -> None
+
+      Record when the first audio was ready (the first call counts).
+
+
+
+   .. py:method:: add_text(chunk: str) -> bool
+
+      Add streamed answer text; complete sentences are queued for speech.
+
+      :returns: True when this is the first text of the answer.
+
+
+
+   .. py:method:: on_tool_start(name: str) -> bool
+
+      The agent started a tool: say a filler if it goes online and nothing was said yet.
+
+      :returns: True when this was the first sign of progress.
+
+
+
+   .. py:method:: fail(error: BaseException) -> str
+
+      The turn failed: queue the apology.
+
+      :returns: A short reason for the error message.
+
+
+
+   .. py:method:: finish() -> None
+
+      The answer is complete: queue what is left and close the queue.
+
+
+
+   .. py:method:: metrics(transcript: voicemate.asr.base.Transcript | None) -> dict[str, Any]
+
+      Timings and facts about this turn (seconds are relative to the user's last word).
+
+
+

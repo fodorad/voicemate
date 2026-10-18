@@ -30,8 +30,6 @@ Attributes
 .. autoapisummary::
 
    voicemate.pipeline.orchestrator.logger
-   voicemate.pipeline.orchestrator.FILLERS
-   voicemate.pipeline.orchestrator.APOLOGIES
 
 
 Classes
@@ -54,12 +52,6 @@ Module Contents
 ---------------
 
 .. py:data:: logger
-
-.. py:data:: FILLERS
-   :type:  dict[str, str]
-
-.. py:data:: APOLOGIES
-   :type:  dict[str, str]
 
 .. py:class:: VoiceSession(runtime: voicemate.runtime.Runtime, thread_id: str | None = None)
 
