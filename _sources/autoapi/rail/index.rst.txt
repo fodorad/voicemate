@@ -1,0 +1,77 @@
+rail
+====
+
+.. py:module:: rail
+
+.. autoapi-nested-parse::
+
+   The pipeline rail: what each lane shows, as plain data.
+
+   The page draws one station per pipeline lane. Which state a station is in, how long the stage
+   took and which tool is running follow a few rules (a new turn resets the rail, a finished lane
+   shows its duration, and so on). :class:`Rail` holds those rules with no UI framework, so they
+   are tested without a browser; the page only renders the :class:`LaneView` it returns.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   rail.LaneView
+   rail.Rail
+
+
+Module Contents
+---------------
+
+.. py:class:: LaneView
+
+   What one station shows.
+
+   :ivar state: Idle, active or done.
+   :ivar duration: Text such as ``"250 ms"`` once a started lane is done; empty otherwise.
+   :ivar detail: Extra text under the lane, the running tool's name.
+
+
+
+   .. py:attribute:: state
+      :type:  voicemate.events.LaneState
+
+
+   .. py:attribute:: duration
+      :type:  str
+      :value: ''
+
+
+
+   .. py:attribute:: detail
+      :type:  str
+      :value: ''
+
+
+
+.. py:class:: Rail(lanes: collections.abc.Iterable[voicemate.events.Lane])
+
+   Lane events in, per-lane views out.
+
+   :param lanes: The lanes the page draws; events for other lanes are ignored.
+
+
+   .. py:method:: view(lane: voicemate.events.Lane) -> LaneView
+
+      What ``lane`` shows now.
+
+
+
+   .. py:method:: apply(event: voicemate.events.StatusEvent) -> dict[voicemate.events.Lane, LaneView]
+
+      Apply one event.
+
+      :returns: the event's lane, or every lane when a new turn starts
+                listening (the rail resets first).
+      :rtype: The views that changed
+
+
+

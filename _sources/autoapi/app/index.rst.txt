@@ -115,8 +115,7 @@ Module Contents
       :type:  dict[voicemate.events.Lane, tuple[nicegui.ui.element, nicegui.ui.label, nicegui.ui.label]]
 
 
-   .. py:attribute:: started
-      :type:  dict[voicemate.events.Lane, float]
+   .. py:attribute:: rail
 
 
    .. py:attribute:: reply
