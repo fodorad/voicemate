@@ -1,0 +1,96 @@
+voicemate.pipeline.reminders
+============================
+
+.. py:module:: voicemate.pipeline.reminders
+
+.. autoapi-nested-parse::
+
+   Spoken and shown reminders.
+
+   :class:`Reminders` polls the notes database for reminders whose time has come, marks each as
+   notified (so it is announced exactly once) and hands it to an announcer supplied by the voice
+   session, which decides how to show and speak it. The module knows nothing about the event bus
+   or about speech, so another delivery channel can be added without touching it.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.pipeline.reminders.logger
+   voicemate.pipeline.reminders.REMINDER_INTERVAL_S
+   voicemate.pipeline.reminders.PREFIXES
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.pipeline.reminders.Reminders
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.pipeline.reminders.spoken_text
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: REMINDER_INTERVAL_S
+   :type:  float
+   :value: 30.0
+
+
+.. py:data:: PREFIXES
+   :type:  dict[str, str]
+
+.. py:function:: spoken_text(note: voicemate.memory.notes.Note, lang: str) -> str
+
+   What to say for ``note`` in ``lang``.
+
+
+.. py:class:: Reminders(notes: voicemate.memory.notes.NotesStore, announce: collections.abc.Callable[[voicemate.memory.notes.Note], collections.abc.Awaitable[None]], interval_s: float = REMINDER_INTERVAL_S)
+
+   Finds due reminders and announces each exactly once.
+
+   :param notes: The notes database.
+   :param announce: Called with every due reminder (after it was marked notified).
+   :param interval_s: Seconds between checks while watching.
+
+
+   .. py:attribute:: notes
+
+
+   .. py:attribute:: announce
+
+
+   .. py:attribute:: interval_s
+      :value: 30.0
+
+
+
+   .. py:method:: check() -> int
+      :async:
+
+
+      Announce the reminders that are due now; returns how many there were.
+
+
+
+   .. py:method:: watch() -> None
+      :async:
+
+
+      Check every ``interval_s`` seconds until cancelled; a failed check is logged.
+
+
+

@@ -33,7 +33,6 @@ Attributes
    voicemate.pipeline.orchestrator.FILLERS
    voicemate.pipeline.orchestrator.APOLOGIES
    voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S
-   voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S
 
 
 Classes
@@ -66,11 +65,6 @@ Module Contents
 .. py:data:: PARTIAL_WINDOW_S
    :type:  float
    :value: 8.0
-
-
-.. py:data:: REMINDER_INTERVAL_S
-   :type:  float
-   :value: 30.0
 
 
 .. py:class:: VoiceSession(runtime: voicemate.runtime.Runtime, thread_id: str | None = None)
@@ -246,8 +240,6 @@ Module Contents
 
 
       Announce due reminders once; returns how many were announced.
-
-      A reminder is always shown in the UI; it is also spoken when the assistant is idle.
 
 
 

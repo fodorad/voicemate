@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html"><link rel="next" title="voicemate.pipeline.turn_taking" href="../turn_taking/index.html"><link rel="prev" title="voicemate.pipeline.conversation" href="../conversation/index.html">
+<link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html"><link rel="next" title="voicemate.pipeline.reminders" href="../reminders/index.html"><link rel="prev" title="voicemate.pipeline.conversation" href="../conversation/index.html">
         <link rel="canonical" href="https://fodorad.github.io/voicemate/autoapi/voicemate/pipeline/orchestrator/index.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
@@ -252,6 +252,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../chunker/index.html">voicemate.pipeline.chunker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../conversation/index.html">voicemate.pipeline.conversation</a></li>
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#">voicemate.pipeline.orchestrator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reminders/index.html">voicemate.pipeline.reminders</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../turn_taking/index.html">voicemate.pipeline.turn_taking</a></li>
 </ul>
 </li>
@@ -340,9 +341,6 @@ the user can pause to think without the assistant jumping in.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S" title="voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PARTIAL_WINDOW_S</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S" title="voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REMINDER_INTERVAL_S</span></code></a></p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -391,11 +389,6 @@ the user can pause to think without the assistant jumping in.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S">
 <span class="sig-prename descclassname"><span class="pre">voicemate.pipeline.orchestrator.</span></span><span class="sig-name descname"><span class="pre">PARTIAL_WINDOW_S</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8.0</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S">
-<span class="sig-prename descclassname"><span class="pre">voicemate.pipeline.orchestrator.</span></span><span class="sig-name descname"><span class="pre">REMINDER_INTERVAL_S</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30.0</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
@@ -566,7 +559,6 @@ the microphone off means “I’m done talking”.</p>
 <dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.VoiceSession.check_reminders">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">check_reminders</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/orchestrator.html#VoiceSession.check_reminders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.orchestrator.VoiceSession.check_reminders" title="Link to this definition">¶</a></dt>
 <dd><p>Announce due reminders once; returns how many were announced.</p>
-<p>A reminder is always shown in the UI; it is also spoken when the assistant is idle.</p>
 </dd></dl>
 
 </dd></dl>
@@ -585,12 +577,12 @@ the microphone off means “I’m done talking”.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../turn_taking/index.html">
+          <a class="next-page" href="../reminders/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">voicemate.pipeline.turn_taking</div>
+                <div class="title">voicemate.pipeline.reminders</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -644,7 +636,6 @@ the microphone off means “I’m done talking”.</p>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.FILLERS"><code class="docutils literal notranslate"><span class="pre">FILLERS</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.APOLOGIES"><code class="docutils literal notranslate"><span class="pre">APOLOGIES</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S"><code class="docutils literal notranslate"><span class="pre">PARTIAL_WINDOW_S</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.REMINDER_INTERVAL_S"><code class="docutils literal notranslate"><span class="pre">REMINDER_INTERVAL_S</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession"><code class="docutils literal notranslate"><span class="pre">VoiceSession</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.runtime"><code class="docutils literal notranslate"><span class="pre">VoiceSession.runtime</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.config"><code class="docutils literal notranslate"><span class="pre">VoiceSession.config</span></code></a></li>
