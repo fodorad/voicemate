@@ -12,6 +12,27 @@ import re
 import numpy as np
 
 
+class EnergyVAD:
+    """RMS-energy speech probability. Deterministic; no model needed.
+
+    Args:
+        reference_rms: RMS level mapped to probability 1.0.
+        frame_size: Samples per frame.
+    """
+
+    def __init__(self, reference_rms: float = 0.05, frame_size: int = 512) -> None:
+        self.reference_rms = reference_rms
+        self.frame_size = frame_size
+
+    def __call__(self, frame: np.ndarray) -> float:
+        """Return ``min(1, rms / reference_rms)``."""
+        rms = float(np.sqrt(np.mean(np.square(frame, dtype=np.float64))))
+        return min(1.0, rms / self.reference_rms)
+
+    def reset(self) -> None:
+        """Stateless; nothing to reset."""
+
+
 class ToneSynthesizer:
     """TTS stand-in: 10 ms of a 440 Hz tone per character of input."""
 

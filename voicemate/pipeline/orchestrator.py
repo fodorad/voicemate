@@ -30,7 +30,6 @@ from typing import Any
 
 import numpy as np
 
-from voicemate.agent.hitl import Confirmation
 from voicemate.asr.base import Transcript
 from voicemate.audio.codec import float32_to_pcm16
 from voicemate.audio.vad import SpeechEnd, SpeechStart
@@ -151,12 +150,6 @@ class VoiceSession:
     def holding(self) -> bool:
         """True while the user holds: pauses do not end their turn (see :meth:`hold`)."""
         return self.policy.holding
-
-    @property
-    def confirmation(self) -> Confirmation | None:
-        """The question the agent is waiting on (human-in-the-loop), if any."""
-        question = self.policy.question
-        return Confirmation(question) if question is not None else None
 
     @property
     def _turn_running(self) -> bool:
@@ -460,7 +453,7 @@ class VoiceSession:
 
     async def _announce_reminder(self, note: Note) -> None:
         """A reminder is always shown in the UI; it is also spoken when the assistant is idle."""
-        self.bus.publish(ReminderEvent(note.id, note.text))
+        self.bus.publish(ReminderEvent(note.text))
         if not self.busy and not self.holding:
             await self._speak(spoken_text(note, self.lang), self.lang)
 

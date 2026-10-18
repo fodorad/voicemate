@@ -9,6 +9,7 @@ import numpy as np
 from langgraph.checkpoint.memory import InMemorySaver
 
 from tests.helpers import (
+    EnergyVAD,
     ScriptedRecognizer,
     ToneSynthesizer,
     make_scripted_chat_model,
@@ -18,7 +19,6 @@ from tests.helpers import (
 from voicemate.agent.graph import build_graph
 from voicemate.agent.tools import build_tools
 from voicemate.audio.codec import SAMPLE_RATE, float32_to_pcm16
-from voicemate.audio.vad import EnergyVAD
 from voicemate.events import (
     AudioEvent,
     ConfirmEvent,
@@ -140,7 +140,7 @@ class TestVoiceTurn(SessionTestCase):
         ]:
             self.assertIn(expected, lanes)
         await asyncio.sleep(0.05)  # episode is stored in the background
-        self.assertEqual(self.ctx.memory.stats()["episodes"], 1)
+        self.assertEqual(len(self.ctx.memory.episodes.search("Mennyi az idő?")), 1)
 
     async def test_noise_without_words_is_ignored(self):
         self.make_session(["OK"], transcripts=["..."])
@@ -320,7 +320,7 @@ class TestRestore(SessionTestCase):
         self.assertEqual(lines[2], ChatLine("user", "Tell me a story"))
         self.assertTrue(lines[3].interrupted)
         self.assertNotIn(INTERRUPTED_MARK, lines[3].text)
-        self.assertIsNone(fresh.confirmation)
+        self.assertIsNone(fresh.policy.question)
 
     async def test_new_conversation_is_empty(self):
         self.make_session(["x"])
@@ -463,11 +463,11 @@ class TestConfirmation(SessionTestCase):
         confirms = [e for e in self.drain() if isinstance(e, ConfirmEvent)]
         self.assertTrue(confirms[-1].open)
         self.assertIn("already exists", self.voice.calls[-1])
-        self.assertIsNotNone(self.session.confirmation)
+        self.assertIsNotNone(self.session.policy.question)
         await self.session.answer_confirmation("yes")
         await self.settle()
         self.assertEqual(self.target.read_text(), "new")
-        self.assertIsNone(self.session.confirmation)
+        self.assertIsNone(self.session.policy.question)
         self.assertFalse([e for e in self.drain() if isinstance(e, ConfirmEvent)][-1].open)
 
     async def test_spoken_no_keeps_the_file(self):

@@ -155,11 +155,6 @@ class Listener:
         while self._in_flight:
             await asyncio.wait(set(self._in_flight))
 
-    def stop(self) -> None:
-        """Cancel the background work that is still pending."""
-        for task in [*self._in_flight, *([self._partial] if self._partial else [])]:
-            task.cancel()
-
     # ── background work ───────────────────────────────────────────────────────
 
     def _utterance_ended(self, event: SpeechEnd) -> None:

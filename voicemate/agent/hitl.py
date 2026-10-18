@@ -10,7 +10,6 @@ it as summary2.md" reaches the model instead of a bare yes/no.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
 
 from langgraph.types import interrupt
 
@@ -26,17 +25,6 @@ NO_WORDS: frozenset[str] = frozenset(
 )
 
 _WORD = re.compile(r"[^\W\d_]+(?:'[a-z]+)?", re.UNICODE)
-
-
-@dataclass
-class Confirmation:
-    """A question the agent is waiting on.
-
-    Attributes:
-        question: What the user is asked (spoken and shown in the UI).
-    """
-
-    question: str
 
 
 def is_affirmative(answer: str) -> bool:

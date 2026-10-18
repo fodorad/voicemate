@@ -1,3 +1,4 @@
+import struct
 import unittest
 
 import numpy as np
@@ -7,7 +8,6 @@ from voicemate.audio.codec import (
     pack_audio_frame,
     pcm16_to_float32,
     resample,
-    unpack_audio_frame,
 )
 
 
@@ -43,15 +43,11 @@ class TestResample(unittest.TestCase):
 
 
 class TestFraming(unittest.TestCase):
-    def test_pack_unpack_roundtrip(self):
+    def test_a_frame_is_the_sample_rate_then_the_pcm(self):
         pcm = float32_to_pcm16(np.random.uniform(-1, 1, 480).astype(np.float32))
-        sample_rate, payload = unpack_audio_frame(pack_audio_frame(pcm, 24000))
-        self.assertEqual(sample_rate, 24000)
-        self.assertEqual(payload, pcm)
-
-    def test_short_frame_is_rejected(self):
-        with self.assertRaises(ValueError):
-            unpack_audio_frame(b"\x01\x02")
+        frame = pack_audio_frame(pcm, 24000)
+        self.assertEqual(struct.unpack_from("<I", frame)[0], 24000)  # uint32, little endian
+        self.assertEqual(frame[4:], pcm)
 
 
 if __name__ == "__main__":

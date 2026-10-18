@@ -1,8 +1,8 @@
 """Voice activity detection and utterance segmentation (endpointing).
 
 :class:`Segmenter` turns a continuous 16 kHz microphone stream into utterances. It is
-independent of the speech-probability model: :class:`SileroVAD` is used at runtime and the
-deterministic :class:`EnergyVAD` is handy for tests and as a dependency-free fallback.
+independent of the speech-probability model (any :class:`SpeechProbability`): :class:`SileroVAD`
+is used at runtime.
 """
 
 from __future__ import annotations
@@ -40,27 +40,6 @@ class SpeechProbability(Protocol):
     def reset(self) -> None:
         """Clear recurrent state between independent streams."""
         ...
-
-
-class EnergyVAD:
-    """RMS-energy speech probability. Deterministic; no model needed.
-
-    Args:
-        reference_rms: RMS level mapped to probability 1.0.
-        frame_size: Samples per frame.
-    """
-
-    def __init__(self, reference_rms: float = 0.05, frame_size: int = 512) -> None:
-        self.reference_rms = reference_rms
-        self.frame_size = frame_size
-
-    def __call__(self, frame: np.ndarray) -> float:
-        """Return ``min(1, rms / reference_rms)``."""
-        rms = float(np.sqrt(np.mean(np.square(frame, dtype=np.float64))))
-        return min(1.0, rms / self.reference_rms)
-
-    def reset(self) -> None:
-        """Stateless; nothing to reset."""
 
 
 def silero_model_path() -> Path:
