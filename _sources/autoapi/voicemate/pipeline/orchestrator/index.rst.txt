@@ -32,7 +32,6 @@ Attributes
    voicemate.pipeline.orchestrator.logger
    voicemate.pipeline.orchestrator.FILLERS
    voicemate.pipeline.orchestrator.APOLOGIES
-   voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S
 
 
 Classes
@@ -62,11 +61,6 @@ Module Contents
 .. py:data:: APOLOGIES
    :type:  dict[str, str]
 
-.. py:data:: PARTIAL_WINDOW_S
-   :type:  float
-   :value: 8.0
-
-
 .. py:class:: VoiceSession(runtime: voicemate.runtime.Runtime, thread_id: str | None = None)
 
    One conversation with one browser tab.
@@ -87,7 +81,7 @@ Module Contents
    .. py:attribute:: bus
 
 
-   .. py:attribute:: segmenter
+   .. py:attribute:: listener
 
 
    .. py:attribute:: lang

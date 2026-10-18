@@ -1,0 +1,167 @@
+voicemate.pipeline.listener
+===========================
+
+.. py:module:: voicemate.pipeline.listener
+
+.. autoapi-nested-parse::
+
+   Listening: microphone frames in, partial transcripts and final utterances out.
+
+   :class:`Listener` wraps the voice-activity :class:`~voicemate.audio.vad.Segmenter`. Speech
+   start and end are returned from :meth:`Listener.feed` immediately; the slower work
+   (transcribing a finished utterance, live partial transcripts while the user is still speaking)
+   runs in the background and is reported through :class:`ListenerCallbacks`. The module keeps
+   track of what is still in flight, so the session can ask "is everything transcribed?"
+   (:meth:`Listener.settled`) when a hold is released, and can end a sentence on demand
+   (:meth:`Listener.flush`) when the microphone is switched off.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.pipeline.listener.logger
+   voicemate.pipeline.listener.PARTIAL_WINDOW_S
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.pipeline.listener.Utterance
+   voicemate.pipeline.listener.ListenerCallbacks
+   voicemate.pipeline.listener.Listener
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: PARTIAL_WINDOW_S
+   :type:  float
+   :value: 8.0
+
+
+.. py:class:: Utterance
+
+   One transcribed utterance.
+
+   :ivar text: What was recognized (not stripped).
+   :ivar audio_seconds: Duration of the audio.
+   :ivar latency_s: Seconds the recognition took.
+   :ivar ended_at: Monotonic time the user finished speaking.
+
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: audio_seconds
+      :type:  float
+
+
+   .. py:attribute:: latency_s
+      :type:  float
+
+
+   .. py:attribute:: ended_at
+      :type:  float
+
+
+.. py:class:: ListenerCallbacks
+
+   Where the listener reports background work.
+
+   :ivar on_partial: A live transcript of speech still in progress (prefixed ``"… "`` when it
+                     covers only the end of a long utterance).
+   :ivar on_transcribing: Transcription of a finished utterance is active, done or failed
+                          (idle).
+   :ivar on_utterance: A finished utterance with words in it; the listener counts it as in
+                       flight until this returns.
+   :ivar on_error: Recognition failed.
+
+
+
+   .. py:attribute:: on_partial
+      :type:  collections.abc.Callable[[str], None]
+
+
+   .. py:attribute:: on_transcribing
+      :type:  collections.abc.Callable[[voicemate.events.LaneState], None]
+
+
+   .. py:attribute:: on_utterance
+      :type:  collections.abc.Callable[[Utterance], collections.abc.Awaitable[None]]
+
+
+   .. py:attribute:: on_error
+      :type:  collections.abc.Callable[[Exception], None]
+
+
+.. py:class:: Listener(vad: voicemate.audio.vad.SpeechProbability, vad_config: voicemate.config.VADConfig, transcribe: collections.abc.Callable[[numpy.ndarray], collections.abc.Awaitable[str]], spawn: collections.abc.Callable[[collections.abc.Coroutine[Any, Any, Any]], asyncio.Task], callbacks: ListenerCallbacks, partial_interval_s: float = 1.0, partial_window_s: float = PARTIAL_WINDOW_S, audio_dir: pathlib.Path | None = None)
+
+   Frames of microphone audio to utterances.
+
+   :param vad: Frame-level speech probability model.
+   :param vad_config: Endpointing thresholds.
+   :param transcribe: Turns 16 kHz mono float32 audio into text.
+   :param spawn: Starts a tracked background task (the session keeps strong references).
+   :param callbacks: Receives partials, transcription state, utterances and errors.
+   :param partial_interval_s: Seconds of new speech between live partial transcripts.
+   :param partial_window_s: How much of the most recent speech a partial transcript covers.
+   :param audio_dir: Where to save utterance audio (not saved when None).
+
+
+   .. py:attribute:: segmenter
+
+
+   .. py:property:: in_speech
+      :type: bool
+
+
+      True while the user is speaking.
+
+
+   .. py:property:: strict
+      :type: bool
+
+
+      Stricter barge-in thresholds apply while the assistant speaks.
+
+
+   .. py:method:: feed(pcm: bytes) -> list[voicemate.audio.vad.SegmentEvent]
+
+      Consume one chunk of 16 kHz mono PCM16 audio.
+
+      :returns: The speech start and end events it triggered, in order. A finished utterance is
+                transcribed in the background.
+
+
+
+   .. py:method:: flush() -> voicemate.audio.vad.SpeechEnd | None
+
+      End the sentence in progress now (the microphone was switched off).
+
+      :returns: The end event, or None when the user was not speaking.
+
+
+
+   .. py:method:: settled() -> None
+      :async:
+
+
+      Wait until no utterance is being transcribed or handed on.
+
+
+
+   .. py:method:: stop() -> None
+
+      Cancel the background work that is still pending.
+
+
+

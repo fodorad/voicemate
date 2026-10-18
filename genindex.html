@@ -249,6 +249,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/voicemate/pipeline/index.html">voicemate.pipeline</a><input aria-label="Toggle navigation of voicemate.pipeline" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/pipeline/chunker/index.html">voicemate.pipeline.chunker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/pipeline/conversation/index.html">voicemate.pipeline.conversation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/pipeline/listener/index.html">voicemate.pipeline.listener</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/pipeline/orchestrator/index.html">voicemate.pipeline.orchestrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/pipeline/reminders/index.html">voicemate.pipeline.reminders</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/pipeline/turn_taking/index.html">voicemate.pipeline.turn_taking</a></li>
@@ -390,7 +391,11 @@
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.SpeechEnd.audio">audio (voicemate.audio.vad.SpeechEnd attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/asr/base/index.html#voicemate.asr.base.Transcript.audio_seconds">audio_seconds (voicemate.asr.base.Transcript attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Utterance.audio_seconds">(voicemate.pipeline.listener.Utterance attribute)</a>
 </li>
+        </ul></li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.AudioEvent">AudioEvent (class in voicemate.events)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/arxiv_tools/index.html#voicemate.agent.tools.arxiv_tools.Paper.authors">authors (voicemate.agent.tools.arxiv_tools.Paper attribute)</a>
@@ -649,6 +654,8 @@
 </li>
         <li><a href="autoapi/voicemate/asr/langid/index.html#voicemate.asr.langid.EN_WORDS">EN_WORDS (in module voicemate.asr.langid)</a>
 </li>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Utterance.ended_at">ended_at (voicemate.pipeline.listener.Utterance attribute)</a>
+</li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.EnergyVAD">EnergyVAD (class in voicemate.audio.vad)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.TTSVoiceConfig.engine">engine (voicemate.config.TTSVoiceConfig attribute)</a>
@@ -712,6 +719,8 @@
         <ul>
           <li><a href="autoapi/voicemate/pipeline/chunker/index.html#voicemate.pipeline.chunker.SpeechChunker.feed">(voicemate.pipeline.chunker.SpeechChunker method)</a>
 </li>
+          <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Listener.feed">(voicemate.pipeline.listener.Listener method)</a>
+</li>
         </ul></li>
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.feed_audio">feed_audio() (voicemate.pipeline.orchestrator.VoiceSession method)</a>
 </li>
@@ -739,6 +748,8 @@
 
         <ul>
           <li><a href="autoapi/voicemate/pipeline/chunker/index.html#voicemate.pipeline.chunker.SpeechChunker.flush">(voicemate.pipeline.chunker.SpeechChunker method)</a>
+</li>
+          <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Listener.flush">(voicemate.pipeline.listener.Listener method)</a>
 </li>
         </ul></li>
         <li><a href="autoapi/voicemate/agent/tools/weather/index.html#voicemate.agent.tools.weather.FORECAST_URL">FORECAST_URL (in module voicemate.agent.tools.weather)</a>
@@ -868,21 +879,25 @@
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Ignore">Ignore (class in voicemate.pipeline.turn_taking)</a>
 </li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.Segmenter.in_speech">in_speech (voicemate.audio.vad.Segmenter property)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Listener.in_speech">(voicemate.pipeline.listener.Listener property)</a>
 </li>
+        </ul></li>
         <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.index_paper">index_paper() (voicemate.agent.tools.research.Research method)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Interrupt">Interrupt (class in voicemate.pipeline.turn_taking)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.interrupt">interrupt() (voicemate.pipeline.orchestrator.VoiceSession method)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.ReplyEvent.interrupted">interrupted (voicemate.events.ReplyEvent attribute)</a>
 
         <ul>
           <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.ChatLine.interrupted">(voicemate.pipeline.conversation.ChatLine attribute)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.INTERRUPTED_MARK">INTERRUPTED_MARK (in module voicemate.pipeline.conversation)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.INTERRUPTED_TOOL_RESULT">INTERRUPTED_TOOL_RESULT (in module voicemate.pipeline.conversation)</a>
@@ -961,6 +976,8 @@
 </li>
         <li><a href="autoapi/app/index.html#app.ConversationPage.last_user">last_user (app.ConversationPage attribute)</a>
 </li>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Utterance.latency_s">latency_s (voicemate.pipeline.listener.Utterance attribute)</a>
+</li>
         <li><a href="autoapi/voicemate/asr/base/index.html#voicemate.asr.base.Transcript.latency_seconds">latency_seconds (voicemate.asr.base.Transcript attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.LocationConfig.latitude">latitude (voicemate.config.LocationConfig attribute)</a>
@@ -971,16 +988,22 @@
 </li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.EventBus.listen">listen() (voicemate.events.EventBus method)</a>
 </li>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Listener">Listener (class in voicemate.pipeline.listener)</a>
+</li>
+        <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.listener">listener (voicemate.pipeline.orchestrator.VoiceSession attribute)</a>
+</li>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.ListenerCallbacks">ListenerCallbacks (class in voicemate.pipeline.listener)</a>
+</li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.Lane.LISTENING">LISTENING (voicemate.events.Lane attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/files/index.html#voicemate.agent.tools.files.FileOperations.listing">listing() (voicemate.agent.tools.files.FileOperations method)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.Config.llm">llm (voicemate.config.Config attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/config/index.html#voicemate.config.LLMConfig">LLMConfig (class in voicemate.config)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/voicemate/config/index.html#voicemate.config.LLMConfig">LLMConfig (class in voicemate.config)</a>
+</li>
         <li><a href="autoapi/voicemate/runtime/index.html#voicemate.runtime.Runtime.load">load() (voicemate.runtime.Runtime class method)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.load_config">load_config() (in module voicemate.config)</a>
@@ -1015,6 +1038,8 @@
           <li><a href="autoapi/voicemate/models/index.html#voicemate.models.logger">(in module voicemate.models)</a>
 </li>
           <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.logger">(in module voicemate.pipeline.conversation)</a>
+</li>
+          <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.logger">(in module voicemate.pipeline.listener)</a>
 </li>
           <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.logger">(in module voicemate.pipeline.orchestrator)</a>
 </li>
@@ -1233,6 +1258,8 @@
 </li>
           <li><a href="autoapi/voicemate/pipeline/conversation/index.html#module-voicemate.pipeline.conversation">voicemate.pipeline.conversation</a>
 </li>
+          <li><a href="autoapi/voicemate/pipeline/listener/index.html#module-voicemate.pipeline.listener">voicemate.pipeline.listener</a>
+</li>
           <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#module-voicemate.pipeline.orchestrator">voicemate.pipeline.orchestrator</a>
 </li>
           <li><a href="autoapi/voicemate/pipeline/reminders/index.html#module-voicemate.pipeline.reminders">voicemate.pipeline.reminders</a>
@@ -1334,13 +1361,21 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.TurnTaking.on_answer">on_answer() (voicemate.pipeline.turn_taking.TurnTaking method)</a>
 </li>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.ListenerCallbacks.on_error">on_error (voicemate.pipeline.listener.ListenerCallbacks attribute)</a>
+</li>
         <li><a href="autoapi/app/index.html#app.ConversationPage.on_new_conversation">on_new_conversation (app.ConversationPage attribute)</a>
+</li>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.ListenerCallbacks.on_partial">on_partial (voicemate.pipeline.listener.ListenerCallbacks attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.TurnTaking.on_speech_start">on_speech_start() (voicemate.pipeline.turn_taking.TurnTaking method)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.ListenerCallbacks.on_transcribing">on_transcribing (voicemate.pipeline.listener.ListenerCallbacks attribute)</a>
+</li>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.TurnTaking.on_typed">on_typed() (voicemate.pipeline.turn_taking.TurnTaking method)</a>
+</li>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.ListenerCallbacks.on_utterance">on_utterance (voicemate.pipeline.listener.ListenerCallbacks attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.TurnTaking.on_utterance">on_utterance() (voicemate.pipeline.turn_taking.TurnTaking method)</a>
 </li>
@@ -1384,7 +1419,7 @@
         </ul></li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.ASRConfig.partial_interval_s">partial_interval_s (voicemate.config.ASRConfig attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.PARTIAL_WINDOW_S">PARTIAL_WINDOW_S (in module voicemate.pipeline.orchestrator)</a>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.PARTIAL_WINDOW_S">PARTIAL_WINDOW_S (in module voicemate.pipeline.listener)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Collect.parts">parts (voicemate.pipeline.turn_taking.Collect attribute)</a>
 </li>
@@ -1689,7 +1724,7 @@
 </li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.Segmenter">Segmenter (class in voicemate.audio.vad)</a>
 </li>
-        <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.segmenter">segmenter (voicemate.pipeline.orchestrator.VoiceSession attribute)</a>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Listener.segmenter">segmenter (voicemate.pipeline.listener.Listener attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.SegmentEvent">SegmentEvent (in module voicemate.audio.vad)</a>
 </li>
@@ -1706,6 +1741,8 @@
         <li><a href="autoapi/app/index.html#app.ConversationPage.session">session (app.ConversationPage attribute)</a>
 </li>
         <li><a href="autoapi/app/index.html#app.Server.sessions">sessions (app.Server attribute)</a>
+</li>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Listener.settled">settled() (voicemate.pipeline.listener.Listener method)</a>
 </li>
         <li><a href="autoapi/app/index.html#app.ConversationPage.show_history">show_history() (app.ConversationPage method)</a>
 </li>
@@ -1785,10 +1822,16 @@
 </li>
         <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.Stop">Stop (class in voicemate.audio.protocol)</a>
 </li>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Listener.stop">stop() (voicemate.pipeline.listener.Listener method)</a>
+</li>
         <li><a href="autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.store_search">store_search() (voicemate.memory.store.ResearchMemory method)</a>
 </li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.Segmenter.strict">strict (voicemate.audio.vad.Segmenter attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Listener.strict">(voicemate.pipeline.listener.Listener property)</a>
 </li>
+        </ul></li>
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.submit_text">submit_text() (voicemate.pipeline.orchestrator.VoiceSession method)</a>
 </li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.EventBus.subscribe">subscribe() (voicemate.events.EventBus method)</a>
@@ -1856,6 +1899,8 @@
 </li>
           <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.ChatLine.text">(voicemate.pipeline.conversation.ChatLine attribute)</a>
 </li>
+          <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Utterance.text">(voicemate.pipeline.listener.Utterance attribute)</a>
+</li>
           <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Begin.text">(voicemate.pipeline.turn_taking.Begin attribute)</a>
 </li>
           <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Collect.text">(voicemate.pipeline.turn_taking.Collect attribute)</a>
@@ -1889,10 +1934,10 @@
 </li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.Lane.TOOL">TOOL (voicemate.events.Lane attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/bench/run/index.html#voicemate.bench.run.TOOL_CASES">TOOL_CASES (in module voicemate.bench.run)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/voicemate/bench/run/index.html#voicemate.bench.run.TOOL_CASES">TOOL_CASES (in module voicemate.bench.run)</a>
+</li>
         <li><a href="autoapi/voicemate/report/index.html#voicemate.report.Report.tool_counts">tool_counts (voicemate.report.Report attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/report/index.html#voicemate.report.Report.tool_first_audio">tool_first_audio (voicemate.report.Report attribute)</a>
@@ -1969,10 +2014,10 @@
 </li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.EventBus.unsubscribe">unsubscribe() (voicemate.events.EventBus method)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/agent/tools/search/index.html#voicemate.agent.tools.search.UNTRUSTED_NOTE">UNTRUSTED_NOTE (in module voicemate.agent.tools.search)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Page.url">url (voicemate.agent.tools.research.Page attribute)</a>
 
         <ul>
@@ -1982,6 +2027,8 @@
         <li><a href="autoapi/voicemate/runtime/index.html#voicemate.runtime.use_offline_hub_if_cached">use_offline_hub_if_cached() (in module voicemate.runtime)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/base/index.html#voicemate.agent.tools.base.USER_AGENT">USER_AGENT (in module voicemate.agent.tools.base)</a>
+</li>
+        <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Utterance">Utterance (class in voicemate.pipeline.listener)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -2293,6 +2340,13 @@
 
         <ul>
           <li><a href="autoapi/voicemate/pipeline/conversation/index.html#module-voicemate.pipeline.conversation">module</a>
+</li>
+        </ul></li>
+        <li>
+    voicemate.pipeline.listener
+
+        <ul>
+          <li><a href="autoapi/voicemate/pipeline/listener/index.html#module-voicemate.pipeline.listener">module</a>
 </li>
         </ul></li>
         <li>
