@@ -41,37 +41,48 @@ language model (see the spec, §10).
 
 ## Modules and seams
 
-Five deep modules keep the rules in one place each. Dashed lines are the seams: the interface
+Ten deep modules keep the rules in one place each. Dashed lines are the seams: the interface
 other modules (and the tests) use. Behind each seam sits a real adapter and, in the tests, a
 small hand-written fake.
 
 ```mermaid
 flowchart TB
     UI[ui/app.py<br/>page + /ws/audio] -->|messages| PROTO[[audio.protocol<br/>browser messages]]
-    UI --> SESSION[VoiceSession<br/>plumbing: audio, ASR, graph stream, TTS]
+    UI -.-> RAIL[[Rail<br/>lane state and durations]]
+    UI --> SESSION[VoiceSession<br/>plumbing: wires the modules, owns timeout and cancel]
+    SESSION -.-> LISTEN[[Listener<br/>frames to utterances]]
     SESSION -.-> POLICY[[TurnTaking<br/>what input means]]
+    SESSION -.-> REPLY[[Reply<br/>a turn's answer rules]]
+    SESSION -.-> REMIND[[Reminders<br/>due, once, announced]]
     SESSION -.-> CONV[[Conversation<br/>thread, history, repair, stream]]
     SESSION -.-> SPEECH[[Speech<br/>async ASR + TTS, one worker each]]
+    LISTEN -.-> SPEECH
     CONV -.-> GRAPH[(LangGraph + checkpoint)]
     GRAPH --> TOOLS[agent tools]
     TOOLS -.-> RESEARCH[[Research<br/>cached search, listed addresses]]
-    RESEARCH --> MEM[(Memory)]
+    RESEARCH --> MEM[(Memory: facts, episodes, research)]
+    REMIND --> NOTES[(Notes)]
     RESEARCH --> NET((web, arXiv, pages))
     SPEECH --> MODELS[Parakeet · Piper · Kokoro]
     classDef deep fill:#0f172a,color:#f8fafc,stroke:#0f172a;
-    class POLICY,CONV,SPEECH,RESEARCH,PROTO deep;
+    class POLICY,CONV,SPEECH,RESEARCH,PROTO,LISTEN,REPLY,REMIND,RAIL deep;
 ```
 
 | Module | Owns | Faked in tests with |
 |---|---|---|
 | `pipeline.turn_taking` | hold and release, merging a cut-off question (20 s), answering a confirmation, barge-in. Pure: no event loop, no I/O | nothing needed: plain values in, decisions out |
 | `pipeline.conversation` | the current thread id (`data/conversation.json`), history lines, repair of an interrupted turn, discarding a cancelled message, streaming a turn, the pending question | in-memory LangGraph checkpointer + a scripted chat model |
+| `pipeline.listener` | the voice-activity segmenter, live partial transcripts (every interval, last 8 s), background transcription, what is still in flight (`settled`), flush on mic off | energy-based VAD + a controllable recognizer |
+| `pipeline.reply` | one turn's answer: text to speakable sentences, the spoken filler for network tools, the apology, first-token and first-audio timings, the turn's metrics | an injected clock; plain calls |
+| `pipeline.reminders` | polling due reminders, marking each notified before announcing (once only), the language prefix, the 30 s watcher | a real notes database in a temp folder + a recording announcer |
 | `speech` | transcription and synthesis, one worker thread per model (MLX is not re-entrant), clean shutdown | scripted recognizer, tone synthesizer |
 | `agent.tools.research` | cache-first web and arXiv search, page and paper access, the listed addresses (anything else asks the user first), what leaves the machine | static search and arXiv backends, a local HTTP server |
+| `memory.store` | one database and embedder with three narrow interfaces (`facts`, `episodes`, `research`) plus `recall`; each caller sees only its slice | hash-based embedder, injected clock |
+| `ui.rail` | what each station of the pipeline rail shows: state, duration, tool name, reset on a new turn. No UI framework | plain events in, views out |
 | `audio.protocol` | the browser to server messages (mic off, playback started and ended, stop) | a contract test reads `audio.js` and fails if either side drifts |
 
-`VoiceSession` keeps only plumbing: it feeds inputs to the policy and executes the decisions,
-and it imports nothing from LangGraph or LangChain (a test asserts that).
+`VoiceSession` is plumbing: it feeds inputs to the policy and the modules and executes the
+decisions, and it imports nothing from LangGraph or LangChain (a test asserts that).
 
 ## The LangGraph agent
 
