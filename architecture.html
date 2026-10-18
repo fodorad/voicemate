@@ -351,24 +351,30 @@ language model (see the spec, §10).</p>
 </section>
 <section id="modules-and-seams">
 <h2>Modules and seams<a class="headerlink" href="#modules-and-seams" title="Link to this heading">¶</a></h2>
-<p>Five deep modules keep the rules in one place each. Dashed lines are the seams: the interface
+<p>Ten deep modules keep the rules in one place each. Dashed lines are the seams: the interface
 other modules (and the tests) use. Behind each seam sits a real adapter and, in the tests, a
 small hand-written fake.</p>
 <pre  class="mermaid">
         flowchart TB
     UI[ui/app.py&lt;br/&gt;page + /ws/audio] --&gt;|messages| PROTO[[audio.protocol&lt;br/&gt;browser messages]]
-    UI --&gt; SESSION[VoiceSession&lt;br/&gt;plumbing: audio, ASR, graph stream, TTS]
+    UI -.-&gt; RAIL[[Rail&lt;br/&gt;lane state and durations]]
+    UI --&gt; SESSION[VoiceSession&lt;br/&gt;plumbing: wires the modules, owns timeout and cancel]
+    SESSION -.-&gt; LISTEN[[Listener&lt;br/&gt;frames to utterances]]
     SESSION -.-&gt; POLICY[[TurnTaking&lt;br/&gt;what input means]]
+    SESSION -.-&gt; REPLY[[Reply&lt;br/&gt;a turn's answer rules]]
+    SESSION -.-&gt; REMIND[[Reminders&lt;br/&gt;due, once, announced]]
     SESSION -.-&gt; CONV[[Conversation&lt;br/&gt;thread, history, repair, stream]]
     SESSION -.-&gt; SPEECH[[Speech&lt;br/&gt;async ASR + TTS, one worker each]]
+    LISTEN -.-&gt; SPEECH
     CONV -.-&gt; GRAPH[(LangGraph + checkpoint)]
     GRAPH --&gt; TOOLS[agent tools]
     TOOLS -.-&gt; RESEARCH[[Research&lt;br/&gt;cached search, listed addresses]]
-    RESEARCH --&gt; MEM[(Memory)]
+    RESEARCH --&gt; MEM[(Memory: facts, episodes, research)]
+    REMIND --&gt; NOTES[(Notes)]
     RESEARCH --&gt; NET((web, arXiv, pages))
     SPEECH --&gt; MODELS[Parakeet · Piper · Kokoro]
     classDef deep fill:#0f172a,color:#f8fafc,stroke:#0f172a;
-    class POLICY,CONV,SPEECH,RESEARCH,PROTO deep;
+    class POLICY,CONV,SPEECH,RESEARCH,PROTO,LISTEN,REPLY,REMIND,RAIL deep;
     </pre><div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -386,23 +392,43 @@ small hand-written fake.</p>
 <td><p>the current thread id (<code class="docutils literal notranslate"><span class="pre">data/conversation.json</span></code>), history lines, repair of an interrupted turn, discarding a cancelled message, streaming a turn, the pending question</p></td>
 <td><p>in-memory LangGraph checkpointer + a scripted chat model</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">speech</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.listener</span></code></p></td>
+<td><p>the voice-activity segmenter, live partial transcripts (every interval, last 8 s), background transcription, what is still in flight (<code class="docutils literal notranslate"><span class="pre">settled</span></code>), flush on mic off</p></td>
+<td><p>energy-based VAD + a controllable recognizer</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.reply</span></code></p></td>
+<td><p>one turn’s answer: text to speakable sentences, the spoken filler for network tools, the apology, first-token and first-audio timings, the turn’s metrics</p></td>
+<td><p>an injected clock; plain calls</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.reminders</span></code></p></td>
+<td><p>polling due reminders, marking each notified before announcing (once only), the language prefix, the 30 s watcher</p></td>
+<td><p>a real notes database in a temp folder + a recording announcer</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">speech</span></code></p></td>
 <td><p>transcription and synthesis, one worker thread per model (MLX is not re-entrant), clean shutdown</p></td>
 <td><p>scripted recognizer, tone synthesizer</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">agent.tools.research</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">agent.tools.research</span></code></p></td>
 <td><p>cache-first web and arXiv search, page and paper access, the listed addresses (anything else asks the user first), what leaves the machine</p></td>
 <td><p>static search and arXiv backends, a local HTTP server</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">audio.protocol</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">memory.store</span></code></p></td>
+<td><p>one database and embedder with three narrow interfaces (<code class="docutils literal notranslate"><span class="pre">facts</span></code>, <code class="docutils literal notranslate"><span class="pre">episodes</span></code>, <code class="docutils literal notranslate"><span class="pre">research</span></code>) plus <code class="docutils literal notranslate"><span class="pre">recall</span></code>; each caller sees only its slice</p></td>
+<td><p>hash-based embedder, injected clock</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ui.rail</span></code></p></td>
+<td><p>what each station of the pipeline rail shows: state, duration, tool name, reset on a new turn. No UI framework</p></td>
+<td><p>plain events in, views out</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">audio.protocol</span></code></p></td>
 <td><p>the browser to server messages (mic off, playback started and ended, stop)</p></td>
 <td><p>a contract test reads <code class="docutils literal notranslate"><span class="pre">audio.js</span></code> and fails if either side drifts</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">VoiceSession</span></code> keeps only plumbing: it feeds inputs to the policy and executes the decisions,
-and it imports nothing from LangGraph or LangChain (a test asserts that).</p>
+<p><code class="docutils literal notranslate"><span class="pre">VoiceSession</span></code> is plumbing: it feeds inputs to the policy and the modules and executes the
+decisions, and it imports nothing from LangGraph or LangChain (a test asserts that).</p>
 </section>
 <section id="the-langgraph-agent">
 <h2>The LangGraph agent<a class="headerlink" href="#the-langgraph-agent" title="Link to this heading">¶</a></h2>

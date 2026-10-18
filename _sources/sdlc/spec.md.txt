@@ -409,3 +409,47 @@ restored), hold with two clips answered once, barge-in marking the cut-off reply
 New conversation starting empty. First audio 2.83-2.85 s for spoken chat turns (v1.0.0:
 2.9 s) and 1.8-5.2 s for tool turns (2.2-5.1 s), the same within noise.
 
+## 14. Architecture round 2 (2026-10-18)
+
+The second review, after round 1 and the URL fix, looked at what the first moves exposed:
+`VoiceSession` was still 580 lines and the pipeline rail's rules lived inside NiceGUI widgets.
+Five more modules, each its own `refactor:` PR, no behaviour change:
+
+| Module | Replaces |
+|---|---|
+| `ui.rail.Rail` | lane state, duration and tool-name rules inside `ConversationPage` |
+| `pipeline.reminders.Reminders` | the reminder watcher and announcement rules inside the session |
+| `memory.store` concept interfaces | one wide `MemoryStore` interface (facts, episodes, research now narrow views over one database) |
+| `pipeline.listener.Listener` | partial scheduling, in-flight utterance tracking, flush and settle inside the session |
+| `pipeline.reply.Reply` | the session's `_Turn` bag and the filler, apology, timing and metrics rules |
+
+`VoiceSession` went from 580 to 470 lines and keeps only wiring, the turn timeout,
+cancellation, the speech worker and publishing.
+
+Decisions made along the way (autonomous, recorded in the pipeline spec):
+
+- **Listener and Reply take callbacks or return values, not the event bus**, so the session
+  stays the single publisher and the modules stay testable. `Listener.feed` returns the VAD's
+  own speech events; slower work (partials, transcription state, utterances, errors) comes back
+  through callbacks. `settled` waits through transcription *and* the callback that starts the
+  turn, which is what hold release needs.
+- **Memory concepts are views, not separate stores**: one database and one embedder, so no new
+  seam with a single adapter. Callers are held to their slice by source tests. No schema
+  change; an existing database opens as before.
+- **The partial interval is read when the session is built**, not on every frame. Production
+  config is static; two tests now set it before building the session.
+- **Reminders are announced through an injected announcer**, so a second delivery channel can
+  be added without touching the module.
+
+Verification: 362 tests (was 310), coverage 92 %, 100 % on `rail`, `reminders`, `listener`
+and `reply`. The session, listener and policy tests ran 40 times under CPU load with no
+failure. A real-model end-to-end run (gemma4:e4b, isolated server) passed: a spoken turn
+with the rail durations rendered by `Rail`, a web search answered from memory the second time,
+a reminder inserted into the notes database announced as a toast and listed in the panel, an
+unlisted page asking first and fetching after "Allow" with a reload in the middle of the
+question (history and question restored), hold answered once after release, barge-in marking
+the cut-off reply, and New conversation starting empty. First audio 2.72 s for the spoken chat
+turn (round 1: 2.83-2.85 s); other turns vary between 1.7 and 5.0 s with free memory
+(11.4 GB free on this run), the same range as before. Observed: a browser tab in a hidden
+window renders updates late, which delayed the first reminder toast; not a server issue.
+

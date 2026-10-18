@@ -1040,6 +1040,66 @@ restored), hold with two clips answered once, barge-in marking the cut-off reply
 New conversation starting empty. First audio 2.83-2.85 s for spoken chat turns (v1.0.0:
 2.9 s) and 1.8-5.2 s for tool turns (2.2-5.1 s), the same within noise.</p>
 </section>
+<section id="architecture-round-2-2026-10-18">
+<h2>14. Architecture round 2 (2026-10-18)<a class="headerlink" href="#architecture-round-2-2026-10-18" title="Link to this heading">¶</a></h2>
+<p>The second review, after round 1 and the URL fix, looked at what the first moves exposed:
+<code class="docutils literal notranslate"><span class="pre">VoiceSession</span></code> was still 580 lines and the pipeline rail’s rules lived inside NiceGUI widgets.
+Five more modules, each its own <code class="docutils literal notranslate"><span class="pre">refactor:</span></code> PR, no behaviour change:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Module</p></th>
+<th class="head"><p>Replaces</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ui.rail.Rail</span></code></p></td>
+<td><p>lane state, duration and tool-name rules inside <code class="docutils literal notranslate"><span class="pre">ConversationPage</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.reminders.Reminders</span></code></p></td>
+<td><p>the reminder watcher and announcement rules inside the session</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">memory.store</span></code> concept interfaces</p></td>
+<td><p>one wide <code class="docutils literal notranslate"><span class="pre">MemoryStore</span></code> interface (facts, episodes, research now narrow views over one database)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.listener.Listener</span></code></p></td>
+<td><p>partial scheduling, in-flight utterance tracking, flush and settle inside the session</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.reply.Reply</span></code></p></td>
+<td><p>the session’s <code class="docutils literal notranslate"><span class="pre">_Turn</span></code> bag and the filler, apology, timing and metrics rules</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">VoiceSession</span></code> went from 580 to 470 lines and keeps only wiring, the turn timeout,
+cancellation, the speech worker and publishing.</p>
+<p>Decisions made along the way (autonomous, recorded in the pipeline spec):</p>
+<ul class="simple">
+<li><p><strong>Listener and Reply take callbacks or return values, not the event bus</strong>, so the session
+stays the single publisher and the modules stay testable. <code class="docutils literal notranslate"><span class="pre">Listener.feed</span></code> returns the VAD’s
+own speech events; slower work (partials, transcription state, utterances, errors) comes back
+through callbacks. <code class="docutils literal notranslate"><span class="pre">settled</span></code> waits through transcription <em>and</em> the callback that starts the
+turn, which is what hold release needs.</p></li>
+<li><p><strong>Memory concepts are views, not separate stores</strong>: one database and one embedder, so no new
+seam with a single adapter. Callers are held to their slice by source tests. No schema
+change; an existing database opens as before.</p></li>
+<li><p><strong>The partial interval is read when the session is built</strong>, not on every frame. Production
+config is static; two tests now set it before building the session.</p></li>
+<li><p><strong>Reminders are announced through an injected announcer</strong>, so a second delivery channel can
+be added without touching the module.</p></li>
+</ul>
+<p>Verification: 362 tests (was 310), coverage 92 %, 100 % on <code class="docutils literal notranslate"><span class="pre">rail</span></code>, <code class="docutils literal notranslate"><span class="pre">reminders</span></code>, <code class="docutils literal notranslate"><span class="pre">listener</span></code>
+and <code class="docutils literal notranslate"><span class="pre">reply</span></code>. The session, listener and policy tests ran 40 times under CPU load with no
+failure. A real-model end-to-end run (gemma4:e4b, isolated server) passed: a spoken turn
+with the rail durations rendered by <code class="docutils literal notranslate"><span class="pre">Rail</span></code>, a web search answered from memory the second time,
+a reminder inserted into the notes database announced as a toast and listed in the panel, an
+unlisted page asking first and fetching after “Allow” with a reload in the middle of the
+question (history and question restored), hold answered once after release, barge-in marking
+the cut-off reply, and New conversation starting empty. First audio 2.72 s for the spoken chat
+turn (round 1: 2.83-2.85 s); other turns vary between 1.7 and 5.0 s with free memory
+(11.4 GB free on this run), the same range as before. Observed: a browser tab in a hidden
+window renders updates late, which delayed the first reminder toast; not a server issue.</p>
+</section>
 </section>
 
         </article>
@@ -1117,6 +1177,7 @@ New conversation starting empty. First audio 2.83-2.85 s for spoken chat turns (
 <li><a class="reference internal" href="#review-round-2026-10-07">11. Review round (2026-10-07)</a></li>
 <li><a class="reference internal" href="#first-test-drive-2026-10-07">12. First test drive (2026-10-07)</a></li>
 <li><a class="reference internal" href="#architecture-deepening-2026-10-17">13. Architecture deepening (2026-10-17)</a></li>
+<li><a class="reference internal" href="#architecture-round-2-2026-10-18">14. Architecture round 2 (2026-10-18)</a></li>
 </ul>
 </li>
 </ul>
