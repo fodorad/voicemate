@@ -61,7 +61,7 @@ Typical topics:
 | M6 | Network egress | Only web search, page fetch, arXiv and weather requests leave the machine; each is visible in the UI |
 | M7 | Tool calling works for scripted prompts (HU + EN) | ≥ 90 % correct tool choice and arguments |
 | M8 | Hungarian speech output is intelligible and acceptable to me | Mean opinion score ≥ 3.5 / 5 in the TTS bake-off |
-| M9 | Code quality | CI green; ruff, ty, unittest coverage ≥ 80 % on new code; Sphinx builds with no warnings |
+| M9 | Code quality | CI green; ruff, ty, unittest coverage ≥ 90 % on new code; Sphinx builds with no warnings |
 
 ## Privacy stance
 

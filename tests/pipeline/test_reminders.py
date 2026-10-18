@@ -101,7 +101,8 @@ class TestWatch(RemindersTestCase):
 
         self.notes.add("first", "reminder", due=PAST)
         self.notes.add("second", "reminder", due="2020-01-02T09:00")
-        await self.run_watch(self.reminders(flaky, interval_s=0.01), lambda: "second" in calls)
+        with self.assertLogs("voicemate.pipeline.reminders", "ERROR"):
+            await self.run_watch(self.reminders(flaky, interval_s=0.01), lambda: "second" in calls)
         self.assertEqual(calls, ["first", "second"])
 
 

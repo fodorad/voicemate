@@ -320,8 +320,9 @@ class TestServer(UITestCase):
         handle_control_message(session, '{"type": "mic", "state": "off"}')
         stopped = events.get_nowait()
         self.assertEqual((stopped.lane, stopped.state), (Lane.LISTENING, LaneState.IDLE))
-        handle_control_message(session, "not json")
-        handle_control_message(session, '["a list"]')
+        with self.assertLogs("voicemate.audio.protocol", "WARNING"):
+            handle_control_message(session, "not json")
+            handle_control_message(session, '["a list"]')
         self.assertFalse(session.busy)
 
 

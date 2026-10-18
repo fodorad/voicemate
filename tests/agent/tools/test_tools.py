@@ -9,6 +9,7 @@ from pathlib import Path
 from tests.helpers import make_tool_context
 from voicemate.agent.tools import EGRESS_TOOLS, build_tools
 from voicemate.agent.tools.base import ToolError
+from voicemate.agent.tools.research import ArxivApi
 from voicemate.events import NotesChangedEvent, ToolEvent
 
 PAGE = b"""<html><head><title>LoRA explained</title></head><body>
@@ -239,6 +240,10 @@ class TestFileTools(ToolTestCase):
 
 @unittest.skipUnless(os.environ.get("VOICEMATE_INTEGRATION"), "network")
 class TestNetworkTools(ToolTestCase):  # pragma: no cover - integration only
+    async def asyncSetUp(self):
+        await super().asyncSetUp()
+        self.ctx.research.arxiv_backend = ArxivApi()  # the real service, not the fake
+
     async def test_weather_home_location(self):
         out = await self.call("get_weather", days=2)
         self.assertIn("Gyöngyös", out)

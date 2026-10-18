@@ -194,8 +194,9 @@ class TestTextTurns(SessionTestCase):
 
     async def test_failure_is_reported_and_apologized(self):
         self.make_session([RuntimeError("ollama unreachable")])
-        await self.session.submit_text("Szia, mi a helyzet?")
-        await self.settle()
+        with self.assertLogs("voicemate.pipeline.orchestrator", "ERROR"):
+            await self.session.submit_text("Szia, mi a helyzet?")
+            await self.settle()
         errors = [e for e in self.drain() if isinstance(e, ErrorEvent)]
         self.assertIn("ollama unreachable", errors[0].message)
         self.assertEqual(self.voice.calls, [APOLOGIES["hu"]])
@@ -203,8 +204,9 @@ class TestTextTurns(SessionTestCase):
     async def test_timeout(self):
         self.make_session(["too late"], delay=1.0)
         self.ctx.config.llm.turn_timeout_s = 0.05
-        await self.session.submit_text("Hello, what is up?")
-        await self.settle()
+        with self.assertLogs("voicemate.pipeline.orchestrator", "ERROR"):
+            await self.session.submit_text("Hello, what is up?")
+            await self.settle()
         errors = [e for e in self.drain() if isinstance(e, ErrorEvent)]
         self.assertIn("timed out", errors[0].message)
 
@@ -428,8 +430,9 @@ class TestTurnDiscipline(SessionTestCase):
     async def test_asr_failure_is_reported(self):
         self.make_session(["x"])
         self.runtime.speech = Speech(FailingRecognizer(), self.runtime.speech.voices)
-        await self.speak()
-        await self.settle()
+        with self.assertLogs("voicemate.pipeline.listener", "ERROR"):
+            await self.speak()
+            await self.settle()
         errors = [e for e in self.drain() if isinstance(e, ErrorEvent)]
         self.assertIn("ASR crashed", errors[0].message)
         self.assertFalse(self.session.busy)
