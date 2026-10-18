@@ -113,8 +113,9 @@ class TestUtterances(ListenerTestCase):
         rec = Recording()
         rec.fail = True
         listener = self.make(rec)
-        self.feed_all(listener, frames())
-        await listener.settled()
+        with self.assertLogs("voicemate.pipeline.listener", "ERROR"):
+            self.feed_all(listener, frames())
+            await listener.settled()
         self.assertEqual(rec.heard, [])
         self.assertEqual([str(e) for e in rec.errors], ["ASR crashed"])
         self.assertEqual(rec.transcribing, [LaneState.ACTIVE, LaneState.IDLE])

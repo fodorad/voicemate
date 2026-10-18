@@ -8,7 +8,7 @@ is configuration only and must never appear in code.
 - AI-native SDLC: intent in `docs/sdlc/intent.md`, design and measurements in
   `docs/sdlc/spec.md` (update it when a decision changes). Local plan in `temp/plan.md`
   (gitignored).
-- `make check` = ruff lint + format check, ty, unittest with coverage (≥ 80 %), Sphinx `-W`.
+- `make check` = ruff lint + format check, ty, unittest with coverage (≥ 90 %), Sphinx `-W`.
 - `make test-integration` runs model/network/`say` tests (`VOICEMATE_INTEGRATION=1`).
 - Tests use `unittest`, random arrays and the deterministic protocol implementations in
   `tests/helpers.py` (ScriptedChatModel, ScriptedRecognizer, ToneSynthesizer,

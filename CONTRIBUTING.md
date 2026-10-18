@@ -24,9 +24,11 @@ Write the test first. Tests exercise real behaviour with the standard library `u
 random arrays for shape checks and small deterministic implementations of the model
 protocols in `tests/helpers.py` (no mocks or patches). `tests/` mirrors `voicemate/`.
 
-- `make test`: unit tests with coverage (≥ 80 % enforced), no models needed.
+- `make test`: unit tests with coverage (≥ 90 % enforced), no models needed.
 - `make test-integration`: also runs the tests that need Ollama, the downloaded models,
   the network and macOS `say`.
+  CI cannot run them, so run it before merging a release PR: a refactor once broke one of them
+  without any check noticing.
 
 ## Commit messages
 

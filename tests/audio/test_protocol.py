@@ -41,7 +41,7 @@ class TestParse(unittest.TestCase):
             '{"type": "playback", "state": "sideways"}',
             '{"type": "mic", "state": "on"}',
         ):
-            with self.subTest(text=text):
+            with self.subTest(text=text), self.assertLogs("voicemate.audio.protocol", "WARNING"):
                 self.assertIsNone(parse(text))
 
 

@@ -230,6 +230,7 @@ class TestPages(ResearchTestCase):
 
         server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Empty)
         threading.Thread(target=server.serve_forever, daemon=True).start()
+        self.addCleanup(server.server_close)  # runs after the shutdown below
         self.addAsyncCleanup(asyncio.to_thread, server.shutdown)
         url = f"http://127.0.0.1:{server.server_address[1]}/"
         self.research.list_address(url)
@@ -285,6 +286,7 @@ class TestPapers(ResearchTestCase):
 
         server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Pdf)
         threading.Thread(target=server.serve_forever, daemon=True).start()
+        self.addCleanup(server.server_close)  # runs after the shutdown below
         self.addAsyncCleanup(asyncio.to_thread, server.shutdown)
         paper = Paper(
             "1", "T", [], "2024-01-01", "s", f"http://127.0.0.1:{server.server_address[1]}/p"
