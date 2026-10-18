@@ -58,6 +58,18 @@ class TestCheck(RemindersTestCase):
         self.assertEqual(self.announced, ["first", "second"])
 
 
+class TestReady(RemindersTestCase):
+    async def test_nothing_is_consumed_while_nobody_can_be_told(self):
+        self.notes.add("call the doctor", "reminder", due=PAST)
+        listening = [False]
+        reminders = Reminders(self.notes, self.announce, ready=lambda: listening[0])
+        self.assertEqual(await reminders.check(), 0)
+        self.assertEqual(self.announced, [])
+        listening[0] = True
+        self.assertEqual(await reminders.check(), 1)
+        self.assertEqual(self.announced, ["call the doctor"])
+
+
 class TestSpokenText(unittest.TestCase):
     def test_the_prefix_follows_the_language(self):
         note = Note(1, "call Anna", "reminder", PAST, False, "2020-01-01T08:00")

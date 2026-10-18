@@ -35,6 +35,8 @@ class Reminders:
         notes: The notes database.
         announce: Called with every due reminder (after it was marked notified).
         interval_s: Seconds between checks while watching.
+        ready: Whether anyone can be told right now; while it is false nothing is consumed,
+            so a reminder that falls due with no one listening is announced later.
     """
 
     def __init__(
@@ -42,13 +44,17 @@ class Reminders:
         notes: NotesStore,
         announce: Callable[[Note], Awaitable[None]],
         interval_s: float = REMINDER_INTERVAL_S,
+        ready: Callable[[], bool] = lambda: True,
     ) -> None:
         self.notes = notes
         self.announce = announce
         self.interval_s = interval_s
+        self.ready = ready
 
     async def check(self) -> int:
         """Announce the reminders that are due now; returns how many there were."""
+        if not self.ready():
+            return 0
         due = await asyncio.to_thread(self.notes.due_reminders)
         for note in due:
             await asyncio.to_thread(self.notes.mark_notified, note.id)
