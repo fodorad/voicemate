@@ -673,17 +673,9 @@ model is per lane rather than a single exclusive state.</p>
 <dd><p>A reminder became due.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>note_id</strong> – Notes-store id.</p></li>
-<li><p><strong>text</strong> – Reminder text.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>text</strong> – Reminder text.</p>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.events.ReminderEvent.note_id">
-<span class="sig-name descname"><span class="pre">note_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#voicemate.events.ReminderEvent.note_id" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.events.ReminderEvent.text">
 <span class="sig-name descname"><span class="pre">text</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#voicemate.events.ReminderEvent.text" title="Link to this definition">¶</a></dt>
@@ -768,12 +760,6 @@ model is per lane rather than a single exclusive state.</p>
 <dd class="field-odd"><p><strong>maxsize</strong> – Per-subscriber queue capacity.</p>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="voicemate.events.EventBus.subscriber_count">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">subscriber_count</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#voicemate.events.EventBus.subscriber_count" title="Link to this definition">¶</a></dt>
-<dd><p>Number of active subscribers.</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="voicemate.events.EventBus.subscribe">
 <span class="sig-name descname"><span class="pre">subscribe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">asyncio.Queue</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.events.Event" title="voicemate.events.Event"><span class="pre">Event</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/voicemate/events.html#EventBus.subscribe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.events.EventBus.subscribe" title="Link to this definition">¶</a></dt>
@@ -790,12 +776,6 @@ model is per lane rather than a single exclusive state.</p>
 <dt class="sig sig-object py" id="voicemate.events.EventBus.publish">
 <span class="sig-name descname"><span class="pre">publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#voicemate.events.Event" title="voicemate.events.Event"><span class="pre">Event</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/voicemate/events.html#EventBus.publish"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.events.EventBus.publish" title="Link to this definition">¶</a></dt>
 <dd><p>Deliver <code class="docutils literal notranslate"><span class="pre">event</span></code> to every subscriber without blocking.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.events.EventBus.listen">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">listen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.AsyncIterator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.events.Event" title="voicemate.events.Event"><span class="pre">Event</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/voicemate/events.html#EventBus.listen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.events.EventBus.listen" title="Link to this definition">¶</a></dt>
-<dd><p>Iterate over events until the consuming task is cancelled.</p>
 </dd></dl>
 
 </dd></dl>
@@ -922,7 +902,6 @@ model is per lane rather than a single exclusive state.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.events.ReminderEvent"><code class="docutils literal notranslate"><span class="pre">ReminderEvent</span></code></a><ul>
-<li><a class="reference internal" href="#voicemate.events.ReminderEvent.note_id"><code class="docutils literal notranslate"><span class="pre">ReminderEvent.note_id</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.events.ReminderEvent.text"><code class="docutils literal notranslate"><span class="pre">ReminderEvent.text</span></code></a></li>
 </ul>
 </li>
@@ -942,11 +921,9 @@ model is per lane rather than a single exclusive state.</p>
 </li>
 <li><a class="reference internal" href="#voicemate.events.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.events.EventBus"><code class="docutils literal notranslate"><span class="pre">EventBus</span></code></a><ul>
-<li><a class="reference internal" href="#voicemate.events.EventBus.subscriber_count"><code class="docutils literal notranslate"><span class="pre">EventBus.subscriber_count</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.events.EventBus.subscribe"><code class="docutils literal notranslate"><span class="pre">EventBus.subscribe()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.events.EventBus.unsubscribe"><code class="docutils literal notranslate"><span class="pre">EventBus.unsubscribe()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.events.EventBus.publish"><code class="docutils literal notranslate"><span class="pre">EventBus.publish()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.events.EventBus.listen"><code class="docutils literal notranslate"><span class="pre">EventBus.listen()</span></code></a></li>
 </ul>
 </li>
 </ul>

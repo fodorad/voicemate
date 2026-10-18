@@ -479,14 +479,6 @@
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_flight</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="Listener.stop">
-<a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Listener.stop">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Cancel the background work that is still pending."""</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_flight</span><span class="p">,</span> <span class="o">*</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_partial</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partial</span> <span class="k">else</span> <span class="p">[])]:</span>
-            <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span></div>
-
-
     <span class="c1"># ── background work ───────────────────────────────────────────────────────</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_utterance_ended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">SpeechEnd</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

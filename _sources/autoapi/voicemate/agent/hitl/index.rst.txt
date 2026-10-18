@@ -24,14 +24,6 @@ Attributes
    voicemate.agent.hitl.NO_WORDS
 
 
-Classes
--------
-
-.. autoapisummary::
-
-   voicemate.agent.hitl.Confirmation
-
-
 Functions
 ---------
 
@@ -49,18 +41,6 @@ Module Contents
 
 .. py:data:: NO_WORDS
    :type:  frozenset[str]
-
-.. py:class:: Confirmation
-
-   A question the agent is waiting on.
-
-   :ivar question: What the user is asked (spoken and shown in the UI).
-
-
-
-   .. py:attribute:: question
-      :type:  str
-
 
 .. py:function:: is_affirmative(answer: str) -> bool
 

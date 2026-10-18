@@ -387,21 +387,6 @@
 <span class="w">    </span><span class="sd">"""Prefix PCM16 bytes with their sample rate for the browser player."""</span>
     <span class="k">return</span> <span class="n">_HEADER</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span> <span class="o">+</span> <span class="n">pcm</span></div>
 
-
-
-<div class="viewcode-block" id="unpack_audio_frame">
-<a class="viewcode-back" href="../../../autoapi/voicemate/audio/codec/index.html#voicemate.audio.codec.unpack_audio_frame">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">unpack_audio_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Split a packed frame into ``(sample_rate, pcm)``.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If the frame is shorter than its header.</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">_HEADER</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Audio frame shorter than its header"</span><span class="p">)</span>
-    <span class="p">(</span><span class="n">sample_rate</span><span class="p">,)</span> <span class="o">=</span> <span class="n">_HEADER</span><span class="o">.</span><span class="n">unpack_from</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">frame</span><span class="p">[</span><span class="n">_HEADER</span><span class="o">.</span><span class="n">size</span> <span class="p">:]</span></div>
-
 </pre></div>
         </article>
       </div>

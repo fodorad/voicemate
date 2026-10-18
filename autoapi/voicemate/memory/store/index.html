@@ -381,7 +381,6 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> – Stored text.</p></li>
-<li><p><strong>similarity</strong> – Cosine similarity to the query (1 = identical).</p></li>
 <li><p><strong>created</strong> – Unix timestamp when it was stored.</p></li>
 <li><p><strong>meta</strong> – Table-specific extra fields (e.g. <code class="docutils literal notranslate"><span class="pre">url</span></code>, <code class="docutils literal notranslate"><span class="pre">title</span></code>, <code class="docutils literal notranslate"><span class="pre">thread_id</span></code>).</p></li>
 </ul>
@@ -390,11 +389,6 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.memory.store.MemoryHit.text">
 <span class="sig-name descname"><span class="pre">text</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#voicemate.memory.store.MemoryHit.text" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryHit.similarity">
-<span class="sig-name descname"><span class="pre">similarity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#voicemate.memory.store.MemoryHit.similarity" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -419,7 +413,6 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <li><p><strong>query</strong> – The original query.</p></li>
 <li><p><strong>results</strong> – The stored result list.</p></li>
 <li><p><strong>retrieved_at</strong> – Unix timestamp of the original web request.</p></li>
-<li><p><strong>similarity</strong> – Similarity between the new and the stored query.</p></li>
 </ul>
 </dd>
 </dl>
@@ -436,11 +429,6 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.memory.store.CachedSearch.retrieved_at">
 <span class="sig-name descname"><span class="pre">retrieved_at</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#voicemate.memory.store.CachedSearch.retrieved_at" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.memory.store.CachedSearch.similarity">
-<span class="sig-name descname"><span class="pre">similarity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#voicemate.memory.store.CachedSearch.similarity" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -550,12 +538,6 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <dd><p>Fresh stored chunks of <code class="docutils literal notranslate"><span class="pre">url</span></code> in document order (newest copy first).</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.memory.store.ResearchMemory.search_documents">
-<span class="sig-name descname"><span class="pre">search_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.memory.store.MemoryHit" title="voicemate.memory.store.MemoryHit"><span class="pre">MemoryHit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#ResearchMemory.search_documents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.ResearchMemory.search_documents" title="Link to this definition">¶</a></dt>
-<dd><p>Fresh research chunks relevant to <code class="docutils literal notranslate"><span class="pre">query</span></code>.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -593,12 +575,6 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.recall">
 <span class="sig-name descname"><span class="pre">recall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#voicemate.memory.store.Recall" title="voicemate.memory.store.Recall"><span class="pre">Recall</span></a></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore.recall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore.recall" title="Link to this definition">¶</a></dt>
 <dd><p>Facts, episodes and research relevant to <code class="docutils literal notranslate"><span class="pre">query</span></code> (one embedding pass).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.memory.store.MemoryStore.stats">
-<span class="sig-name descname"><span class="pre">stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/memory/store.html#MemoryStore.stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.memory.store.MemoryStore.stats" title="Link to this definition">¶</a></dt>
-<dd><p>Row count per table.</p>
 </dd></dl>
 
 </dd></dl>
@@ -668,7 +644,6 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <li><a class="reference internal" href="#voicemate.memory.store.DAY"><code class="docutils literal notranslate"><span class="pre">DAY</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.memory.store.MemoryHit"><code class="docutils literal notranslate"><span class="pre">MemoryHit</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.memory.store.MemoryHit.text"><code class="docutils literal notranslate"><span class="pre">MemoryHit.text</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryHit.similarity"><code class="docutils literal notranslate"><span class="pre">MemoryHit.similarity</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.memory.store.MemoryHit.created"><code class="docutils literal notranslate"><span class="pre">MemoryHit.created</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.memory.store.MemoryHit.meta"><code class="docutils literal notranslate"><span class="pre">MemoryHit.meta</span></code></a></li>
 </ul>
@@ -677,7 +652,6 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <li><a class="reference internal" href="#voicemate.memory.store.CachedSearch.query"><code class="docutils literal notranslate"><span class="pre">CachedSearch.query</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.memory.store.CachedSearch.results"><code class="docutils literal notranslate"><span class="pre">CachedSearch.results</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.memory.store.CachedSearch.retrieved_at"><code class="docutils literal notranslate"><span class="pre">CachedSearch.retrieved_at</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.CachedSearch.similarity"><code class="docutils literal notranslate"><span class="pre">CachedSearch.similarity</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.memory.store.Recall"><code class="docutils literal notranslate"><span class="pre">Recall</span></code></a><ul>
@@ -702,7 +676,6 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <li><a class="reference internal" href="#voicemate.memory.store.ResearchMemory.cached_search"><code class="docutils literal notranslate"><span class="pre">ResearchMemory.cached_search()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.memory.store.ResearchMemory.add_documents"><code class="docutils literal notranslate"><span class="pre">ResearchMemory.add_documents()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.memory.store.ResearchMemory.documents_for_url"><code class="docutils literal notranslate"><span class="pre">ResearchMemory.documents_for_url()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.ResearchMemory.search_documents"><code class="docutils literal notranslate"><span class="pre">ResearchMemory.search_documents()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.memory.store.MemoryStore"><code class="docutils literal notranslate"><span class="pre">MemoryStore</span></code></a><ul>
@@ -710,7 +683,6 @@ All methods are synchronous; async callers wrap them with <code class="xref py p
 <li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.episodes"><code class="docutils literal notranslate"><span class="pre">MemoryStore.episodes</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.research"><code class="docutils literal notranslate"><span class="pre">MemoryStore.research</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.recall"><code class="docutils literal notranslate"><span class="pre">MemoryStore.recall()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.memory.store.MemoryStore.stats"><code class="docutils literal notranslate"><span class="pre">MemoryStore.stats()</span></code></a></li>
 </ul>
 </li>
 </ul>

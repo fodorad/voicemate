@@ -55,7 +55,6 @@ Module Contents
    One retrieved memory.
 
    :ivar text: Stored text.
-   :ivar similarity: Cosine similarity to the query (1 = identical).
    :ivar created: Unix timestamp when it was stored.
    :ivar meta: Table-specific extra fields (e.g. ``url``, ``title``, ``thread_id``).
 
@@ -63,10 +62,6 @@ Module Contents
 
    .. py:attribute:: text
       :type:  str
-
-
-   .. py:attribute:: similarity
-      :type:  float
 
 
    .. py:attribute:: created
@@ -84,7 +79,6 @@ Module Contents
    :ivar query: The original query.
    :ivar results: The stored result list.
    :ivar retrieved_at: Unix timestamp of the original web request.
-   :ivar similarity: Similarity between the new and the stored query.
 
 
 
@@ -97,10 +91,6 @@ Module Contents
 
 
    .. py:attribute:: retrieved_at
-      :type:  float
-
-
-   .. py:attribute:: similarity
       :type:  float
 
 
@@ -204,12 +194,6 @@ Module Contents
 
 
 
-   .. py:method:: search_documents(query: str, limit: int = 4) -> list[MemoryHit]
-
-      Fresh research chunks relevant to ``query``.
-
-
-
 .. py:class:: MemoryStore(path: pathlib.Path, embedder: voicemate.memory.embedder.Embedder, config: voicemate.config.MemoryConfig, clock: collections.abc.Callable[[], float] = time.time)
 
    LanceDB-backed memory: one database, three narrow interfaces.
@@ -235,12 +219,6 @@ Module Contents
    .. py:method:: recall(query: str) -> Recall
 
       Facts, episodes and research relevant to ``query`` (one embedding pass).
-
-
-
-   .. py:method:: stats() -> dict[str, int]
-
-      Row count per table.
 
 
 

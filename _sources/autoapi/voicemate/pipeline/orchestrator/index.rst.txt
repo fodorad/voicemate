@@ -120,13 +120,6 @@ Module Contents
       :type: True while the user holds
 
 
-   .. py:property:: confirmation
-      :type: voicemate.agent.hitl.Confirmation | None
-
-
-      The question the agent is waiting on (human-in-the-loop), if any.
-
-
    .. py:property:: busy
       :type: bool
 

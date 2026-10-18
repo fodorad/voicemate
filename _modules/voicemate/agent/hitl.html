@@ -317,7 +317,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">interrupt</span>
 
@@ -333,20 +332,6 @@
 <span class="p">)</span>
 
 <span class="n">_WORD</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^\W\d_]+(?:'[a-z]+)?"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">UNICODE</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="Confirmation">
-<a class="viewcode-back" href="../../../autoapi/voicemate/agent/hitl/index.html#voicemate.agent.hitl.Confirmation">[docs]</a>
-<span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">Confirmation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""A question the agent is waiting on.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        question: What the user is asked (spoken and shown in the UI).</span>
-<span class="sd">    """</span>
-
-    <span class="n">question</span><span class="p">:</span> <span class="nb">str</span></div>
-
 
 
 <div class="viewcode-block" id="is_affirmative">

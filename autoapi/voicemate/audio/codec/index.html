@@ -346,9 +346,6 @@ carry their sample rate in a 4-byte little-endian header because the TTS voices 
 <tr class="row-even"><td><p><a class="reference internal" href="#voicemate.audio.codec.pack_audio_frame" title="voicemate.audio.codec.pack_audio_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_audio_frame</span></code></a>(→ bytes)</p></td>
 <td><p>Prefix PCM16 bytes with their sample rate for the browser player.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.audio.codec.unpack_audio_frame" title="voicemate.audio.codec.unpack_audio_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unpack_audio_frame</span></code></a>(→ tuple[int, bytes])</p></td>
-<td><p>Split a packed frame into <code class="docutils literal notranslate"><span class="pre">(sample_rate,</span> <span class="pre">pcm)</span></code>.</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -413,17 +410,6 @@ carry their sample rate in a 4-byte little-endian header because the TTS voices 
 <dt class="sig sig-object py" id="voicemate.audio.codec.pack_audio_frame">
 <span class="sig-prename descclassname"><span class="pre">voicemate.audio.codec.</span></span><span class="sig-name descname"><span class="pre">pack_audio_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pcm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/audio/codec.html#pack_audio_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.audio.codec.pack_audio_frame" title="Link to this definition">¶</a></dt>
 <dd><p>Prefix PCM16 bytes with their sample rate for the browser player.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="voicemate.audio.codec.unpack_audio_frame">
-<span class="sig-prename descclassname"><span class="pre">voicemate.audio.codec.</span></span><span class="sig-name descname"><span class="pre">unpack_audio_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/audio/codec.html#unpack_audio_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.audio.codec.unpack_audio_frame" title="Link to this definition">¶</a></dt>
-<dd><p>Split a packed frame into <code class="docutils literal notranslate"><span class="pre">(sample_rate,</span> <span class="pre">pcm)</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – If the frame is shorter than its header.</p>
-</dd>
-</dl>
 </dd></dl>
 
 </section>
@@ -493,7 +479,6 @@ carry their sample rate in a 4-byte little-endian header because the TTS voices 
 <li><a class="reference internal" href="#voicemate.audio.codec.float32_to_pcm16"><code class="docutils literal notranslate"><span class="pre">float32_to_pcm16()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.audio.codec.resample"><code class="docutils literal notranslate"><span class="pre">resample()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.audio.codec.pack_audio_frame"><code class="docutils literal notranslate"><span class="pre">pack_audio_frame()</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.audio.codec.unpack_audio_frame"><code class="docutils literal notranslate"><span class="pre">unpack_audio_frame()</span></code></a></li>
 </ul>
 </li>
 </ul>

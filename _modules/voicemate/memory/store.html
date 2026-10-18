@@ -349,13 +349,11 @@
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        text: Stored text.</span>
-<span class="sd">        similarity: Cosine similarity to the query (1 = identical).</span>
 <span class="sd">        created: Unix timestamp when it was stored.</span>
 <span class="sd">        meta: Table-specific extra fields (e.g. ``url``, ``title``, ``thread_id``).</span>
 <span class="sd">    """</span>
 
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">similarity</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">created</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">meta</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
 
@@ -371,13 +369,11 @@
 <span class="sd">        query: The original query.</span>
 <span class="sd">        results: The stored result list.</span>
 <span class="sd">        retrieved_at: Unix timestamp of the original web request.</span>
-<span class="sd">        similarity: Similarity between the new and the stored query.</span>
 <span class="sd">    """</span>
 
     <span class="n">query</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
-    <span class="n">retrieved_at</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">similarity</span><span class="p">:</span> <span class="nb">float</span></div>
+    <span class="n">retrieved_at</span><span class="p">:</span> <span class="nb">float</span></div>
 
 
 
@@ -490,7 +486,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">hit</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MemoryHit</span><span class="p">:</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"text"</span><span class="p">,</span> <span class="s2">"similarity"</span><span class="p">,</span> <span class="s2">"created"</span><span class="p">)}</span>
-        <span class="k">return</span> <span class="n">MemoryHit</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"similarity"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"created"</span><span class="p">],</span> <span class="n">meta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MemoryHit</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"created"</span><span class="p">],</span> <span class="n">meta</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Facts">
@@ -610,9 +606,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">row</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">CachedSearch</span><span class="p">(</span>
-            <span class="n">row</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"results"</span><span class="p">]),</span> <span class="n">row</span><span class="p">[</span><span class="s2">"created"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"similarity"</span><span class="p">]</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">CachedSearch</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"results"</span><span class="p">]),</span> <span class="n">row</span><span class="p">[</span><span class="s2">"created"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="ResearchMemory.add_documents">
@@ -659,24 +653,8 @@
         <span class="p">)</span>
         <span class="n">rows</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="n">r</span><span class="p">[</span><span class="s2">"created"</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]))</span>
         <span class="k">return</span> <span class="p">[</span>
-            <span class="n">MemoryHit</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="s2">"created"</span><span class="p">],</span> <span class="p">{</span><span class="s2">"url"</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">"url"</span><span class="p">],</span> <span class="s2">"title"</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]})</span>
-            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span>
+            <span class="n">MemoryHit</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s2">"created"</span><span class="p">],</span> <span class="p">{</span><span class="s2">"url"</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">"url"</span><span class="p">],</span> <span class="s2">"title"</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]})</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span>
         <span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="ResearchMemory.search_documents">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.ResearchMemory.search_documents">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">search_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MemoryHit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Fresh research chunks relevant to ``query``."""</span>
-        <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="n">ix</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-            <span class="s2">"documents"</span><span class="p">,</span>
-            <span class="n">ix</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
-            <span class="n">limit</span><span class="p">,</span>
-            <span class="n">ix</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">recall_min_similarity</span><span class="p">,</span>
-            <span class="n">where</span><span class="o">=</span><span class="n">ix</span><span class="o">.</span><span class="n">fresh</span><span class="p">(),</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">ix</span><span class="o">.</span><span class="n">hit</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span></div>
 </div>
 
 
@@ -727,13 +705,6 @@
                 <span class="p">)</span>
             <span class="p">],</span>
         <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="MemoryStore.stats">
-<a class="viewcode-back" href="../../../autoapi/voicemate/memory/store/index.html#voicemate.memory.store.MemoryStore.stats">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Row count per table."""</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">table</span><span class="o">.</span><span class="n">count_rows</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">table</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
 </div>
 
 </pre></div>

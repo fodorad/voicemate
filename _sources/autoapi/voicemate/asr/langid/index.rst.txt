@@ -20,7 +20,6 @@ Attributes
 
 .. autoapisummary::
 
-   voicemate.asr.langid.LANGUAGES
    voicemate.asr.langid.HU_WORDS
    voicemate.asr.langid.EN_WORDS
    voicemate.asr.langid.HU_LETTERS
@@ -36,11 +35,6 @@ Classes
 
 Module Contents
 ---------------
-
-.. py:data:: LANGUAGES
-   :type:  tuple[str, str]
-   :value: ('hu', 'en')
-
 
 .. py:data:: HU_WORDS
    :type:  frozenset[str]

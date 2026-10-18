@@ -315,8 +315,8 @@
 <span id="voicemate-audio-vad"></span><h1>voicemate.audio.vad<a class="headerlink" href="#module-voicemate.audio.vad" title="Link to this heading">¶</a></h1>
 <p>Voice activity detection and utterance segmentation (endpointing).</p>
 <p><a class="reference internal" href="#voicemate.audio.vad.Segmenter" title="voicemate.audio.vad.Segmenter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Segmenter</span></code></a> turns a continuous 16 kHz microphone stream into utterances. It is
-independent of the speech-probability model: <a class="reference internal" href="#voicemate.audio.vad.SileroVAD" title="voicemate.audio.vad.SileroVAD"><code class="xref py py-class docutils literal notranslate"><span class="pre">SileroVAD</span></code></a> is used at runtime and the
-deterministic <a class="reference internal" href="#voicemate.audio.vad.EnergyVAD" title="voicemate.audio.vad.EnergyVAD"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyVAD</span></code></a> is handy for tests and as a dependency-free fallback.</p>
+independent of the speech-probability model (any <a class="reference internal" href="#voicemate.audio.vad.SpeechProbability" title="voicemate.audio.vad.SpeechProbability"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpeechProbability</span></code></a>): <a class="reference internal" href="#voicemate.audio.vad.SileroVAD" title="voicemate.audio.vad.SileroVAD"><code class="xref py py-class docutils literal notranslate"><span class="pre">SileroVAD</span></code></a>
+is used at runtime.</p>
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper autosummary longtable docutils container">
@@ -343,19 +343,16 @@ deterministic <a class="reference internal" href="#voicemate.audio.vad.EnergyVAD
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.audio.vad.SpeechProbability" title="voicemate.audio.vad.SpeechProbability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpeechProbability</span></code></a></p></td>
 <td><p>A frame-level speech probability model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.audio.vad.EnergyVAD" title="voicemate.audio.vad.EnergyVAD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EnergyVAD</span></code></a></p></td>
-<td><p>RMS-energy speech probability. Deterministic; no model needed.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.audio.vad.SileroVAD" title="voicemate.audio.vad.SileroVAD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SileroVAD</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.audio.vad.SileroVAD" title="voicemate.audio.vad.SileroVAD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SileroVAD</span></code></a></p></td>
 <td><p>Silero VAD v6 run directly with onnxruntime (16 kHz, 512-sample frames).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.audio.vad.SpeechStart" title="voicemate.audio.vad.SpeechStart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpeechStart</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.audio.vad.SpeechStart" title="voicemate.audio.vad.SpeechStart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpeechStart</span></code></a></p></td>
 <td><p>The user started speaking.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.audio.vad.SpeechEnd" title="voicemate.audio.vad.SpeechEnd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpeechEnd</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.audio.vad.SpeechEnd" title="voicemate.audio.vad.SpeechEnd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpeechEnd</span></code></a></p></td>
 <td><p>The user finished an utterance.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.audio.vad.Segmenter" title="voicemate.audio.vad.Segmenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Segmenter</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.audio.vad.Segmenter" title="voicemate.audio.vad.Segmenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Segmenter</span></code></a></p></td>
 <td><p>Endpointing state machine: idle → candidate → speech → idle.</p></td>
 </tr>
 </tbody>
@@ -400,36 +397,6 @@ deterministic <a class="reference internal" href="#voicemate.audio.vad.EnergyVAD
 <dt class="sig sig-object py" id="voicemate.audio.vad.SpeechProbability.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/audio/vad.html#SpeechProbability.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.audio.vad.SpeechProbability.reset" title="Link to this definition">¶</a></dt>
 <dd><p>Clear recurrent state between independent streams.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="voicemate.audio.vad.EnergyVAD">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.audio.vad.</span></span><span class="sig-name descname"><span class="pre">EnergyVAD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_rms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/voicemate/audio/vad.html#EnergyVAD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.audio.vad.EnergyVAD" title="Link to this definition">¶</a></dt>
-<dd><p>RMS-energy speech probability. Deterministic; no model needed.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>reference_rms</strong> – RMS level mapped to probability 1.0.</p></li>
-<li><p><strong>frame_size</strong> – Samples per frame.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.audio.vad.EnergyVAD.reference_rms">
-<span class="sig-name descname"><span class="pre">reference_rms</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.05</span></span><a class="headerlink" href="#voicemate.audio.vad.EnergyVAD.reference_rms" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="voicemate.audio.vad.EnergyVAD.frame_size">
-<span class="sig-name descname"><span class="pre">frame_size</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">512</span></span><a class="headerlink" href="#voicemate.audio.vad.EnergyVAD.frame_size" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="voicemate.audio.vad.EnergyVAD.reset">
-<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/audio/vad.html#EnergyVAD.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.audio.vad.EnergyVAD.reset" title="Link to this definition">¶</a></dt>
-<dd><p>Stateless; nothing to reset.</p>
 </dd></dl>
 
 </dd></dl>
@@ -636,12 +603,6 @@ reached <code class="docutils literal notranslate"><span class="pre">min_speech_
 <li><a class="reference internal" href="#voicemate.audio.vad.SpeechProbability"><code class="docutils literal notranslate"><span class="pre">SpeechProbability</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.audio.vad.SpeechProbability.frame_size"><code class="docutils literal notranslate"><span class="pre">SpeechProbability.frame_size</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.audio.vad.SpeechProbability.reset"><code class="docutils literal notranslate"><span class="pre">SpeechProbability.reset()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#voicemate.audio.vad.EnergyVAD"><code class="docutils literal notranslate"><span class="pre">EnergyVAD</span></code></a><ul>
-<li><a class="reference internal" href="#voicemate.audio.vad.EnergyVAD.reference_rms"><code class="docutils literal notranslate"><span class="pre">EnergyVAD.reference_rms</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.audio.vad.EnergyVAD.frame_size"><code class="docutils literal notranslate"><span class="pre">EnergyVAD.frame_size</span></code></a></li>
-<li><a class="reference internal" href="#voicemate.audio.vad.EnergyVAD.reset"><code class="docutils literal notranslate"><span class="pre">EnergyVAD.reset()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.audio.vad.silero_model_path"><code class="docutils literal notranslate"><span class="pre">silero_model_path()</span></code></a></li>

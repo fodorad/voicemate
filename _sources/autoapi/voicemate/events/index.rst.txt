@@ -290,13 +290,8 @@ Module Contents
 
    A reminder became due.
 
-   :ivar note_id: Notes-store id.
    :ivar text: Reminder text.
 
-
-
-   .. py:attribute:: note_id
-      :type:  int
 
 
    .. py:attribute:: text
@@ -362,13 +357,6 @@ Module Contents
    :param maxsize: Per-subscriber queue capacity.
 
 
-   .. py:property:: subscriber_count
-      :type: int
-
-
-      Number of active subscribers.
-
-
    .. py:method:: subscribe() -> asyncio.Queue[Event]
 
       Register a new subscriber queue.
@@ -384,14 +372,6 @@ Module Contents
    .. py:method:: publish(event: Event) -> None
 
       Deliver ``event`` to every subscriber without blocking.
-
-
-
-   .. py:method:: listen() -> collections.abc.AsyncIterator[Event]
-      :async:
-
-
-      Iterate over events until the consuming task is cancelled.
 
 
 
