@@ -16,6 +16,7 @@ Submodules
    /autoapi/voicemate/pipeline/orchestrator/index
    /autoapi/voicemate/pipeline/reminders/index
    /autoapi/voicemate/pipeline/reply/index
+   /autoapi/voicemate/pipeline/skills/index
    /autoapi/voicemate/pipeline/turn_taking/index
 
 

@@ -1,0 +1,72 @@
+voicemate.pipeline.skills
+=========================
+
+.. py:module:: voicemate.pipeline.skills
+
+.. autoapi-nested-parse::
+
+   Skills: specialist answers that bypass the chat model.
+
+   A skill recognizes the questions it can answer exactly (from local data, in milliseconds) and
+   answers them in one sentence; everything else returns ``None`` and goes to the agent. The
+   session asks its skills before every ordinary turn and speaks the answer through the usual
+   pipeline (text-to-speech, UI, metrics), so a skill only has to produce text.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.pipeline.skills.SkillAnswer
+   voicemate.pipeline.skills.Skill
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.pipeline.skills.first_answer
+
+
+Module Contents
+---------------
+
+.. py:class:: SkillAnswer
+
+   A skill's answer.
+
+   :ivar text: The sentence to show and speak.
+   :ivar lang: Language of the sentence (picks the voice).
+
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: lang
+      :type:  str
+
+
+.. py:class:: Skill
+
+   Bases: :py:obj:`Protocol`
+
+
+   Answers the questions it knows without the chat model.
+
+
+   .. py:method:: answer(text: str) -> SkillAnswer | None
+
+      The answer to ``text``, or ``None`` when this skill does not handle it.
+
+
+
+.. py:function:: first_answer(skills: collections.abc.Iterable[Skill], text: str) -> SkillAnswer | None
+
+   The first skill answer to ``text`` (skills are tried in order), or ``None``.
+
+

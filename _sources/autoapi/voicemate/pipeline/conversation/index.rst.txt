@@ -160,6 +160,18 @@ Module Contents
 
 
 
+   .. py:method:: record(text: str, answer: str, message_id: str) -> None
+      :async:
+
+
+      Add an exchange answered without the model (a skill) to the history.
+
+      :param text: What the user said.
+      :param answer: What was answered.
+      :param message_id: Identifies the user message.
+
+
+
    .. py:method:: resume(answer: str, emit: collections.abc.Callable[[voicemate.events.Event], None]) -> collections.abc.AsyncIterator[str]
 
       Answer the pending question and stream the rest of the run.

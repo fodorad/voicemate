@@ -76,6 +76,9 @@ Module Contents
    .. py:attribute:: listener
 
 
+   .. py:attribute:: skills
+
+
    .. py:attribute:: lang
 
 

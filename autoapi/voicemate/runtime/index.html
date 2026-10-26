@@ -247,6 +247,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/roster/index.html">voicemate.hots.roster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../hots/skill/index.html">voicemate.hots.skill</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../memory/index.html">voicemate.memory</a><input aria-label="Toggle navigation of voicemate.memory" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -264,6 +265,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../pipeline/orchestrator/index.html">voicemate.pipeline.orchestrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../pipeline/reminders/index.html">voicemate.pipeline.reminders</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../pipeline/reply/index.html">voicemate.pipeline.reply</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pipeline/skills/index.html">voicemate.pipeline.skills</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../pipeline/turn_taking/index.html">voicemate.pipeline.turn_taking</a></li>
 </ul>
 </li>
@@ -356,6 +358,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.runtime.use_offline_hub_if_cached" title="voicemate.runtime.use_offline_hub_if_cached"><code class="xref py py-obj docutils literal notranslate"><span class="pre">use_offline_hub_if_cached</span></code></a>(→ bool)</p></td>
 <td><p>Switch Hugging Face Hub to offline mode when every repository is already cached.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.runtime.no_skills" title="voicemate.runtime.no_skills"><code class="xref py py-obj docutils literal notranslate"><span class="pre">no_skills</span></code></a>(...)</p></td>
+<td><p>The default skill factory: no skills.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -380,6 +385,12 @@ assistant nothing but explicit tool calls should leave the machine.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="voicemate.runtime.no_skills">
+<span class="sig-prename descclassname"><span class="pre">voicemate.runtime.</span></span><span class="sig-name descname"><span class="pre">no_skills</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../pipeline/skills/index.html#voicemate.pipeline.skills.Skill" title="voicemate.pipeline.skills.Skill"><span class="pre">voicemate.pipeline.skills.Skill</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/voicemate/runtime.html#no_skills"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.runtime.no_skills" title="Link to this definition">¶</a></dt>
+<dd><p>The default skill factory: no skills.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="voicemate.runtime.Runtime">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.runtime.</span></span><span class="sig-name descname"><span class="pre">Runtime</span></span><a class="reference internal" href="../../../_modules/voicemate/runtime.html#Runtime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.runtime.Runtime" title="Link to this definition">¶</a></dt>
@@ -395,6 +406,8 @@ assistant nothing but explicit tool calls should leave the machine.</p>
 <li><p><strong>memory</strong> – Long-term memory store.</p></li>
 <li><p><strong>notes</strong> – Notes database.</p></li>
 <li><p><strong>langid</strong> – Language detector.</p></li>
+<li><p><strong>skills</strong> – Creates one set of skills per session (they keep per-session state).</p></li>
+<li><p><strong>notices</strong> – Startup messages for the UI (e.g. saved pages that changed).</p></li>
 </ul>
 </dd>
 </dl>
@@ -436,6 +449,16 @@ assistant nothing but explicit tool calls should leave the machine.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.runtime.Runtime.model_choice">
 <span class="sig-name descname"><span class="pre">model_choice</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../agent/model_select/index.html#voicemate.agent.model_select.ModelChoice" title="voicemate.agent.model_select.ModelChoice"><span class="pre">voicemate.agent.model_select.ModelChoice</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.runtime.Runtime.model_choice" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.runtime.Runtime.skills">
+<span class="sig-name descname"><span class="pre">skills</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../pipeline/skills/index.html#voicemate.pipeline.skills.Skill" title="voicemate.pipeline.skills.Skill"><span class="pre">voicemate.pipeline.skills.Skill</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#voicemate.runtime.Runtime.skills" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.runtime.Runtime.notices">
+<span class="sig-name descname"><span class="pre">notices</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#voicemate.runtime.Runtime.notices" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -529,6 +552,7 @@ assistant nothing but explicit tool calls should leave the machine.</p>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#voicemate.runtime.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.use_offline_hub_if_cached"><code class="docutils literal notranslate"><span class="pre">use_offline_hub_if_cached()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.runtime.no_skills"><code class="docutils literal notranslate"><span class="pre">no_skills()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime"><code class="docutils literal notranslate"><span class="pre">Runtime</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.config"><code class="docutils literal notranslate"><span class="pre">Runtime.config</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.speech"><code class="docutils literal notranslate"><span class="pre">Runtime.speech</span></code></a></li>
@@ -538,6 +562,8 @@ assistant nothing but explicit tool calls should leave the machine.</p>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.notes"><code class="docutils literal notranslate"><span class="pre">Runtime.notes</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.langid"><code class="docutils literal notranslate"><span class="pre">Runtime.langid</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.model_choice"><code class="docutils literal notranslate"><span class="pre">Runtime.model_choice</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.runtime.Runtime.skills"><code class="docutils literal notranslate"><span class="pre">Runtime.skills</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.runtime.Runtime.notices"><code class="docutils literal notranslate"><span class="pre">Runtime.notices</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.aclose"><code class="docutils literal notranslate"><span class="pre">Runtime.aclose()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.runtime.Runtime.load"><code class="docutils literal notranslate"><span class="pre">Runtime.load()</span></code></a></li>
 </ul>

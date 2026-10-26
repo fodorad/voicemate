@@ -246,6 +246,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/roster/index.html">voicemate.hots.roster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/skill/index.html">voicemate.hots.skill</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/voicemate/memory/index.html">voicemate.memory</a><input aria-label="Toggle navigation of voicemate.memory" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -263,6 +264,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/pipeline/orchestrator/index.html">voicemate.pipeline.orchestrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/pipeline/reminders/index.html">voicemate.pipeline.reminders</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/pipeline/reply/index.html">voicemate.pipeline.reply</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/pipeline/skills/index.html">voicemate.pipeline.skills</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/pipeline/turn_taking/index.html">voicemate.pipeline.turn_taking</a></li>
 </ul>
 </li>
@@ -321,7 +323,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncExitStack</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
@@ -335,6 +337,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.notes</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotesStore</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryStore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.skills</span><span class="w"> </span><span class="kn">import</span> <span class="n">Skill</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.speech</span><span class="w"> </span><span class="kn">import</span> <span class="n">Speech</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.tts.voices</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoiceBank</span>
 
@@ -370,6 +373,14 @@
 
 
 
+<div class="viewcode-block" id="no_skills">
+<a class="viewcode-back" href="../../autoapi/voicemate/runtime/index.html#voicemate.runtime.no_skills">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">no_skills</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Skill</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The default skill factory: no skills."""</span>
+    <span class="k">return</span> <span class="p">()</span></div>
+
+
+
 <div class="viewcode-block" id="Runtime">
 <a class="viewcode-back" href="../../autoapi/voicemate/runtime/index.html#voicemate.runtime.Runtime">[docs]</a>
 <span class="nd">@dataclass</span>
@@ -385,6 +396,8 @@
 <span class="sd">        memory: Long-term memory store.</span>
 <span class="sd">        notes: Notes database.</span>
 <span class="sd">        langid: Language detector.</span>
+<span class="sd">        skills: Creates one set of skills per session (they keep per-session state).</span>
+<span class="sd">        notices: Startup messages for the UI (e.g. saved pages that changed).</span>
 <span class="sd">    """</span>
 
     <span class="n">config</span><span class="p">:</span> <span class="n">Config</span>
@@ -395,6 +408,8 @@
     <span class="n">notes</span><span class="p">:</span> <span class="n">NotesStore</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">langid</span><span class="p">:</span> <span class="n">LanguageDetector</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">LanguageDetector</span><span class="p">)</span>
     <span class="n">model_choice</span><span class="p">:</span> <span class="n">ModelChoice</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">skills</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Skill</span><span class="p">]]</span> <span class="o">=</span> <span class="n">no_skills</span>
+    <span class="n">notices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
     <span class="n">_stack</span><span class="p">:</span> <span class="n">AsyncExitStack</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Runtime.aclose">
@@ -431,6 +446,7 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">USER_AGENT</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.agent.tools.search</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_backend</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.audio.vad</span><span class="w"> </span><span class="kn">import</span> <span class="n">SileroVAD</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.skill</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hots</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.memory.embedder</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformerEmbedder</span>
 
         <span class="n">use_offline_hub_if_cached</span><span class="p">([</span><span class="n">config</span><span class="o">.</span><span class="n">asr</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">embed_model</span><span class="p">])</span>
@@ -457,6 +473,13 @@
                 <span class="n">ParakeetRecognizer</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">asr</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">asr</span><span class="o">.</span><span class="n">device</span>
             <span class="p">)</span>
             <span class="n">voice_io</span> <span class="o">=</span> <span class="n">Speech</span><span class="p">(</span><span class="n">recognizer</span><span class="p">,</span> <span class="n">voices</span><span class="p">)</span>
+        <span class="n">hots</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">Hots</span><span class="o">.</span><span class="n">open</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="n">skills</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Skill</span><span class="p">]]</span> <span class="o">=</span> <span class="n">no_skills</span>
+        <span class="n">notices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">hots</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">hots</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+            <span class="n">skills</span> <span class="o">=</span> <span class="n">hots</span><span class="o">.</span><span class="n">session_skills</span>
+            <span class="n">notices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hots</span><span class="o">.</span><span class="n">report</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
         <span class="n">research</span> <span class="o">=</span> <span class="n">Research</span><span class="p">(</span>
             <span class="n">memory</span><span class="p">,</span> <span class="n">make_backend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">search</span><span class="p">,</span> <span class="n">http</span><span class="p">),</span> <span class="n">ArxivApi</span><span class="p">(),</span> <span class="n">config</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">max_results</span><span class="p">,</span> <span class="n">http</span>
         <span class="p">)</span>
@@ -483,6 +506,8 @@
             <span class="n">graph</span><span class="o">=</span><span class="n">graph</span><span class="p">,</span>
             <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
             <span class="n">notes</span><span class="o">=</span><span class="n">notes</span><span class="p">,</span>
+            <span class="n">skills</span><span class="o">=</span><span class="n">skills</span><span class="p">,</span>
+            <span class="n">notices</span><span class="o">=</span><span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">notices</span> <span class="k">if</span> <span class="n">n</span><span class="p">],</span>
             <span class="n">_stack</span><span class="o">=</span><span class="n">stack</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>

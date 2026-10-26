@@ -246,6 +246,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/roster/index.html">voicemate.hots.roster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/skill/index.html">voicemate.hots.skill</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/voicemate/memory/index.html">voicemate.memory</a><input aria-label="Toggle navigation of voicemate.memory" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -263,6 +264,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/orchestrator/index.html">voicemate.pipeline.orchestrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/reminders/index.html">voicemate.pipeline.reminders</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/reply/index.html">voicemate.pipeline.reply</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/skills/index.html">voicemate.pipeline.skills</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/turn_taking/index.html">voicemate.pipeline.turn_taking</a></li>
 </ul>
 </li>
@@ -479,6 +481,20 @@
 <span class="sd">        """</span>
         <span class="n">graph_input</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="n">HumanMessage</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">message_id</span><span class="p">)],</span> <span class="s2">"lang"</span><span class="p">:</span> <span class="n">lang</span><span class="p">}</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream</span><span class="p">(</span><span class="n">graph_input</span><span class="p">,</span> <span class="n">emit</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Conversation.record">
+<a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.Conversation.record">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">message_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Add an exchange answered without the model (a skill) to the history.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            text: What the user said.</span>
+<span class="sd">            answer: What was answered.</span>
+<span class="sd">            message_id: Identifies the user message.</span>
+<span class="sd">        """</span>
+        <span class="n">patch</span> <span class="o">=</span> <span class="p">[</span><span class="n">HumanMessage</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">message_id</span><span class="p">),</span> <span class="n">AIMessage</span><span class="p">(</span><span class="n">answer</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">message_id</span><span class="si">}</span><span class="s2">-answer"</span><span class="p">)]</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">aupdate_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_config</span><span class="p">,</span> <span class="p">{</span><span class="s2">"messages"</span><span class="p">:</span> <span class="n">patch</span><span class="p">},</span> <span class="n">as_node</span><span class="o">=</span><span class="s2">"agent"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Conversation.resume">

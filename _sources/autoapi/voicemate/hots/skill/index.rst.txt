@@ -1,0 +1,94 @@
+voicemate.hots.skill
+====================
+
+.. py:module:: voicemate.hots.skill
+
+.. autoapi-nested-parse::
+
+   The HotS skill: opens the knowledge base once and gives each session its own draft.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.skill.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.skill.HotsSkill
+   voicemate.hots.skill.Hots
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: HotsSkill(intents: voicemate.hots.intents.Intents)
+
+   One session's draft commands (a :class:`~voicemate.pipeline.skills.Skill`).
+
+   :param intents: The session's draft and command rules.
+
+
+   .. py:attribute:: intents
+
+
+   .. py:method:: answer(text: str) -> voicemate.pipeline.skills.SkillAnswer | None
+
+      Answer a draft command in English, or ``None`` for anything else.
+
+
+
+.. py:class:: Hots(knowledge: voicemate.hots.knowledge.Knowledge, report: voicemate.hots.knowledge.RefreshReport)
+
+   The opened HotS knowledge, shared by all sessions.
+
+   :param knowledge: The imported pages.
+   :param report: What the startup refresh changed.
+
+
+   .. py:attribute:: knowledge
+
+
+   .. py:attribute:: report
+
+
+   .. py:attribute:: advisor
+
+
+   .. py:method:: open(config: voicemate.config.Config) -> Hots | None
+      :classmethod:
+
+
+      Open the knowledge base and import new or changed pages (startup only).
+
+      :returns: ``None`` when the skill is disabled or no hero pages have been saved yet.
+
+
+
+   .. py:method:: skill() -> HotsSkill
+
+      A skill with a fresh, empty draft for one session.
+
+
+
+   .. py:method:: session_skills() -> list[voicemate.pipeline.skills.Skill]
+
+      The skills of one new session (what :attr:`Runtime.skills` calls).
+
+
+
+   .. py:method:: close() -> None
+
+      Close the knowledge base.
+
+
+

@@ -246,6 +246,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/roster/index.html">voicemate.hots.roster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/skill/index.html">voicemate.hots.skill</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/voicemate/memory/index.html">voicemate.memory</a><input aria-label="Toggle navigation of voicemate.memory" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -263,6 +264,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/orchestrator/index.html">voicemate.pipeline.orchestrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/reminders/index.html">voicemate.pipeline.reminders</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/reply/index.html">voicemate.pipeline.reply</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/skills/index.html">voicemate.pipeline.skills</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/pipeline/turn_taking/index.html">voicemate.pipeline.turn_taking</a></li>
 </ul>
 </li>
@@ -376,6 +378,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.listener</span><span class="w"> </span><span class="kn">import</span> <span class="n">Listener</span><span class="p">,</span> <span class="n">ListenerCallbacks</span><span class="p">,</span> <span class="n">Utterance</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.reminders</span><span class="w"> </span><span class="kn">import</span> <span class="n">spoken_text</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.reply</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reply</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.skills</span><span class="w"> </span><span class="kn">import</span> <span class="n">first_answer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.turn_taking</span><span class="w"> </span><span class="kn">import</span> <span class="n">Begin</span><span class="p">,</span> <span class="n">Collect</span><span class="p">,</span> <span class="n">Decision</span><span class="p">,</span> <span class="n">Interrupt</span><span class="p">,</span> <span class="n">TurnTaking</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.runtime</span><span class="w"> </span><span class="kn">import</span> <span class="n">Runtime</span>
 
@@ -413,6 +416,7 @@
             <span class="n">partial_interval_s</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">asr</span><span class="o">.</span><span class="n">partial_interval_s</span><span class="p">,</span>
             <span class="n">audio_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">"audio"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">save_audio</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skills</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">skills</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">assistant</span><span class="o">.</span><span class="n">default_language</span>
         <span class="c1">#: The rules for what user input means (hold, merge, confirmation).</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="n">TurnTaking</span><span class="p">()</span>
@@ -695,14 +699,18 @@
         <span class="n">resume</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Stream one agent run into speech; ``resume`` answers a pending confirmation."""</span>
+        <span class="n">skill_answer</span> <span class="o">=</span> <span class="n">first_answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skills</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span> <span class="k">if</span> <span class="n">resume</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">skill_answer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lang</span> <span class="o">=</span> <span class="n">skill_answer</span><span class="o">.</span><span class="n">lang</span>
         <span class="n">reply</span> <span class="o">=</span> <span class="n">Reply</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">ended_at</span><span class="p">)</span>
         <span class="n">message_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
         <span class="n">emit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tool_emitter</span><span class="p">(</span><span class="n">reply</span><span class="p">)</span>
-        <span class="n">chunks</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">resume</span><span class="p">(</span><span class="n">resume</span><span class="p">,</span> <span class="n">emit</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">resume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">say</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">lang</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">emit</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">resume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">chunks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">resume</span><span class="p">(</span><span class="n">resume</span><span class="p">,</span> <span class="n">emit</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">skill_answer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">chunks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_skill_reply</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">skill_answer</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">message_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chunks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">say</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">lang</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">emit</span><span class="p">)</span>
         <span class="n">worker</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tts_worker</span><span class="p">(</span><span class="n">reply</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">(</span><span class="n">Lane</span><span class="o">.</span><span class="n">THINKING</span><span class="p">,</span> <span class="n">LaneState</span><span class="o">.</span><span class="n">ACTIVE</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -711,7 +719,7 @@
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ask_if_paused</span><span class="p">(</span><span class="n">reply</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
             <span class="n">worker</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">reply</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">reply</span><span class="o">.</span><span class="n">text</span> <span class="ow">and</span> <span class="n">skill_answer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_interrupted_reply</span> <span class="o">=</span> <span class="n">reply</span><span class="o">.</span><span class="n">text</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">ReplyEvent</span><span class="p">(</span><span class="n">reply</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">interrupted</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">turn_cancelled</span><span class="p">(</span>
@@ -736,6 +744,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_spawn</span><span class="p">(</span>
                 <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">episodes</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">reply</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">lang</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread_id</span><span class="p">)</span>
             <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_skill_reply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">message_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""A skill's answer as a one-chunk stream; it joins the history once fully spoken."""</span>
+        <span class="k">yield</span> <span class="n">answer</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">answer</span><span class="p">,</span> <span class="n">message_id</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_tool_emitter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reply</span><span class="p">:</span> <span class="n">Reply</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""The ``emit`` callback for one turn: publishes events and tells the reply."""</span>

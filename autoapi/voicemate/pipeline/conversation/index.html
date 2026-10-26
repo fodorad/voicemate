@@ -247,6 +247,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/roster/index.html">voicemate.hots.roster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../hots/skill/index.html">voicemate.hots.skill</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../memory/index.html">voicemate.memory</a><input aria-label="Toggle navigation of voicemate.memory" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -264,6 +265,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../orchestrator/index.html">voicemate.pipeline.orchestrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reminders/index.html">voicemate.pipeline.reminders</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reply/index.html">voicemate.pipeline.reply</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../skills/index.html">voicemate.pipeline.skills</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../turn_taking/index.html">voicemate.pipeline.turn_taking</a></li>
 </ul>
 </li>
@@ -519,6 +521,21 @@ the agent paused to ask the user something.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="voicemate.pipeline.conversation.Conversation.record">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">answer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/conversation.html#Conversation.record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.conversation.Conversation.record" title="Link to this definition">¶</a></dt>
+<dd><p>Add an exchange answered without the model (a skill) to the history.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> – What the user said.</p></li>
+<li><p><strong>answer</strong> – What was answered.</p></li>
+<li><p><strong>message_id</strong> – Identifies the user message.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="voicemate.pipeline.conversation.Conversation.resume">
 <span class="sig-name descname"><span class="pre">resume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">answer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../events/index.html#voicemate.events.Event" title="voicemate.events.Event"><span class="pre">voicemate.events.Event</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.AsyncIterator</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/conversation.html#Conversation.resume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.conversation.Conversation.resume" title="Link to this definition">¶</a></dt>
 <dd><p>Answer the pending question and stream the rest of the run.</p>
@@ -632,6 +649,7 @@ interrupted, so the next turn knows what the user already heard. Safe to repeat.
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.lines"><code class="docutils literal notranslate"><span class="pre">Conversation.lines()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.pending_question"><code class="docutils literal notranslate"><span class="pre">Conversation.pending_question()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.say"><code class="docutils literal notranslate"><span class="pre">Conversation.say()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.record"><code class="docutils literal notranslate"><span class="pre">Conversation.record()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.resume"><code class="docutils literal notranslate"><span class="pre">Conversation.resume()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.close_interrupted"><code class="docutils literal notranslate"><span class="pre">Conversation.close_interrupted()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.conversation.Conversation.discard"><code class="docutils literal notranslate"><span class="pre">Conversation.discard()</span></code></a></li>

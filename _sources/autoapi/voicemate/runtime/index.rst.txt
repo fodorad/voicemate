@@ -31,6 +31,7 @@ Functions
 .. autoapisummary::
 
    voicemate.runtime.use_offline_hub_if_cached
+   voicemate.runtime.no_skills
 
 
 Module Contents
@@ -48,6 +49,11 @@ Module Contents
    :returns: True when offline mode was enabled.
 
 
+.. py:function:: no_skills() -> collections.abc.Sequence[voicemate.pipeline.skills.Skill]
+
+   The default skill factory: no skills.
+
+
 .. py:class:: Runtime
 
    Shared components.
@@ -60,6 +66,8 @@ Module Contents
    :ivar memory: Long-term memory store.
    :ivar notes: Notes database.
    :ivar langid: Language detector.
+   :ivar skills: Creates one set of skills per session (they keep per-session state).
+   :ivar notices: Startup messages for the UI (e.g. saved pages that changed).
 
 
 
@@ -94,6 +102,16 @@ Module Contents
    .. py:attribute:: model_choice
       :type:  voicemate.agent.model_select.ModelChoice | None
       :value: None
+
+
+
+   .. py:attribute:: skills
+      :type:  collections.abc.Callable[[], collections.abc.Sequence[voicemate.pipeline.skills.Skill]]
+
+
+   .. py:attribute:: notices
+      :type:  list[str]
+      :value: []
 
 
 

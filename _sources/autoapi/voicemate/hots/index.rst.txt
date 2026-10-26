@@ -21,5 +21,6 @@ Submodules
    /autoapi/voicemate/hots/knowledge/index
    /autoapi/voicemate/hots/pages/index
    /autoapi/voicemate/hots/roster/index
+   /autoapi/voicemate/hots/skill/index
 
 
