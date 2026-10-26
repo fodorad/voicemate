@@ -240,6 +240,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../autoapi/voicemate/config/index.html">voicemate.config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../autoapi/voicemate/events/index.html">voicemate.events</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/roster/index.html">voicemate.hots.roster</a></li>
 </ul>
@@ -574,6 +575,29 @@
 
 
 
+<div class="viewcode-block" id="HotsConfig">
+<a class="viewcode-back" href="../../autoapi/voicemate/config/index.html#voicemate.config.HotsConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HotsConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Heroes of the Storm draft advice.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        enabled: Answer draft questions from the local knowledge base.</span>
+<span class="sd">        pages_dir: Folder with the saved Icy Veins pages (filled by hand from the browser).</span>
+<span class="sd">        database: SQLite file of the knowledge base, inside the data directory.</span>
+<span class="sd">    """</span>
+
+    <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">pages_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"data/icyveins/raw"</span>
+    <span class="n">database</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hots.sqlite"</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pages_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Saved pages folder as an absolute path."""</span>
+        <span class="k">return</span> <span class="n">_resolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pages_dir</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="UIConfig">
 <a class="viewcode-back" href="../../autoapi/voicemate/config/index.html#voicemate.config.UIConfig">[docs]</a>
 <span class="nd">@dataclass</span>
@@ -618,12 +642,18 @@
     <span class="n">memory</span><span class="p">:</span> <span class="n">MemoryConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">MemoryConfig</span><span class="p">)</span>
     <span class="n">search</span><span class="p">:</span> <span class="n">SearchConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">SearchConfig</span><span class="p">)</span>
     <span class="n">files</span><span class="p">:</span> <span class="n">FilesConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FilesConfig</span><span class="p">)</span>
+    <span class="n">hots</span><span class="p">:</span> <span class="n">HotsConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">HotsConfig</span><span class="p">)</span>
     <span class="n">ui</span><span class="p">:</span> <span class="n">UIConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">UIConfig</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">data_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Runtime data directory as an absolute path."""</span>
-        <span class="k">return</span> <span class="n">_resolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_resolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hots_database_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The HotS knowledge base file inside the data directory."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_path</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">hots</span><span class="o">.</span><span class="n">database</span></div>
 
 
 

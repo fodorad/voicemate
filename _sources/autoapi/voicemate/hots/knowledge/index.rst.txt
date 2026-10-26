@@ -1,0 +1,218 @@
+voicemate.hots.knowledge
+========================
+
+.. py:module:: voicemate.hots.knowledge
+
+.. autoapi-nested-parse::
+
+   The local HotS knowledge base, filled from the saved Icy Veins pages.
+
+   :class:`Knowledge` keeps one SQLite file. :meth:`Knowledge.refresh` compares the pages folder
+   with what was imported last time (file size and modification time) and re-imports only the
+   pages that are new or changed, so starting Ava costs almost nothing once the pages are known.
+   Ava never fetches the pages: Adam saves them from his browser, and a changed page shows up in
+   the :class:`RefreshReport` so he knows what he re-saved.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.knowledge.logger
+   voicemate.hots.knowledge.GENERAL_LISTS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.knowledge.PageId
+   voicemate.hots.knowledge.TierRank
+   voicemate.hots.knowledge.RefreshReport
+   voicemate.hots.knowledge.Knowledge
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.hots.knowledge.classify
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: GENERAL_LISTS
+   :type:  frozenset[str]
+
+.. py:class:: PageId
+
+   What a saved file is.
+
+   :ivar kind: ``guide``, ``tiers``, ``map``, ``abilities-strategy`` or ``talents``.
+   :ivar key: Hero slug, tier-list key or map slug.
+
+
+
+   .. py:attribute:: kind
+      :type:  str
+
+
+   .. py:attribute:: key
+      :type:  str
+
+
+.. py:function:: classify(stem: str) -> PageId | None
+
+   The kind of page a file stem (``heroes_`` prefix removed) is, or ``None`` to ignore it.
+
+
+.. py:class:: TierRank
+
+   A hero's place in one tier list.
+
+
+   .. py:attribute:: tier
+      :type:  str
+
+
+   .. py:attribute:: role
+      :type:  str
+
+
+   .. py:attribute:: ban
+      :type:  bool
+
+
+.. py:class:: RefreshReport
+
+   What :meth:`Knowledge.refresh` did.
+
+   :ivar added: Pages imported for the first time.
+   :ivar updated: Pages whose file changed and were imported again.
+   :ivar removed: Pages no longer in the folder (their rows were dropped).
+   :ivar failed: ``(page, reason)`` for pages that could not be parsed (old rows are kept).
+   :ivar unchanged: Number of pages left alone.
+
+
+
+   .. py:attribute:: added
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: updated
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: removed
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: failed
+      :type:  tuple[tuple[str, str], ...]
+      :value: ()
+
+
+
+   .. py:attribute:: unchanged
+      :type:  int
+      :value: 0
+
+
+
+   .. py:property:: changed
+      :type: bool
+
+
+      Whether anything was added, updated, removed or failed.
+
+
+   .. py:method:: summary() -> str
+
+      One line for logs and notifications; empty when nothing changed.
+
+
+
+.. py:class:: Knowledge(database: pathlib.Path, pages_dir: pathlib.Path)
+
+   Heroes, counters, synergies, map ratings and tier lists from the saved pages.
+
+   :param database: SQLite file (created when missing).
+   :param pages_dir: Folder with the saved ``heroes_*.html`` pages.
+
+
+   .. py:attribute:: pages_dir
+
+
+   .. py:method:: close() -> None
+
+      Close the database.
+
+
+
+   .. py:method:: refresh() -> RefreshReport
+
+      Import the pages that are new or changed and drop the ones that disappeared.
+
+
+
+   .. py:method:: roster() -> voicemate.hots.roster.Roster
+
+      All known heroes.
+
+
+
+   .. py:method:: counters_of(hero: str) -> tuple[str, ...]
+
+      Heroes that counter ``hero``, in the page's order.
+
+
+
+   .. py:method:: synergies_of(hero: str) -> tuple[str, ...]
+
+      Heroes that work well with ``hero``, in the page's order.
+
+
+
+   .. py:method:: countered_by(hero: str) -> tuple[str, ...]
+
+      Heroes that ``hero`` counters (their pages list ``hero`` as a counter).
+
+
+
+   .. py:method:: map_rating(hero: str, map_slug: str) -> str | None
+
+      ``stronger``, ``average`` or ``weaker`` for ``hero`` on the map, if known.
+
+
+
+   .. py:method:: tier(hero: str, list_key: str) -> TierRank | None
+
+      The hero's place in a tier list (``general``, ``master``, a map slug, ...).
+
+
+
+   .. py:method:: maps() -> dict[str, str]
+
+      Map slug → map name.
+
+
+
+   .. py:method:: chunks(source_kind: str | None = None) -> list[tuple[str, str, str]]
+
+      Stored text sections as ``(page, heading, text)``, optionally of one page kind.
+
+
+
