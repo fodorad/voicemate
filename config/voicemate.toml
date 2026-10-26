@@ -51,9 +51,10 @@ device = "cpu"
 engine = "piper"
 voice = "hu_HU-anna-medium"
 
+# English: "phonon" (Ollama, small and fast) or "kokoro" (voice "af_heart"); both work.
 [tts.en]
-engine = "kokoro"
-voice = "af_heart"
+engine = "phonon"
+voice = "default"
 
 [vad]
 threshold = 0.5

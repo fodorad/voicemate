@@ -18,7 +18,7 @@ flowchart LR
         ASR --> LID[Language<br/>detection]
         LID --> AGENT[LangGraph agent]
         AGENT --> CHUNK[Sentence chunker]
-        CHUNK --> TTS[Kokoro EN / Piper HU<br/>text to speech]
+        CHUNK --> TTS[Phonon or Kokoro EN / Piper HU<br/>text to speech]
         AGENT <--> MEM[(Memory<br/>LanceDB + bge-m3)]
         AGENT <--> NOTES[(Notes<br/>SQLite)]
         AGENT <--> TOOLS[Tools]
@@ -64,7 +64,7 @@ flowchart TB
     RESEARCH --> MEM[(Memory: facts, episodes, research)]
     REMIND --> NOTES[(Notes)]
     RESEARCH --> NET((web, arXiv, pages))
-    SPEECH --> MODELS[Parakeet · Piper · Kokoro]
+    SPEECH --> MODELS[Parakeet · Piper · Phonon · Kokoro]
     classDef deep fill:#0f172a,color:#f8fafc,stroke:#0f172a;
     class POLICY,CONV,SPEECH,RESEARCH,PROTO,LISTEN,REPLY,REMIND,RAIL deep;
 ```

@@ -134,7 +134,7 @@ class TTSVoiceConfig:
     """One TTS voice.
 
     Attributes:
-        engine: ``"piper"`` or ``"kokoro"``.
+        engine: ``"piper"``, ``"kokoro"`` or ``"phonon"`` (Ollama; no Hungarian).
         voice: Engine-specific voice identifier.
     """
 
@@ -145,7 +145,7 @@ class TTSVoiceConfig:
 def _default_tts() -> dict[str, TTSVoiceConfig]:
     return {
         "hu": TTSVoiceConfig(engine="piper", voice="hu_HU-anna-medium"),
-        "en": TTSVoiceConfig(engine="kokoro", voice="af_heart"),
+        "en": TTSVoiceConfig(engine="phonon", voice="default"),
     }
 
 
