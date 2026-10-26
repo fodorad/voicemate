@@ -1,0 +1,139 @@
+voicemate.hots.roster
+=====================
+
+.. py:module:: voicemate.hots.roster
+
+.. autoapi-nested-parse::
+
+   The hero roster and name resolution (typed or misheard by speech recognition).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.roster.SPOKEN_ALIASES
+   voicemate.hots.roster.MATCH_THRESHOLD
+   voicemate.hots.roster.MATCH_MARGIN
+   voicemate.hots.roster.MIN_PREFIX
+   voicemate.hots.roster.SUGGEST_THRESHOLD
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.roster.Hero
+   voicemate.hots.roster.Resolved
+   voicemate.hots.roster.Roster
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.hots.roster.normalize
+
+
+Module Contents
+---------------
+
+.. py:data:: SPOKEN_ALIASES
+   :type:  dict[str, str]
+
+.. py:data:: MATCH_THRESHOLD
+   :type:  float
+   :value: 0.8
+
+
+.. py:data:: MATCH_MARGIN
+   :type:  float
+   :value: 0.05
+
+
+.. py:data:: MIN_PREFIX
+   :type:  int
+   :value: 3
+
+
+.. py:data:: SUGGEST_THRESHOLD
+   :type:  float
+   :value: 0.6
+
+
+.. py:function:: normalize(text: str) -> str
+
+   Lower-case ``text`` without accents, punctuation or spaces (``Zul'jin`` → ``zuljin``).
+
+
+.. py:class:: Hero
+
+   One hero of the roster.
+
+   :ivar slug: Icy Veins slug (``li-ming``), the hero's identity everywhere.
+   :ivar name: Display name (``Li-Ming``).
+   :ivar role: Role such as ``Tank`` or ``Ranged Assassin``; empty when unknown.
+
+
+
+   .. py:attribute:: slug
+      :type:  str
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: role
+      :type:  str
+      :value: ''
+
+
+
+.. py:class:: Resolved
+
+   The outcome of resolving a spoken or typed hero name.
+
+   :ivar hero: The hero when the name is unambiguous, otherwise ``None``.
+   :ivar candidates: Closest heroes when the name is ambiguous or unknown (best first).
+
+
+
+   .. py:attribute:: hero
+      :type:  Hero | None
+
+
+   .. py:attribute:: candidates
+      :type:  tuple[Hero, ...]
+      :value: ()
+
+
+
+.. py:class:: Roster(heroes: collections.abc.Iterable[Hero], aliases: collections.abc.Mapping[str, str] | None = None)
+
+   All heroes, with name resolution.
+
+   :param heroes: The heroes.
+   :param aliases: Extra spellings as ``spelling → slug`` (default: :data:`SPOKEN_ALIASES`).
+
+
+   .. py:method:: get(slug: str) -> Hero | None
+
+      The hero with this slug, if any.
+
+
+
+   .. py:method:: resolve(text: str) -> Resolved
+
+      Find the hero ``text`` names.
+
+      An exact (normalized) name, slug or alias wins; so does the start of exactly one name
+      (``mura``); otherwise the best fuzzy match counts when it clearly beats every other hero.
+      Anything else returns the closest candidates.
+
+
+

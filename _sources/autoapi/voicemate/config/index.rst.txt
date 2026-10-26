@@ -245,7 +245,7 @@ Module Contents
 
    One TTS voice.
 
-   :ivar engine: ``"piper"`` or ``"kokoro"``.
+   :ivar engine: ``"piper"``, ``"kokoro"`` or ``"phonon"`` (Ollama; no Hungarian).
    :ivar voice: Engine-specific voice identifier.
 
 

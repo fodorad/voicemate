@@ -1,0 +1,21 @@
+voicemate.hots
+==============
+
+.. py:module:: voicemate.hots
+
+.. autoapi-nested-parse::
+
+   Heroes of the Storm draft knowledge: saved Icy Veins pages, a local knowledge base, advice.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/voicemate/hots/pages/index
+   /autoapi/voicemate/hots/roster/index
+
+

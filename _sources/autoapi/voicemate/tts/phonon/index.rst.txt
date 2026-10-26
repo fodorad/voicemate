@@ -1,0 +1,108 @@
+voicemate.tts.phonon
+====================
+
+.. py:module:: voicemate.tts.phonon
+
+.. autoapi-nested-parse::
+
+   Ollama's Phonon voices (small, fast text-to-speech served by the local Ollama).
+
+   Phonon runs inside Ollama (Apple Silicon, Ollama 0.40.9 or newer) and is reached through its
+   OpenAI-compatible ``/v1/audio/speech`` endpoint. It speaks English, French, German, Spanish and
+   Portuguese (not Hungarian), so Hungarian keeps using Piper.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.tts.phonon.logger
+   voicemate.tts.phonon.PHONON_MODEL
+   voicemate.tts.phonon.PHONON_SAMPLE_RATE
+   voicemate.tts.phonon.MIN_OLLAMA_VERSION
+   voicemate.tts.phonon.DEFAULT_HOST
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   voicemate.tts.phonon.PhononError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.tts.phonon.PhononSynthesizer
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: PHONON_MODEL
+   :type:  str
+   :value: 'phonon'
+
+
+.. py:data:: PHONON_SAMPLE_RATE
+   :type:  int
+   :value: 24000
+
+
+.. py:data:: MIN_OLLAMA_VERSION
+   :type:  tuple[int, int, int]
+   :value: (0, 40, 9)
+
+
+.. py:data:: DEFAULT_HOST
+   :type:  str
+   :value: 'http://127.0.0.1:11434'
+
+
+.. py:exception:: PhononError
+
+   Bases: :py:obj:`RuntimeError`
+
+
+   Phonon cannot be used; the message says what to fix.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:class:: PhononSynthesizer(voice: str = 'default', host: str = DEFAULT_HOST, timeout_s: float = 30.0)
+
+   A Phonon voice behind the local Ollama.
+
+   :param voice: Voice name (``default`` is the only voice of the English model).
+   :param host: Base URL of the Ollama server.
+   :param timeout_s: Request timeout.
+
+   :raises PhononError: If Ollama is unreachable or older than :data:`MIN_OLLAMA_VERSION`.
+
+
+   .. py:attribute:: voice
+      :value: 'default'
+
+
+
+   .. py:attribute:: sample_rate
+      :type:  int
+      :value: 24000
+
+
+
+   .. py:method:: synthesize(text: str) -> numpy.ndarray
+
+      Render ``text``; returns an empty array when there is nothing to say.
+
+      :raises PhononError: If the model is missing or Ollama rejects the request.
+
+
+

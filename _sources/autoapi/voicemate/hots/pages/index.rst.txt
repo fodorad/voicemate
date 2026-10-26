@@ -1,0 +1,212 @@
+voicemate.hots.pages
+====================
+
+.. py:module:: voicemate.hots.pages
+
+.. autoapi-nested-parse::
+
+   Parsers for the saved Icy Veins pages (plain dataclasses out, no knowledge-base logic).
+
+   The pages are saved by Adam from his browser into the pages folder. Each parser reads one kind
+   of page: a hero guide, a tier list, or a text page (map guides, abilities, talents).
+
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.pages.PageError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.pages.HeroGuide
+   voicemate.hots.pages.TierEntry
+   voicemate.hots.pages.TierList
+   voicemate.hots.pages.TextPage
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.hots.pages.parse_guide
+   voicemate.hots.pages.parse_tier_list
+   voicemate.hots.pages.parse_text_page
+
+
+Module Contents
+---------------
+
+.. py:exception:: PageError
+
+   Bases: :py:obj:`ValueError`
+
+
+   A saved page does not have the expected structure.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:class:: HeroGuide
+
+   What a hero's build-guide page says about the draft.
+
+   :ivar slug: Hero slug.
+   :ivar name: Display name.
+   :ivar role: Role from the page breadcrumb (singular), e.g. ``Melee Assassin``.
+   :ivar modified: The page's ``dateModified`` (ISO 8601), empty when absent.
+   :ivar strengths: Strength bullet points.
+   :ivar weaknesses: Weakness bullet points.
+   :ivar synergies: Slugs of heroes that work well with this one.
+   :ivar counters: Slugs of heroes that counter this one.
+   :ivar maps: Map slug → ``stronger`` | ``average`` | ``weaker``.
+   :ivar synergy_text: The page's explanation of the synergies.
+   :ivar counter_text: The page's explanation of the counters.
+
+
+
+   .. py:attribute:: slug
+      :type:  str
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: role
+      :type:  str
+
+
+   .. py:attribute:: modified
+      :type:  str
+
+
+   .. py:attribute:: strengths
+      :type:  tuple[str, ...]
+
+
+   .. py:attribute:: weaknesses
+      :type:  tuple[str, ...]
+
+
+   .. py:attribute:: synergies
+      :type:  tuple[str, ...]
+
+
+   .. py:attribute:: counters
+      :type:  tuple[str, ...]
+
+
+   .. py:attribute:: maps
+      :type:  dict[str, str]
+
+
+   .. py:attribute:: synergy_text
+      :type:  str
+      :value: ''
+
+
+
+   .. py:attribute:: counter_text
+      :type:  str
+      :value: ''
+
+
+
+.. py:class:: TierEntry
+
+   One hero in a tier list.
+
+   :ivar hero: Hero slug.
+   :ivar tier: ``S``, ``A``, ``B``, ``C`` or ``D``.
+   :ivar role: The list's role group (``tank``, ``offlaner``, ...).
+   :ivar ban: Whether the list recommends banning the hero.
+
+
+
+   .. py:attribute:: hero
+      :type:  str
+
+
+   .. py:attribute:: tier
+      :type:  str
+
+
+   .. py:attribute:: role
+      :type:  str
+
+
+   .. py:attribute:: ban
+      :type:  bool
+
+
+.. py:class:: TierList
+
+   A general or map-specific tier list.
+
+
+   .. py:attribute:: entries
+      :type:  tuple[TierEntry, ...]
+
+
+   .. py:attribute:: modified
+      :type:  str
+      :value: ''
+
+
+
+.. py:class:: TextPage
+
+   A page kept as text sections (map guides, abilities, talents).
+
+   :ivar title: The page title without the site suffix.
+   :ivar sections: ``(heading, text)`` pairs in page order; empty sections are dropped.
+   :ivar modified: The page's ``dateModified``, empty when absent.
+
+
+
+   .. py:attribute:: title
+      :type:  str
+
+
+   .. py:attribute:: sections
+      :type:  tuple[tuple[str, str], ...]
+
+
+   .. py:attribute:: modified
+      :type:  str
+      :value: ''
+
+
+
+.. py:function:: parse_guide(html: str, slug: str) -> HeroGuide
+
+   Parse a hero's build-guide page.
+
+   :param html: The saved page.
+   :param slug: The hero slug the page belongs to (from its file name).
+
+   :raises PageError: If the page has no hero name or no synergies/counters block.
+
+
+.. py:function:: parse_tier_list(html: str) -> TierList
+
+   Parse a tier-list page into hero → tier entries.
+
+   :raises PageError: If no heroes are found.
+
+
+.. py:function:: parse_text_page(html: str) -> TextPage
+
+   Parse a text page into titled sections (one per ``h2``).
+
+   :raises PageError: If the page has no title.
+
+
