@@ -33,7 +33,9 @@ turn's answer: sentences, filler, apology, metrics), `pipeline/reminders.py` (on
 (async ASR/TTS, owns the worker threads), `agent/tools/research.py` (cache-first search, listed
 addresses, page and paper access), `memory/store.py` (one database; `facts`, `episodes`,
 `research` views), `ui/rail.py` (lane rules, no UI framework) and `audio/protocol.py` (browser
-messages). `VoiceSession` is wiring only and imports no LangGraph/LangChain; callers use only
+messages), `pipeline/skills.py` (skills answer known questions without the LLM),
+`pipeline/activation.py` (always, or only after the name) and `hots/` (Heroes of the Storm draft
+advisor over pages saved from Icy Veins). `VoiceSession` is wiring only and imports no LangGraph/LangChain; callers use only
 their slice of memory; tools never touch stored documents or the address guard directly.
 
 ## Lessons that cost time (keep them)
@@ -45,6 +47,8 @@ their slice of memory; tools never touch stored documents or the address guard d
   on the CPU. Embeddings never go through Ollama (it evicts the chat model).
 - **RAM:** qwen3.6:35b (22 GB) swaps on the 32 GB Mac with normal apps open; the default is
   gemma4:e4b. Check `sysctl vm.swapusage` before blaming code for slowness.
+- **HotS pages are saved by hand** into `data/icyveins/raw` (Cloudflare blocks scripts); Ava only
+  parses them, never fetches, and the folder is gitignored. Tests use hand-written pages.
 - **Numbers stay digits** in replies; espeak reads them correctly, LLM spelling does not.
 - LangGraph injects the run config only into a parameter literally named `config`.
 - LangChain tools read annotations at runtime: do not move `RunnableConfig` imports into
