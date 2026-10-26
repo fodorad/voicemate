@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from typing import Any
@@ -18,6 +18,7 @@ from voicemate.audio.vad import SpeechProbability
 from voicemate.config import Config
 from voicemate.memory.notes import NotesStore
 from voicemate.memory.store import MemoryStore
+from voicemate.pipeline.skills import Skill
 from voicemate.speech import Speech
 from voicemate.tts.voices import VoiceBank
 
@@ -50,6 +51,11 @@ def use_offline_hub_if_cached(repos: list[str]) -> bool:
     return True
 
 
+def no_skills() -> Sequence[Skill]:
+    """The default skill factory: no skills."""
+    return ()
+
+
 @dataclass
 class Runtime:
     """Shared components.
@@ -63,6 +69,8 @@ class Runtime:
         memory: Long-term memory store.
         notes: Notes database.
         langid: Language detector.
+        skills: Creates one set of skills per session (they keep per-session state).
+        notices: Startup messages for the UI (e.g. saved pages that changed).
     """
 
     config: Config
@@ -73,6 +81,8 @@ class Runtime:
     notes: NotesStore | None
     langid: LanguageDetector = field(default_factory=LanguageDetector)
     model_choice: ModelChoice | None = None
+    skills: Callable[[], Sequence[Skill]] = no_skills
+    notices: list[str] = field(default_factory=list)
     _stack: AsyncExitStack | None = None
 
     async def aclose(self) -> None:
@@ -104,6 +114,7 @@ class Runtime:
         from voicemate.agent.tools.base import USER_AGENT
         from voicemate.agent.tools.search import make_backend
         from voicemate.audio.vad import SileroVAD
+        from voicemate.hots.skill import Hots
         from voicemate.memory.embedder import SentenceTransformerEmbedder
 
         use_offline_hub_if_cached([config.asr.model, config.memory.embed_model])
@@ -130,6 +141,13 @@ class Runtime:
                 ParakeetRecognizer, config.asr.model, config.asr.device
             )
             voice_io = Speech(recognizer, voices)
+        hots = await asyncio.to_thread(Hots.open, config)
+        skills: Callable[[], Sequence[Skill]] = no_skills
+        notices: list[str] = []
+        if hots is not None:
+            stack.callback(hots.close)
+            skills = hots.session_skills
+            notices.append(hots.report.summary())
         research = Research(
             memory, make_backend(config.search, http), ArxivApi(), config.search.max_results, http
         )
@@ -156,5 +174,7 @@ class Runtime:
             graph=graph,
             memory=memory,
             notes=notes,
+            skills=skills,
+            notices=[n for n in notices if n],
             _stack=stack,
         )

@@ -138,6 +138,17 @@ class Conversation:
         graph_input = {"messages": [HumanMessage(text, id=message_id)], "lang": lang}
         return self._stream(graph_input, emit)
 
+    async def record(self, text: str, answer: str, message_id: str) -> None:
+        """Add an exchange answered without the model (a skill) to the history.
+
+        Args:
+            text: What the user said.
+            answer: What was answered.
+            message_id: Identifies the user message.
+        """
+        patch = [HumanMessage(text, id=message_id), AIMessage(answer, id=f"{message_id}-answer")]
+        await self.graph.aupdate_state(self.run_config, {"messages": patch}, as_node="agent")
+
     def resume(self, answer: str, emit: Callable[[Event], None]) -> AsyncIterator[str]:
         """Answer the pending question and stream the rest of the run."""
         return self._stream(Command(resume=answer), emit)

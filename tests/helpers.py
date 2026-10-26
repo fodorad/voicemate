@@ -115,6 +115,24 @@ class ScriptedRecognizer:
         return self.transcripts.pop(0) if self.transcripts else ""
 
 
+class ScriptedSkill:
+    """A skill that answers exactly the texts it was given (a real implementation of the
+    :class:`~voicemate.pipeline.skills.Skill` protocol)."""
+
+    def __init__(self, answers: dict[str, str], lang: str = "en") -> None:
+        self.answers = answers
+        self.lang = lang
+        self.asked: list[str] = []
+
+    def answer(self, text: str):
+        """The scripted answer for ``text``, or ``None``."""
+        from voicemate.pipeline.skills import SkillAnswer
+
+        self.asked.append(text)
+        found = self.answers.get(text)
+        return None if found is None else SkillAnswer(found, self.lang)
+
+
 class HashingEmbedder:
     """Bag-of-words feature hashing embedder: identical texts → identical vectors,
     texts sharing words → positive cosine similarity."""

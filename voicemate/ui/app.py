@@ -539,6 +539,8 @@ class Server:
         choice = self.runtime.model_choice
         if choice is not None and (choice.fell_back or not choice.fits):
             ui.notify(f"Using {choice.model}: {choice.reason}", type="warning", multi_line=True)
+        for notice in self.runtime.notices:
+            ui.notify(notice, type="info", multi_line=True)
 
         async def cleanup() -> None:
             pump.cancel()
