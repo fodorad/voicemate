@@ -94,6 +94,13 @@ allowed_hosts = ["127.0.0.1", "localhost"]
 # Let ?fake_mic=<file in data/fake_mic> replay a WAV as speech. Only for end-to-end tests.
 test_audio = false
 
+[activation]
+# "always": everything you say is a command. "wake_word": only speech starting with the
+# assistant's name ("Ava, ...") is handled; other speech is dropped, never shown or stored.
+mode = "always"
+# Other spellings the recognizer produces for the name.
+variants = ["eva"]
+
 [hots]
 # Heroes of the Storm draft advice from pages saved from icy-veins.com (never fetched by Ava).
 enabled = true

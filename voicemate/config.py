@@ -252,6 +252,20 @@ class HotsConfig:
 
 
 @dataclass
+class ActivationConfig:
+    """When spoken input counts as a command.
+
+    Attributes:
+        mode: ``"always"`` (everything you say is a command) or ``"wake_word"`` (only speech
+            that starts with the assistant's name; all other speech is dropped unseen).
+        variants: Other spellings speech recognition produces for the name.
+    """
+
+    mode: str = "always"
+    variants: list[str] = field(default_factory=lambda: ["eva"])
+
+
+@dataclass
 class UIConfig:
     """Web UI server.
 
@@ -291,6 +305,7 @@ class Config:
     search: SearchConfig = field(default_factory=SearchConfig)
     files: FilesConfig = field(default_factory=FilesConfig)
     hots: HotsConfig = field(default_factory=HotsConfig)
+    activation: ActivationConfig = field(default_factory=ActivationConfig)
     ui: UIConfig = field(default_factory=UIConfig)
 
     @property

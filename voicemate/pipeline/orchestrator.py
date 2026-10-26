@@ -52,6 +52,7 @@ from voicemate.events import (
     TranscriptEvent,
 )
 from voicemate.memory.notes import Note
+from voicemate.pipeline.activation import Activation
 from voicemate.pipeline.conversation import (
     ChatLine,
     Conversation,
@@ -81,6 +82,8 @@ class VoiceSession:
             runtime.graph, thread_id or f"session-{uuid.uuid4().hex[:12]}"
         )
         self.bus = EventBus()
+        #: Which spoken input counts as a command (wake-word mode drops the rest).
+        self.activation = Activation.from_config(self.config)
         self.listener = Listener(
             runtime.vad_factory(),
             self.config.vad,
@@ -93,7 +96,7 @@ class VoiceSession:
                 on_error=self._on_recognition_error,
             ),
             partial_interval_s=self.config.asr.partial_interval_s,
-            audio_dir=self.config.data_path / "audio" if self.config.save_audio else None,
+            audio_dir=self._audio_dir(),
         )
         self.skills = list(runtime.skills())
         self.lang = self.config.assistant.default_language
@@ -262,8 +265,20 @@ class VoiceSession:
         speech = self.runtime.speech
         return "" if speech is None else await speech.transcribe(audio)
 
+    def _audio_dir(self) -> Path | None:
+        """Where raw utterances are kept; never in wake-word mode (others' speech stays unsaved)."""
+        keep = self.config.save_audio and not self.activation.needs_wake_word
+        return self.config.data_path / "audio" if keep else None
+
+    def _addressed(self, text: str) -> str | None:
+        """The command in ``text``; a hold or an open question counts as addressed already."""
+        if self.holding or self.policy.question is not None:
+            return text
+        return self.activation.command(text)
+
     def _on_partial(self, text: str) -> None:
-        self.bus.publish(TranscriptEvent(text, final=False))
+        if (shown := self._addressed(text)) is not None:
+            self.bus.publish(TranscriptEvent(shown, final=False))
 
     def _on_transcribing(self, state: LaneState) -> None:
         self._status(Lane.TRANSCRIBING, state)
@@ -272,11 +287,12 @@ class VoiceSession:
         self.bus.publish(ErrorEvent(f"Speech recognition failed: {error}"))
 
     async def _on_utterance(self, utterance: Utterance) -> None:
-        transcript = Transcript(utterance.text, "", utterance.audio_seconds, utterance.latency_s)
+        text = self._addressed(utterance.text)
+        if text is None:  # not for the assistant: gone before anything sees it
+            return
+        transcript = Transcript(text, "", utterance.audio_seconds, utterance.latency_s)
         await self._input(
-            lambda running: self.policy.on_utterance(
-                utterance.text.strip(), utterance.ended_at, running
-            ),
+            lambda running: self.policy.on_utterance(text.strip(), utterance.ended_at, running),
             utterance.ended_at,
             transcript,
         )
