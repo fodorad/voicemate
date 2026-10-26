@@ -232,6 +232,26 @@ class FilesConfig:
 
 
 @dataclass
+class HotsConfig:
+    """Heroes of the Storm draft advice.
+
+    Attributes:
+        enabled: Answer draft questions from the local knowledge base.
+        pages_dir: Folder with the saved Icy Veins pages (filled by hand from the browser).
+        database: SQLite file of the knowledge base, inside the data directory.
+    """
+
+    enabled: bool = True
+    pages_dir: str = "data/icyveins/raw"
+    database: str = "hots.sqlite"
+
+    @property
+    def pages_path(self) -> Path:
+        """Saved pages folder as an absolute path."""
+        return _resolve(self.pages_dir)
+
+
+@dataclass
 class UIConfig:
     """Web UI server.
 
@@ -270,12 +290,18 @@ class Config:
     memory: MemoryConfig = field(default_factory=MemoryConfig)
     search: SearchConfig = field(default_factory=SearchConfig)
     files: FilesConfig = field(default_factory=FilesConfig)
+    hots: HotsConfig = field(default_factory=HotsConfig)
     ui: UIConfig = field(default_factory=UIConfig)
 
     @property
     def data_path(self) -> Path:
         """Runtime data directory as an absolute path."""
         return _resolve(self.data_dir)
+
+    @property
+    def hots_database_path(self) -> Path:
+        """The HotS knowledge base file inside the data directory."""
+        return self.data_path / self.hots.database
 
 
 def _build(cls: Any, values: Mapping[str, Any], section: str) -> Any:
