@@ -288,6 +288,65 @@ class TestSkills(SessionTestCase):
         self.assertEqual(skill.asked, ["Save the plan"])
 
 
+class TestWakeWord(SessionTestCase):
+    def wake_session(self, responses, transcripts, **kwargs):
+        self.ctx.config.activation.mode = "wake_word"
+        return self.make_session(responses, transcripts=transcripts, **kwargs)
+
+    async def test_speech_not_addressed_to_the_assistant_vanishes(self):
+        self.wake_session(["never used"], ["we should meet at nine"])
+        await self.speak()
+        await self.settle()
+        self.assertEqual(self.llm.seen, [])
+        self.assertTrue(all(isinstance(e, StatusEvent) for e in self.drain()))  # lanes only
+        self.assertFalse(turns_log_path(self.ctx.config.data_path).exists())
+        await asyncio.sleep(0.05)
+        self.assertEqual(self.ctx.memory.episodes.search("meet at nine"), [])
+
+    async def test_addressed_speech_is_answered_without_the_name(self):
+        self.wake_session(["Half past nine."], ["Ava, what time is it"])
+        await self.speak()
+        await self.settle()
+        events = self.drain()
+        finals = [e.text for e in events if isinstance(e, TranscriptEvent) and e.final]
+        self.assertEqual(finals, ["what time is it"])
+        self.assertIn("what time is it", str(self.llm.seen[0][-1].content))
+        self.assertNotIn("Ava", str(self.llm.seen[0][-1].content))
+
+    async def test_no_event_shows_what_was_not_addressed(self):
+        self.wake_session(["never used"], ["secret plans with friends"])
+        await self.speak()
+        await self.settle()
+        shown = [e.text for e in self.drain() if isinstance(e, TranscriptEvent)]
+        self.assertEqual(shown, [])
+
+    async def test_typed_input_is_never_filtered(self):
+        self.wake_session(["Half past nine."], ["x"])
+        await self.session.submit_text("what time is it")
+        await self.settle()
+        self.assertEqual(len(self.llm.seen), 1)
+
+    async def test_a_hold_collects_speech_without_the_name(self):
+        self.wake_session(["Noted."], ["first part", "second part"])
+        await self.session.hold()
+        await self.speak()
+        await self.settle()
+        await self.speak()
+        await self.settle()
+        await self.session.release()
+        await self.settle()
+        question = str(self.llm.seen[0][-1].content)
+        self.assertIn("first part", question)
+        self.assertIn("second part", question)
+
+    async def test_raw_audio_is_not_kept_in_wake_word_mode(self):
+        self.ctx.config.save_audio = True
+        self.wake_session(["never used"], ["chatting with friends"])
+        await self.speak()
+        await self.settle()
+        self.assertFalse((self.ctx.config.data_path / "audio").exists())
+
+
 class TestStatusOrder(SessionTestCase):
     async def test_a_whole_utterance_in_one_chunk_keeps_the_lane_order_while_a_turn_runs(self):
         self.make_session(["the answer"], transcripts=["second words"], delay=0.5)
