@@ -364,7 +364,7 @@ language model (see the spec, §10).</p>
 </section>
 <section id="modules-and-seams">
 <h2>Modules and seams<a class="headerlink" href="#modules-and-seams" title="Link to this heading">¶</a></h2>
-<p>Ten deep modules keep the rules in one place each. Dashed lines are the seams: the interface
+<p>Thirteen deep modules keep the rules in one place each. Dashed lines are the seams: the interface
 other modules (and the tests) use. Behind each seam sits a real adapter and, in the tests, a
 small hand-written fake.</p>
 <pre  class="mermaid">
@@ -378,6 +378,10 @@ small hand-written fake.</p>
     UI -.-&gt; REMIND[[Reminders&lt;br/&gt;one watcher, due once, every tab]]
     REMIND -.-&gt;|announce| SESSION
     SESSION -.-&gt; CONV[[Conversation&lt;br/&gt;thread, history, repair, stream]]
+    SESSION -.-&gt; SKILLS[[Skill&lt;br/&gt;answers known questions without the LLM]]
+    SESSION -.-&gt; ACT[[Activation&lt;br/&gt;always, or only after &quot;Ava&quot;]]
+    SKILLS -.-&gt; HOTS[[HotS draft advisor&lt;br/&gt;knowledge, ranking, commands]]
+    HOTS --&gt; PAGES[(saved Icy Veins pages&lt;br/&gt;data/icyveins)]
     SESSION -.-&gt; SPEECH[[Speech&lt;br/&gt;async ASR + TTS, one worker each]]
     LISTEN -.-&gt; SPEECH
     CONV -.-&gt; GRAPH[(LangGraph + checkpoint)]
@@ -388,7 +392,7 @@ small hand-written fake.</p>
     RESEARCH --&gt; NET((web, arXiv, pages))
     SPEECH --&gt; MODELS[Parakeet · Piper · Phonon · Kokoro]
     classDef deep fill:#0f172a,color:#f8fafc,stroke:#0f172a;
-    class POLICY,CONV,SPEECH,RESEARCH,PROTO,LISTEN,REPLY,REMIND,RAIL deep;
+    class POLICY,CONV,SPEECH,RESEARCH,PROTO,LISTEN,REPLY,REMIND,RAIL,SKILLS,ACT,HOTS deep;
     </pre><div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -434,7 +438,19 @@ small hand-written fake.</p>
 <td><p>what each station of the pipeline rail shows: state, duration, tool name, reset on a new turn. No UI framework</p></td>
 <td><p>plain events in, views out</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">audio.protocol</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.skills</span></code></p></td>
+<td><p>the skill seam: a skill answers the questions it knows in one sentence (and its language), everything else goes to the agent; the exchange joins the thread once spoken</p></td>
+<td><p>a scripted skill</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.activation</span></code></p></td>
+<td><p>when speech counts as a command: always, or only after the assistant’s name (the name is stripped, other speech is dropped before anything shows, logs or stores it). Pure</p></td>
+<td><p>plain strings in, command out</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hots</span></code></p></td>
+<td><p>the Heroes of the Storm draft advisor: page parsers, the SQLite knowledge base with a startup freshness check, the scoring (counters, picks, bans with reasons), spoken commands and the per-session draft. No LLM, no network</p></td>
+<td><p>small hand-written pages in a temp folder</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">audio.protocol</span></code></p></td>
 <td><p>the browser to server messages (mic off, playback started and ended, stop)</p></td>
 <td><p>a contract test reads <code class="docutils literal notranslate"><span class="pre">audio.js</span></code> and fails if either side drifts</p></td>
 </tr>

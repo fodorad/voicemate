@@ -1142,6 +1142,33 @@ reminder as a toast and in the notes panel of both tabs, and a spoken turn still
 machine was swapping during that run (5 GB of swap, 3.1 GB free), so its 8 s first-words figure
 says nothing about the code.</p>
 </section>
+<section id="heroes-of-the-storm-draft-advisor-2026-10-26">
+<h2>16. Heroes of the Storm draft advisor (2026-10-26)<a class="headerlink" href="#heroes-of-the-storm-draft-advisor-2026-10-26" title="Link to this heading">¶</a></h2>
+<p>Adam drafts in HotS and needs counters, map-fit picks and bans in seconds, while the game keeps
+the memory and the CPU. The skill answers from a local knowledge base, not from the chat model.</p>
+<ul class="simple">
+<li><p><strong>Source and freshness:</strong> pages saved from icy-veins.com by hand (its pages sit behind a
+Cloudflare challenge for non-browser clients, so Ava never fetches them) into <code class="docutils literal notranslate"><span class="pre">data/icyveins</span></code>
+(gitignored): 273 hero pages, 22 tier lists, 17 map guides and 2,417 images. At startup only,
+<code class="docutils literal notranslate"><span class="pre">Knowledge.refresh()</span></code> compares file size and modification time with the last import and
+re-imports changed pages (first import of 307 pages: 8.6 s, later starts: a manifest check);
+a changed, new, removed or unreadable page becomes a UI notice.</p></li>
+<li><p><strong>Ranking:</strong> counters, synergies, map ratings (stronger/average/weaker) and tier lists (with
+the “recommended ban” flag) feed named weights in <code class="docutils literal notranslate"><span class="pre">hots/advisor.py</span></code>; every suggestion carries its
+reasons. An answer takes 0-3 ms on the real data.</p></li>
+<li><p><strong>Voice:</strong> <code class="docutils literal notranslate"><span class="pre">Intents</span></code> turns English commands into the draft (enemy, allies, bans, map) and
+one templated sentence; unknown names fall through to the chat model. <code class="docutils literal notranslate"><span class="pre">VoiceSession</span></code> asks
+skills first (never for the answer to a pending question) and records the exchange so a
+follow-up (“why?”) has context.</p></li>
+<li><p><strong>Activation:</strong> <code class="docutils literal notranslate"><span class="pre">[activation]</span> <span class="pre">mode</span> <span class="pre">=</span> <span class="pre">&quot;wake_word&quot;</span></code> handles only speech that starts with the
+assistant’s name; other speech is dropped before it is shown, logged, stored or saved.</p></li>
+<li><p><strong>Voice output:</strong> <code class="docutils literal notranslate"><span class="pre">phonon</span></code> (Ollama, 24 kHz, English only) is the default English voice; Kokoro
+stays selectable. Hungarian stays on Piper.</p></li>
+<li><p><strong>Not done yet:</strong> global push-to-talk hotkey (macOS permission), reading the draft from a
+screenshot (needs sample screenshots and Screen Recording permission), a smaller default chat
+model (needs the benchmark downloads), embedding map/text chunks for “why” follow-ups.</p></li>
+</ul>
+</section>
 </section>
 
         </article>
@@ -1221,6 +1248,7 @@ says nothing about the code.</p>
 <li><a class="reference internal" href="#architecture-deepening-2026-10-17">13. Architecture deepening (2026-10-17)</a></li>
 <li><a class="reference internal" href="#architecture-round-2-2026-10-18">14. Architecture round 2 (2026-10-18)</a></li>
 <li><a class="reference internal" href="#low-findings-and-dead-code-2026-10-18">15. Low findings and dead code (2026-10-18)</a></li>
+<li><a class="reference internal" href="#heroes-of-the-storm-draft-advisor-2026-10-26">16. Heroes of the Storm draft advisor (2026-10-26)</a></li>
 </ul>
 </li>
 </ul>

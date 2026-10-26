@@ -482,3 +482,29 @@ reminder as a toast and in the notes panel of both tabs, and a spoken turn still
 machine was swapping during that run (5 GB of swap, 3.1 GB free), so its 8 s first-words figure
 says nothing about the code.
 
+## 16. Heroes of the Storm draft advisor (2026-10-26)
+
+Adam drafts in HotS and needs counters, map-fit picks and bans in seconds, while the game keeps
+the memory and the CPU. The skill answers from a local knowledge base, not from the chat model.
+
+- **Source and freshness:** pages saved from icy-veins.com by hand (its pages sit behind a
+  Cloudflare challenge for non-browser clients, so Ava never fetches them) into `data/icyveins`
+  (gitignored): 273 hero pages, 22 tier lists, 17 map guides and 2,417 images. At startup only,
+  `Knowledge.refresh()` compares file size and modification time with the last import and
+  re-imports changed pages (first import of 307 pages: 8.6 s, later starts: a manifest check);
+  a changed, new, removed or unreadable page becomes a UI notice.
+- **Ranking:** counters, synergies, map ratings (stronger/average/weaker) and tier lists (with
+  the "recommended ban" flag) feed named weights in `hots/advisor.py`; every suggestion carries its
+  reasons. An answer takes 0-3 ms on the real data.
+- **Voice:** `Intents` turns English commands into the draft (enemy, allies, bans, map) and
+  one templated sentence; unknown names fall through to the chat model. `VoiceSession` asks
+  skills first (never for the answer to a pending question) and records the exchange so a
+  follow-up ("why?") has context.
+- **Activation:** `[activation] mode = "wake_word"` handles only speech that starts with the
+  assistant's name; other speech is dropped before it is shown, logged, stored or saved.
+- **Voice output:** `phonon` (Ollama, 24 kHz, English only) is the default English voice; Kokoro
+  stays selectable. Hungarian stays on Piper.
+- **Not done yet:** global push-to-talk hotkey (macOS permission), reading the draft from a
+  screenshot (needs sample screenshots and Screen Recording permission), a smaller default chat
+  model (needs the benchmark downloads), embedding map/text chunks for "why" follow-ups.
+

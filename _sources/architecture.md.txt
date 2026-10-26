@@ -41,7 +41,7 @@ language model (see the spec, §10).
 
 ## Modules and seams
 
-Ten deep modules keep the rules in one place each. Dashed lines are the seams: the interface
+Thirteen deep modules keep the rules in one place each. Dashed lines are the seams: the interface
 other modules (and the tests) use. Behind each seam sits a real adapter and, in the tests, a
 small hand-written fake.
 
@@ -56,6 +56,10 @@ flowchart TB
     UI -.-> REMIND[[Reminders<br/>one watcher, due once, every tab]]
     REMIND -.->|announce| SESSION
     SESSION -.-> CONV[[Conversation<br/>thread, history, repair, stream]]
+    SESSION -.-> SKILLS[[Skill<br/>answers known questions without the LLM]]
+    SESSION -.-> ACT[[Activation<br/>always, or only after "Ava"]]
+    SKILLS -.-> HOTS[[HotS draft advisor<br/>knowledge, ranking, commands]]
+    HOTS --> PAGES[(saved Icy Veins pages<br/>data/icyveins)]
     SESSION -.-> SPEECH[[Speech<br/>async ASR + TTS, one worker each]]
     LISTEN -.-> SPEECH
     CONV -.-> GRAPH[(LangGraph + checkpoint)]
@@ -66,7 +70,7 @@ flowchart TB
     RESEARCH --> NET((web, arXiv, pages))
     SPEECH --> MODELS[Parakeet · Piper · Phonon · Kokoro]
     classDef deep fill:#0f172a,color:#f8fafc,stroke:#0f172a;
-    class POLICY,CONV,SPEECH,RESEARCH,PROTO,LISTEN,REPLY,REMIND,RAIL deep;
+    class POLICY,CONV,SPEECH,RESEARCH,PROTO,LISTEN,REPLY,REMIND,RAIL,SKILLS,ACT,HOTS deep;
 ```
 
 | Module | Owns | Faked in tests with |
@@ -80,6 +84,9 @@ flowchart TB
 | `agent.tools.research` | cache-first web and arXiv search, page and paper access, the listed addresses (anything else asks the user first), what leaves the machine | static search and arXiv backends, a local HTTP server |
 | `memory.store` | one database and embedder with three narrow interfaces (`facts`, `episodes`, `research`) plus `recall`; each caller sees only its slice | hash-based embedder, injected clock |
 | `ui.rail` | what each station of the pipeline rail shows: state, duration, tool name, reset on a new turn. No UI framework | plain events in, views out |
+| `pipeline.skills` | the skill seam: a skill answers the questions it knows in one sentence (and its language), everything else goes to the agent; the exchange joins the thread once spoken | a scripted skill |
+| `pipeline.activation` | when speech counts as a command: always, or only after the assistant's name (the name is stripped, other speech is dropped before anything shows, logs or stores it). Pure | plain strings in, command out |
+| `hots` | the Heroes of the Storm draft advisor: page parsers, the SQLite knowledge base with a startup freshness check, the scoring (counters, picks, bans with reasons), spoken commands and the per-session draft. No LLM, no network | small hand-written pages in a temp folder |
 | `audio.protocol` | the browser to server messages (mic off, playback started and ended, stop) | a contract test reads `audio.js` and fails if either side drifts |
 
 `VoiceSession` is plumbing: it feeds inputs to the policy and the modules and executes the
