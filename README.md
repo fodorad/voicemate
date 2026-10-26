@@ -53,7 +53,7 @@ browser mic ─► VAD (Silero) ─► ASR (Parakeet v3, MLX) ─► language de
       │   tools: web search, fetch page, arXiv + paper download, weather, time,
       │          calculator, notes/reminders, files in ~/Documents and ~/Downloads
       ▼
-sentence chunker ─► TTS (Piper for Hungarian, Kokoro for English) ─► browser speaker
+sentence chunker ─► TTS (Piper for Hungarian, phonon or Kokoro for English) ─► browser speaker
 ```
 
 See [docs/architecture.md](docs/architecture.md) for diagrams of the LangGraph agent, a

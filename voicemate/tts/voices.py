@@ -56,6 +56,7 @@ class VoiceBank:
         """Load the voices configured in ``[tts.*]``, downloading weights if missing."""
         from voicemate import models
         from voicemate.tts.kokoro import KokoroSynthesizer
+        from voicemate.tts.phonon import PhononSynthesizer
         from voicemate.tts.piper import PiperSynthesizer
 
         voices: dict[str, Synthesizer] = {}
@@ -66,6 +67,8 @@ class VoiceBank:
             elif voice.engine == "kokoro":
                 model_path, voices_path = models.ensure_kokoro(config)
                 voices[lang] = KokoroSynthesizer(model_path, voices_path, voice=voice.voice)
+            elif voice.engine == "phonon":
+                voices[lang] = PhononSynthesizer(voice=voice.voice)
             else:
                 raise ValueError(f"Unknown TTS engine {voice.engine!r} for [tts.{lang}]")
         name = config.assistant.name

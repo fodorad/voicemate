@@ -13,9 +13,16 @@ class TestLoadConfig(unittest.TestCase):
         self.assertEqual(
             config.tts["hu"], TTSVoiceConfig(engine="piper", voice="hu_HU-anna-medium")
         )
-        self.assertEqual(config.tts["en"].engine, "kokoro")
+        self.assertEqual(config.tts["en"], TTSVoiceConfig(engine="phonon", voice="default"))
         self.assertAlmostEqual(config.location.latitude, 47.7826)
         self.assertEqual(config.files.roots, ["~/Documents", "~/Downloads"])
+
+    def test_kokoro_stays_selectable_for_english(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "c.toml"
+            path.write_text('[tts.en]\nengine = "kokoro"\nvoice = "af_heart"\n')
+            config = load_config(path)
+        self.assertEqual(config.tts["en"], TTSVoiceConfig(engine="kokoro", voice="af_heart"))
 
     def test_missing_sections_fall_back_to_defaults(self):
         with tempfile.TemporaryDirectory() as tmp:

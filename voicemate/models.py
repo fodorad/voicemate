@@ -14,6 +14,7 @@ from pathlib import Path
 import httpx
 
 from voicemate.config import Config
+from voicemate.tts.phonon import PHONON_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +129,9 @@ def ensure_all(config: Config) -> None:  # pragma: no cover - network + large do
             ensure_piper_voice(config, voice.voice)
         elif voice.engine == "kokoro":
             ensure_kokoro(config)
+        elif voice.engine == "phonon":
+            logger.info("Pulling Ollama speech model %s", PHONON_MODEL)
+            ollama.pull(PHONON_MODEL)
     logger.info("Fetching ASR checkpoint %s", config.asr.model)
     snapshot_download(config.asr.model)
     logger.info("Fetching embedding model %s", config.memory.embed_model)
