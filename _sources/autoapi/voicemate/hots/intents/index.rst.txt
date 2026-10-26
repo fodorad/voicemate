@@ -1,0 +1,61 @@
+voicemate.hots.intents
+======================
+
+.. py:module:: voicemate.hots.intents
+
+.. autoapi-nested-parse::
+
+   Spoken draft commands: rules that turn an utterance into advice, without the LLM.
+
+   :class:`Intents` recognizes a small English command language ("what's good against Zul'jin",
+   "enemy has Tychus and Muradin", "we're on Cursed Hollow", "what should I ban"), keeps the
+   draft in a :class:`~voicemate.hots.draft.Draft` and answers with one short templated sentence
+   per command. An utterance it does not recognize, or one that names nothing it knows, returns
+   ``None`` so the chat model handles it as usual.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.intents.ANSWER_HEROES
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.intents.Intents
+
+
+Module Contents
+---------------
+
+.. py:data:: ANSWER_HEROES
+   :type:  int
+   :value: 3
+
+
+.. py:class:: Intents(advisor: voicemate.hots.advisor.Advisor, draft: voicemate.hots.draft.Draft | None = None)
+
+   Recognizes draft commands and answers them.
+
+   :param advisor: Ranks counters, picks and bans.
+   :param draft: The session's draft (a new one when omitted).
+
+
+   .. py:attribute:: advisor
+
+
+   .. py:attribute:: draft
+
+
+   .. py:method:: handle(text: str) -> str | None
+
+      Answer ``text`` when it is a draft command, otherwise return ``None``.
+
+
+
