@@ -1,0 +1,138 @@
+voicemate.hots.advisor
+======================
+
+.. py:module:: voicemate.hots.advisor
+
+.. autoapi-nested-parse::
+
+   Draft advice: counters, picks and bans ranked from the knowledge base.
+
+   Every ranking is a sum of a few named weights (below) so Adam can tune them, and every
+   suggestion carries the reasons that fed its score so an answer can say *why*. Missing data
+   only removes factors: a hero without counters or map ratings is still scored by what is known.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.advisor.COUNTER_HIT
+   voicemate.hots.advisor.COUNTERED_BY
+   voicemate.hots.advisor.ALLY_SYNERGY
+   voicemate.hots.advisor.ENEMY_SYNERGY
+   voicemate.hots.advisor.ALLY_COUNTERED
+   voicemate.hots.advisor.BAN_FLAG
+   voicemate.hots.advisor.MAP_RATING
+   voicemate.hots.advisor.TIER_BONUS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.advisor.Suggestion
+   voicemate.hots.advisor.Advisor
+
+
+Module Contents
+---------------
+
+.. py:data:: COUNTER_HIT
+   :type:  float
+   :value: 2.0
+
+
+.. py:data:: COUNTERED_BY
+   :type:  float
+   :value: 1.0
+
+
+.. py:data:: ALLY_SYNERGY
+   :type:  float
+   :value: 0.5
+
+
+.. py:data:: ENEMY_SYNERGY
+   :type:  float
+   :value: 1.0
+
+
+.. py:data:: ALLY_COUNTERED
+   :type:  float
+   :value: 1.0
+
+
+.. py:data:: BAN_FLAG
+   :type:  float
+   :value: 1.0
+
+
+.. py:data:: MAP_RATING
+   :type:  dict[str, float]
+
+.. py:data:: TIER_BONUS
+   :type:  dict[str, float]
+
+.. py:class:: Suggestion
+
+   One ranked hero.
+
+   :ivar hero: The suggested hero.
+   :ivar score: Sum of the weights that applied (higher is better).
+   :ivar reasons: Short facts behind the score, strongest first.
+
+
+
+   .. py:attribute:: hero
+      :type:  voicemate.hots.roster.Hero
+
+
+   .. py:attribute:: score
+      :type:  float
+
+
+   .. py:attribute:: reasons
+      :type:  tuple[str, ...]
+
+
+.. py:class:: Advisor(knowledge: voicemate.hots.knowledge.Knowledge)
+
+   Ranks heroes for the draft.
+
+   :param knowledge: The imported pages.
+
+
+   .. py:attribute:: knowledge
+
+
+   .. py:attribute:: roster
+
+
+   .. py:attribute:: maps
+
+
+   .. py:method:: counters(hero: str, map_slug: str | None = None, limit: int = 3) -> list[Suggestion]
+
+      Heroes that counter ``hero``, best first.
+
+      :param hero: Slug of the hero to counter.
+      :param map_slug: Map being played, if known.
+      :param limit: Number of suggestions.
+
+
+
+   .. py:method:: picks(enemy: collections.abc.Collection[str], ally: collections.abc.Collection[str] = (), map_slug: str | None = None, banned: collections.abc.Collection[str] = (), limit: int = 3) -> list[Suggestion]
+
+      Heroes to pick against the enemy picks, with the allies and the map in mind.
+
+
+
+   .. py:method:: bans(enemy: collections.abc.Collection[str], ally: collections.abc.Collection[str] = (), map_slug: str | None = None, banned: collections.abc.Collection[str] = (), limit: int = 3) -> list[Suggestion]
+
+      Heroes to ban: strong on the map, synergizing with the enemy picks so far.
+
+
+

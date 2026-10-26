@@ -15,6 +15,7 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
+   /autoapi/voicemate/hots/advisor/index
    /autoapi/voicemate/hots/knowledge/index
    /autoapi/voicemate/hots/pages/index
    /autoapi/voicemate/hots/roster/index
