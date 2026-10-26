@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.1.0](https://github.com/fodorad/voicemate/compare/voicemate-v1.0.1...voicemate-v1.1.0) (2026-10-26)
+
+
+### Features
+
+* **hots:** draft advisor for counters, picks and bans ([#35](https://github.com/fodorad/voicemate/issues/35)) ([83a72ff](https://github.com/fodorad/voicemate/commit/83a72ff0ac3ee510338c2196b759af05e8457755))
+* **hots:** hero roster and Icy Veins page parsers ([#33](https://github.com/fodorad/voicemate/issues/33)) ([34904f9](https://github.com/fodorad/voicemate/commit/34904f9f631a7d6dfc5c1a9e8049681819b1cf58))
+* **hots:** knowledge base with startup freshness check ([#34](https://github.com/fodorad/voicemate/issues/34)) ([063d6ed](https://github.com/fodorad/voicemate/commit/063d6ed8f7ab3434266e6ad42e585ff6057d9bc9))
+* **hots:** voice intents and draft state ([#36](https://github.com/fodorad/voicemate/issues/36)) ([50aa65a](https://github.com/fodorad/voicemate/commit/50aa65ab5c5c5ea46ef6512656f591b86546c13c))
+* **pipeline:** skill seam answers HotS questions without the LLM ([#37](https://github.com/fodorad/voicemate/issues/37)) ([c27517b](https://github.com/fodorad/voicemate/commit/c27517b72b9e93b3d5b43c54b6d71b3761ffdbc6))
+* **pipeline:** wake-word activation mode ([#38](https://github.com/fodorad/voicemate/issues/38)) ([a474630](https://github.com/fodorad/voicemate/commit/a474630c52e57af8925a3603fe9839a59649ccab))
+* **tts:** phonon English voice, Kokoro stays selectable ([#31](https://github.com/fodorad/voicemate/issues/31)) ([c56fd93](https://github.com/fodorad/voicemate/commit/c56fd93ab789b153dbfb8a7dc6d1b07f3b241285))
+
+
+### Documentation
+
+* describe the HotS draft advisor ([#39](https://github.com/fodorad/voicemate/issues/39)) ([b4ff2c0](https://github.com/fodorad/voicemate/commit/b4ff2c0619f25103c786b9eec22fc66405261230))
+
 ## [1.0.1](https://github.com/fodorad/voicemate/compare/voicemate-v1.0.0...voicemate-v1.0.1) (2026-10-18)
 
 
