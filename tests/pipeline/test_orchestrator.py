@@ -11,6 +11,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 from tests.helpers import (
     EnergyVAD,
     ScriptedRecognizer,
+    ScriptedSkill,
     ToneSynthesizer,
     make_scripted_chat_model,
     make_tool_context,
@@ -70,7 +71,13 @@ class SessionTestCase(unittest.IsolatedAsyncioTestCase):
         self.tmp.cleanup()
 
     def make_session(
-        self, responses, transcripts=("Mennyi az idő?",), delay=0.0, repeat=False, token_delay=0.0
+        self,
+        responses,
+        transcripts=("Mennyi az idő?",),
+        delay=0.0,
+        repeat=False,
+        token_delay=0.0,
+        skills=(),
     ):
         self.llm = make_scripted_chat_model(responses, delay=delay, token_delay=token_delay)
         graph = build_graph(
@@ -86,6 +93,7 @@ class SessionTestCase(unittest.IsolatedAsyncioTestCase):
             graph=graph,
             memory=self.ctx.memory,
             notes=self.ctx.notes,
+            skills=lambda: list(skills),
         )
         self.session = VoiceSession(self.runtime, thread_id="test")
         self.events = self.session.bus.subscribe()
@@ -210,6 +218,74 @@ class TestTextTurns(SessionTestCase):
             await self.settle()
         errors = [e for e in self.drain() if isinstance(e, ErrorEvent)]
         self.assertIn("timed out", errors[0].message)
+
+
+class TestSkills(SessionTestCase):
+    ANSWER = "Pick: Tychus, Zeratul."
+
+    def skill(self, **kwargs):
+        return ScriptedSkill({"what should I pick": self.ANSWER}, **kwargs)
+
+    async def test_a_skill_answer_is_spoken_without_the_model(self):
+        skill = self.skill()
+        self.make_session(["never used"], skills=[skill])
+        await self.session.submit_text("what should I pick")
+        await self.settle()
+        events = self.drain()
+        self.assertEqual(self.llm.seen, [])
+        self.assertEqual("".join(e.text for e in events if isinstance(e, TokenEvent)), self.ANSWER)
+        self.assertTrue(any(isinstance(e, AudioEvent) for e in events))
+        self.assertEqual([e.text for e in events if isinstance(e, ReplyEvent)], [self.ANSWER])
+        self.assertTrue(any(isinstance(e, MetricsEvent) for e in events))
+        self.assertEqual(self.voice.calls, [self.ANSWER])
+
+    async def test_the_answer_is_spoken_in_the_skills_language(self):
+        self.make_session(["never used"], skills=[self.skill(lang="en")])
+        await self.session.submit_text("what should I pick")
+        await self.settle()
+        logged = turns_log_path(self.ctx.config.data_path).read_text().splitlines()
+        self.assertEqual(json.loads(logged[-1])["lang"], "en")
+
+    async def test_the_exchange_is_in_the_history_for_follow_ups(self):
+        self.make_session(["Because it counters them."], skills=[self.skill()])
+        await self.session.submit_text("what should I pick")
+        await self.settle()
+        await self.session.submit_text("why?")
+        await self.settle()
+        prompt = " ".join(str(m.content) for m in self.llm.seen[0])
+        self.assertIn("what should I pick", prompt)
+        self.assertIn(self.ANSWER, prompt)
+        lines = await self.session.conversation.lines()
+        self.assertEqual(
+            [(line.role, line.text) for line in lines],
+            [
+                ("user", "what should I pick"),
+                ("assistant", self.ANSWER),
+                ("user", "why?"),
+                ("assistant", "Because it counters them."),
+            ],
+        )
+
+    async def test_other_questions_still_reach_the_model(self):
+        skill = self.skill()
+        self.make_session(["It is half past nine."], skills=[skill])
+        await self.session.submit_text("what time is it")
+        await self.settle()
+        self.assertEqual(skill.asked, ["what time is it"])
+        self.assertEqual(len(self.llm.seen), 1)
+
+    async def test_an_answer_to_a_pending_question_is_not_offered_to_skills(self):
+        target = Path(self.tmp.name) / "Documents" / "plan.md"
+        target.write_text("old")
+        call = tool_call("write_file", {"path": str(target), "content": "new"})
+        skill = ScriptedSkill({"yes": "should not be used"})
+        self.make_session([call, "Replaced."], skills=[skill])
+        await self.session.submit_text("Save the plan")
+        await self.settle()
+        await self.session.answer_confirmation("yes")
+        await self.settle()
+        self.assertEqual(target.read_text(), "new")
+        self.assertEqual(skill.asked, ["Save the plan"])
 
 
 class TestStatusOrder(SessionTestCase):

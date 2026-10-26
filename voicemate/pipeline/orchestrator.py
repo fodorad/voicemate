@@ -59,6 +59,7 @@ from voicemate.pipeline.conversation import (
 from voicemate.pipeline.listener import Listener, ListenerCallbacks, Utterance
 from voicemate.pipeline.reminders import spoken_text
 from voicemate.pipeline.reply import Reply
+from voicemate.pipeline.skills import first_answer
 from voicemate.pipeline.turn_taking import Begin, Collect, Decision, Interrupt, TurnTaking
 from voicemate.runtime import Runtime
 
@@ -94,6 +95,7 @@ class VoiceSession:
             partial_interval_s=self.config.asr.partial_interval_s,
             audio_dir=self.config.data_path / "audio" if self.config.save_audio else None,
         )
+        self.skills = list(runtime.skills())
         self.lang = self.config.assistant.default_language
         #: The rules for what user input means (hold, merge, confirmation).
         self.policy = TurnTaking()
@@ -337,14 +339,18 @@ class VoiceSession:
         resume: str | None = None,
     ) -> None:
         """Stream one agent run into speech; ``resume`` answers a pending confirmation."""
+        skill_answer = first_answer(self.skills, text) if resume is None else None
+        if skill_answer is not None:
+            lang = skill_answer.lang
         reply = Reply(lang, ended_at)
         message_id = uuid.uuid4().hex
         emit = self._tool_emitter(reply)
-        chunks = (
-            self.conversation.resume(resume, emit)
-            if resume is not None
-            else self.conversation.say(text, lang, message_id, emit)
-        )
+        if resume is not None:
+            chunks = self.conversation.resume(resume, emit)
+        elif skill_answer is not None:
+            chunks = self._skill_reply(text, skill_answer.text, message_id)
+        else:
+            chunks = self.conversation.say(text, lang, message_id, emit)
         worker = asyncio.create_task(self._tts_worker(reply))
         self._status(Lane.THINKING, LaneState.ACTIVE)
         try:
@@ -353,7 +359,7 @@ class VoiceSession:
                 await self._ask_if_paused(reply)
         except asyncio.CancelledError:
             worker.cancel()
-            if reply.text:
+            if reply.text and skill_answer is None:
                 self._interrupted_reply = reply.text
                 self.bus.publish(ReplyEvent(reply.text, interrupted=True))
             self.policy.turn_cancelled(
@@ -378,6 +384,11 @@ class VoiceSession:
             self._spawn(
                 asyncio.to_thread(memory.episodes.add, text, reply.text, lang, self.thread_id)
             )
+
+    async def _skill_reply(self, text: str, answer: str, message_id: str) -> AsyncIterator[str]:
+        """A skill's answer as a one-chunk stream; it joins the history once fully spoken."""
+        yield answer
+        await self.conversation.record(text, answer, message_id)
 
     def _tool_emitter(self, reply: Reply):
         """The ``emit`` callback for one turn: publishes events and tells the reply."""
