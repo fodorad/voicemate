@@ -93,3 +93,9 @@ port = 8080
 allowed_hosts = ["127.0.0.1", "localhost"]
 # Let ?fake_mic=<file in data/fake_mic> replay a WAV as speech. Only for end-to-end tests.
 test_audio = false
+
+[hots]
+# Heroes of the Storm draft advice from pages saved from icy-veins.com (never fetched by Ava).
+enabled = true
+pages_dir = "data/icyveins/raw"
+database = "hots.sqlite"
