@@ -1,0 +1,84 @@
+voicemate.pipeline.activation
+=============================
+
+.. py:module:: voicemate.pipeline.activation
+
+.. autoapi-nested-parse::
+
+   Decides when speech counts as a command (pure policy, no I/O).
+
+   In ``always`` mode every utterance is a command. In ``wake_word`` mode only an utterance that
+   starts with the assistant's name ("Ava, what should I pick") is, and the name is stripped; all
+   other speech is dropped by the caller before anything is shown, logged or stored, so Ava can
+   stay on while Adam talks to friends. The wake word is a transcript prefix: the speech is
+   transcribed locally first and discarded when it is not addressed to Ava.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.pipeline.activation.GREETINGS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.pipeline.activation.Activation
+
+
+Module Contents
+---------------
+
+.. py:data:: GREETINGS
+   :type:  tuple[str, ...]
+   :value: ('hey', 'hi', 'hello', 'ok', 'okay')
+
+
+.. py:class:: Activation
+
+   The activation rule.
+
+   :ivar mode: ``always`` or ``wake_word``.
+   :ivar names: Accepted spellings of the assistant's name (lower case).
+
+
+
+   .. py:attribute:: mode
+      :type:  str
+
+
+   .. py:attribute:: names
+      :type:  tuple[str, ...]
+
+
+   .. py:method:: from_config(config: voicemate.config.Config) -> Activation
+      :classmethod:
+
+
+      The rule configured in ``[activation]`` for the configured persona name.
+
+
+
+   .. py:property:: needs_wake_word
+      :type: bool
+
+
+      Whether speech must start with the name to count.
+
+
+   .. py:method:: command(text: str) -> str | None
+
+      The command in ``text``, or ``None`` when it is not addressed to the assistant.
+
+      :param text: A transcript.
+
+      :returns: In ``always`` mode the text itself; in ``wake_word`` mode the text after the name
+                (``None`` when there is no name or nothing follows it).
+
+
+

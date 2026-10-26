@@ -259,6 +259,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../models/index.html">voicemate.models</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../pipeline/index.html">voicemate.pipeline</a><input aria-label="Toggle navigation of voicemate.pipeline" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../pipeline/activation/index.html">voicemate.pipeline.activation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../pipeline/chunker/index.html">voicemate.pipeline.chunker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../pipeline/conversation/index.html">voicemate.pipeline.conversation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../pipeline/listener/index.html">voicemate.pipeline.listener</a></li>
@@ -384,10 +385,13 @@ the dataclass defaults; unknown keys raise <code class="xref py py-class docutil
 <tr class="row-even"><td><p><a class="reference internal" href="#voicemate.config.HotsConfig" title="voicemate.config.HotsConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HotsConfig</span></code></a></p></td>
 <td><p>Heroes of the Storm draft advice.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.config.UIConfig" title="voicemate.config.UIConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UIConfig</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.config.ActivationConfig" title="voicemate.config.ActivationConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ActivationConfig</span></code></a></p></td>
+<td><p>When spoken input counts as a command.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.config.UIConfig" title="voicemate.config.UIConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UIConfig</span></code></a></p></td>
 <td><p>Web UI server.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.config.Config" title="voicemate.config.Config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.config.Config" title="voicemate.config.Config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code></a></p></td>
 <td><p>Root configuration.</p></td>
 </tr>
 </tbody>
@@ -838,6 +842,31 @@ next to it) the current working directory.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="voicemate.config.ActivationConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.config.</span></span><span class="sig-name descname"><span class="pre">ActivationConfig</span></span><a class="reference internal" href="../../../_modules/voicemate/config.html#ActivationConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.config.ActivationConfig" title="Link to this definition">¶</a></dt>
+<dd><p>When spoken input counts as a command.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;always&quot;</span></code> (everything you say is a command) or <code class="docutils literal notranslate"><span class="pre">&quot;wake_word&quot;</span></code> (only speech
+that starts with the assistant’s name; all other speech is dropped unseen).</p></li>
+<li><p><strong>variants</strong> – Other spellings speech recognition produces for the name.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.config.ActivationConfig.mode">
+<span class="sig-name descname"><span class="pre">mode</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'always'</span></span><a class="headerlink" href="#voicemate.config.ActivationConfig.mode" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.config.ActivationConfig.variants">
+<span class="sig-name descname"><span class="pre">variants</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['eva']</span></span><a class="headerlink" href="#voicemate.config.ActivationConfig.variants" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="voicemate.config.UIConfig">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.config.</span></span><span class="sig-name descname"><span class="pre">UIConfig</span></span><a class="reference internal" href="../../../_modules/voicemate/config.html#UIConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.config.UIConfig" title="Link to this definition">¶</a></dt>
 <dd><p>Web UI server.</p>
@@ -945,6 +974,11 @@ were spoken (for automated end-to-end tests only).</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.config.Config.hots">
 <span class="sig-name descname"><span class="pre">hots</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#voicemate.config.HotsConfig" title="voicemate.config.HotsConfig"><span class="pre">HotsConfig</span></a></span><a class="headerlink" href="#voicemate.config.Config.hots" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.config.Config.activation">
+<span class="sig-name descname"><span class="pre">activation</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#voicemate.config.ActivationConfig" title="voicemate.config.ActivationConfig"><span class="pre">ActivationConfig</span></a></span><a class="headerlink" href="#voicemate.config.Config.activation" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1136,6 +1170,11 @@ defaults apply.</p></li>
 <li><a class="reference internal" href="#voicemate.config.HotsConfig.pages_path"><code class="docutils literal notranslate"><span class="pre">HotsConfig.pages_path</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#voicemate.config.ActivationConfig"><code class="docutils literal notranslate"><span class="pre">ActivationConfig</span></code></a><ul>
+<li><a class="reference internal" href="#voicemate.config.ActivationConfig.mode"><code class="docutils literal notranslate"><span class="pre">ActivationConfig.mode</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.config.ActivationConfig.variants"><code class="docutils literal notranslate"><span class="pre">ActivationConfig.variants</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#voicemate.config.UIConfig"><code class="docutils literal notranslate"><span class="pre">UIConfig</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.config.UIConfig.host"><code class="docutils literal notranslate"><span class="pre">UIConfig.host</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.UIConfig.port"><code class="docutils literal notranslate"><span class="pre">UIConfig.port</span></code></a></li>
@@ -1156,6 +1195,7 @@ defaults apply.</p></li>
 <li><a class="reference internal" href="#voicemate.config.Config.search"><code class="docutils literal notranslate"><span class="pre">Config.search</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.Config.files"><code class="docutils literal notranslate"><span class="pre">Config.files</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.Config.hots"><code class="docutils literal notranslate"><span class="pre">Config.hots</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.config.Config.activation"><code class="docutils literal notranslate"><span class="pre">Config.activation</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.Config.ui"><code class="docutils literal notranslate"><span class="pre">Config.ui</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.Config.data_path"><code class="docutils literal notranslate"><span class="pre">Config.data_path</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.Config.hots_database_path"><code class="docutils literal notranslate"><span class="pre">Config.hots_database_path</span></code></a></li>

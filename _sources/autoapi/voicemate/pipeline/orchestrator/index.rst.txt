@@ -73,6 +73,9 @@ Module Contents
    .. py:attribute:: bus
 
 
+   .. py:attribute:: activation
+
+
    .. py:attribute:: listener
 
 

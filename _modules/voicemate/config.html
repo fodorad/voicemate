@@ -258,6 +258,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../autoapi/voicemate/models/index.html">voicemate.models</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/voicemate/pipeline/index.html">voicemate.pipeline</a><input aria-label="Toggle navigation of voicemate.pipeline" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/pipeline/activation/index.html">voicemate.pipeline.activation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/pipeline/chunker/index.html">voicemate.pipeline.chunker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/pipeline/conversation/index.html">voicemate.pipeline.conversation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/pipeline/listener/index.html">voicemate.pipeline.listener</a></li>
@@ -603,6 +604,23 @@
 
 
 
+<div class="viewcode-block" id="ActivationConfig">
+<a class="viewcode-back" href="../../autoapi/voicemate/config/index.html#voicemate.config.ActivationConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ActivationConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""When spoken input counts as a command.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        mode: ``"always"`` (everything you say is a command) or ``"wake_word"`` (only speech</span>
+<span class="sd">            that starts with the assistant's name; all other speech is dropped unseen).</span>
+<span class="sd">        variants: Other spellings speech recognition produces for the name.</span>
+<span class="sd">    """</span>
+
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"always"</span>
+    <span class="n">variants</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eva"</span><span class="p">])</span></div>
+
+
+
 <div class="viewcode-block" id="UIConfig">
 <a class="viewcode-back" href="../../autoapi/voicemate/config/index.html#voicemate.config.UIConfig">[docs]</a>
 <span class="nd">@dataclass</span>
@@ -648,6 +666,7 @@
     <span class="n">search</span><span class="p">:</span> <span class="n">SearchConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">SearchConfig</span><span class="p">)</span>
     <span class="n">files</span><span class="p">:</span> <span class="n">FilesConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FilesConfig</span><span class="p">)</span>
     <span class="n">hots</span><span class="p">:</span> <span class="n">HotsConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">HotsConfig</span><span class="p">)</span>
+    <span class="n">activation</span><span class="p">:</span> <span class="n">ActivationConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ActivationConfig</span><span class="p">)</span>
     <span class="n">ui</span><span class="p">:</span> <span class="n">UIConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">UIConfig</span><span class="p">)</span>
 
     <span class="nd">@property</span>

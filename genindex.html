@@ -257,6 +257,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="autoapi/voicemate/models/index.html">voicemate.models</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/voicemate/pipeline/index.html">voicemate.pipeline</a><input aria-label="Toggle navigation of voicemate.pipeline" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/pipeline/activation/index.html">voicemate.pipeline.activation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/pipeline/chunker/index.html">voicemate.pipeline.chunker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/pipeline/conversation/index.html">voicemate.pipeline.conversation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/pipeline/listener/index.html">voicemate.pipeline.listener</a></li>
@@ -334,6 +335,16 @@
           <li><a href="autoapi/voicemate/speech/index.html#voicemate.speech.Speech.aclose">(voicemate.speech.Speech method)</a>
 </li>
         </ul></li>
+        <li><a href="autoapi/voicemate/pipeline/activation/index.html#voicemate.pipeline.activation.Activation">Activation (class in voicemate.pipeline.activation)</a>
+</li>
+        <li><a href="autoapi/voicemate/config/index.html#voicemate.config.Config.activation">activation (voicemate.config.Config attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.activation">(voicemate.pipeline.orchestrator.VoiceSession attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/voicemate/config/index.html#voicemate.config.ActivationConfig">ActivationConfig (class in voicemate.config)</a>
+</li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.LaneState.ACTIVE">ACTIVE (voicemate.events.LaneState attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/draft/index.html#voicemate.hots.draft.Draft.add">add() (voicemate.hots.draft.Draft method)</a>
@@ -380,6 +391,8 @@
           <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.announce_reminder">(voicemate.pipeline.orchestrator.VoiceSession method)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/app/index.html#app.ConversationPage.answer">answer() (app.ConversationPage method)</a>
 
         <ul>
@@ -388,8 +401,6 @@
           <li><a href="autoapi/voicemate/pipeline/skills/index.html#voicemate.pipeline.skills.Skill.answer">(voicemate.pipeline.skills.Skill method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.answer_confirmation">answer_confirmation() (voicemate.pipeline.orchestrator.VoiceSession method)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/intents/index.html#voicemate.hots.intents.ANSWER_HEROES">ANSWER_HEROES (in module voicemate.hots.intents)</a>
@@ -576,6 +587,8 @@
         <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.Conversation.close_interrupted">close_interrupted() (voicemate.pipeline.conversation.Conversation method)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Collect">Collect (class in voicemate.pipeline.turn_taking)</a>
+</li>
+        <li><a href="autoapi/voicemate/pipeline/activation/index.html#voicemate.pipeline.activation.Activation.command">command() (voicemate.pipeline.activation.Activation method)</a>
 </li>
         <li><a href="autoapi/voicemate/memory/notes/index.html#voicemate.memory.notes.NotesStore.complete">complete() (voicemate.memory.notes.NotesStore method)</a>
 </li>
@@ -845,10 +858,10 @@
 </li>
         <li><a href="autoapi/voicemate/agent/tools/files/index.html#voicemate.agent.tools.files.FileOperations.find">find() (voicemate.agent.tools.files.FileOperations method)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/pipeline/reply/index.html#voicemate.pipeline.reply.Reply.finish">finish() (voicemate.pipeline.reply.Reply method)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/pipeline/skills/index.html#voicemate.pipeline.skills.first_answer">first_answer() (in module voicemate.pipeline.skills)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/reply/index.html#voicemate.pipeline.reply.Reply.first_audio">first_audio (voicemate.pipeline.reply.Reply attribute)</a>
@@ -889,8 +902,12 @@
           <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.SpeechProbability.frame_size">(voicemate.audio.vad.SpeechProbability attribute)</a>
 </li>
         </ul></li>
-        <li><a href="autoapi/voicemate/tts/voices/index.html#voicemate.tts.voices.VoiceBank.from_config">from_config() (voicemate.tts.voices.VoiceBank class method)</a>
+        <li><a href="autoapi/voicemate/pipeline/activation/index.html#voicemate.pipeline.activation.Activation.from_config">from_config() (voicemate.pipeline.activation.Activation class method)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/tts/voices/index.html#voicemate.tts.voices.VoiceBank.from_config">(voicemate.tts.voices.VoiceBank class method)</a>
 </li>
+        </ul></li>
         <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Found.from_memory">from_memory (voicemate.agent.tools.research.Found attribute)</a>
 
         <ul>
@@ -929,6 +946,8 @@
           <li><a href="autoapi/voicemate/runtime/index.html#voicemate.runtime.Runtime.graph">(voicemate.runtime.Runtime attribute)</a>
 </li>
         </ul></li>
+        <li><a href="autoapi/voicemate/pipeline/activation/index.html#voicemate.pipeline.activation.GREETINGS">GREETINGS (in module voicemate.pipeline.activation)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -1349,6 +1368,12 @@
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.VADConfig.min_speech_ms">min_speech_ms (voicemate.config.VADConfig attribute)</a>
 </li>
+        <li><a href="autoapi/voicemate/config/index.html#voicemate.config.ActivationConfig.mode">mode (voicemate.config.ActivationConfig attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/pipeline/activation/index.html#voicemate.pipeline.activation.Activation.mode">(voicemate.pipeline.activation.Activation attribute)</a>
+</li>
+        </ul></li>
         <li><a href="autoapi/voicemate/agent/model_select/index.html#voicemate.agent.model_select.ModelChoice.model">model (voicemate.agent.model_select.ModelChoice attribute)</a>
 
         <ul>
@@ -1473,6 +1498,8 @@
 </li>
           <li><a href="autoapi/voicemate/pipeline/index.html#module-voicemate.pipeline">voicemate.pipeline</a>
 </li>
+          <li><a href="autoapi/voicemate/pipeline/activation/index.html#module-voicemate.pipeline.activation">voicemate.pipeline.activation</a>
+</li>
           <li><a href="autoapi/voicemate/pipeline/chunker/index.html#module-voicemate.pipeline.chunker">voicemate.pipeline.chunker</a>
 </li>
           <li><a href="autoapi/voicemate/pipeline/conversation/index.html#module-voicemate.pipeline.conversation">voicemate.pipeline.conversation</a>
@@ -1542,16 +1569,20 @@
           <li><a href="autoapi/voicemate/models/index.html#voicemate.models.PiperVoiceId.name">(voicemate.models.PiperVoiceId attribute)</a>
 </li>
         </ul></li>
+        <li><a href="autoapi/voicemate/pipeline/activation/index.html#voicemate.pipeline.activation.Activation.names">names (voicemate.pipeline.activation.Activation attribute)</a>
+</li>
+        <li><a href="autoapi/voicemate/pipeline/activation/index.html#voicemate.pipeline.activation.Activation.needs_wake_word">needs_wake_word (voicemate.pipeline.activation.Activation property)</a>
+</li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.NEGATIVE_MARGIN">NEGATIVE_MARGIN (in module voicemate.audio.vad)</a>
 </li>
         <li><a href="autoapi/app/index.html#app.Server.new_conversation">new_conversation() (app.Server method)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/graph/index.html#voicemate.agent.graph.NO_MORE_TOOLS">NO_MORE_TOOLS (in module voicemate.agent.graph)</a>
 </li>
-        <li><a href="autoapi/voicemate/runtime/index.html#voicemate.runtime.no_skills">no_skills() (in module voicemate.runtime)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/voicemate/runtime/index.html#voicemate.runtime.no_skills">no_skills() (in module voicemate.runtime)</a>
+</li>
         <li><a href="autoapi/voicemate/agent/hitl/index.html#voicemate.agent.hitl.NO_WORDS">NO_WORDS (in module voicemate.agent.hitl)</a>
 </li>
         <li><a href="autoapi/voicemate/bench/index.html#voicemate.bench.normalize">normalize() (in module voicemate.bench)</a>
@@ -2419,6 +2450,8 @@
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.VADConfig">VADConfig (class in voicemate.config)</a>
 </li>
+        <li><a href="autoapi/voicemate/config/index.html#voicemate.config.ActivationConfig.variants">variants (voicemate.config.ActivationConfig attribute)</a>
+</li>
         <li><a href="autoapi/rail/index.html#rail.Rail.view">view() (rail.Rail method)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.TTSVoiceConfig.voice">voice (voicemate.config.TTSVoiceConfig attribute)</a>
@@ -2643,8 +2676,6 @@
           <li><a href="autoapi/voicemate/config/index.html#module-voicemate.config">module</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     voicemate.events
 
@@ -2652,6 +2683,8 @@
           <li><a href="autoapi/voicemate/events/index.html#module-voicemate.events">module</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     voicemate.hots
 
@@ -2755,6 +2788,13 @@
 
         <ul>
           <li><a href="autoapi/voicemate/pipeline/index.html#module-voicemate.pipeline">module</a>
+</li>
+        </ul></li>
+        <li>
+    voicemate.pipeline.activation
+
+        <ul>
+          <li><a href="autoapi/voicemate/pipeline/activation/index.html#module-voicemate.pipeline.activation">module</a>
 </li>
         </ul></li>
         <li>

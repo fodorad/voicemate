@@ -38,6 +38,7 @@ Classes
    voicemate.config.SearchConfig
    voicemate.config.FilesConfig
    voicemate.config.HotsConfig
+   voicemate.config.ActivationConfig
    voicemate.config.UIConfig
    voicemate.config.Config
 
@@ -466,6 +467,28 @@ Module Contents
       Saved pages folder as an absolute path.
 
 
+.. py:class:: ActivationConfig
+
+   When spoken input counts as a command.
+
+   :ivar mode: ``"always"`` (everything you say is a command) or ``"wake_word"`` (only speech
+               that starts with the assistant's name; all other speech is dropped unseen).
+   :ivar variants: Other spellings speech recognition produces for the name.
+
+
+
+   .. py:attribute:: mode
+      :type:  str
+      :value: 'always'
+
+
+
+   .. py:attribute:: variants
+      :type:  list[str]
+      :value: ['eva']
+
+
+
 .. py:class:: UIConfig
 
    Web UI server.
@@ -562,6 +585,10 @@ Module Contents
 
    .. py:attribute:: hots
       :type:  HotsConfig
+
+
+   .. py:attribute:: activation
+      :type:  ActivationConfig
 
 
    .. py:attribute:: ui

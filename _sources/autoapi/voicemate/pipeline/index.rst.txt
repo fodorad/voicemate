@@ -10,6 +10,7 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
+   /autoapi/voicemate/pipeline/activation/index
    /autoapi/voicemate/pipeline/chunker/index
    /autoapi/voicemate/pipeline/conversation/index
    /autoapi/voicemate/pipeline/listener/index
