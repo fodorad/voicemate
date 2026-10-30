@@ -24,6 +24,8 @@ class _Ollama(http.server.BaseHTTPRequestHandler):
     version = "0.40.11"
     speech_status = 200
     speech_body = b""
+    voices = ["default", "Zoey"]
+    show_status = 200
     requests: list[dict] = []
 
     def _reply(self, status: int, body: bytes, kind: str = "application/json") -> None:
@@ -37,7 +39,11 @@ class _Ollama(http.server.BaseHTTPRequestHandler):
 
     def do_POST(self):  # noqa: N802
         length = int(self.headers["Content-Length"])
-        type(self).requests.append(json.loads(self.rfile.read(length)))
+        body = json.loads(self.rfile.read(length))
+        if self.path == "/api/show":
+            self._reply(self.show_status, json.dumps({"voices": self.voices}).encode())
+            return
+        type(self).requests.append(body)
         self._reply(self.speech_status, self.speech_body, "audio/wav")
 
     def log_message(self, *args):
@@ -89,6 +95,19 @@ class TestPhononSynthesizer(unittest.TestCase):
         voice = PhononSynthesizer(host=self.serve(speech_body=_wav(rate=16000)))
         with self.assertRaisesRegex(PhononError, "16000"):
             voice.synthesize("Hello.")
+
+    def test_unknown_voice_lists_the_available_ones(self):
+        with self.assertRaisesRegex(PhononError, "Nope.*default, Zoey"):
+            PhononSynthesizer(voice="Nope", host=self.serve())
+
+    def test_named_voice_is_sent_with_the_request(self):
+        voice = PhononSynthesizer(voice="Zoey", host=self.serve(speech_body=_wav()))
+        voice.synthesize("Hi.")
+        self.assertEqual(self.handler.requests[0]["voice"], "Zoey")
+
+    def test_missing_model_is_found_at_startup(self):
+        with self.assertRaisesRegex(PhononError, "ollama pull phonon"):
+            PhononSynthesizer(host=self.serve(show_status=404))
 
     def test_unreachable_ollama_is_reported(self):
         with self.assertRaisesRegex(PhononError, "not reachable"):

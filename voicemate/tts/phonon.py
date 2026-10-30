@@ -42,12 +42,13 @@ class PhononSynthesizer:
     """A Phonon voice behind the local Ollama.
 
     Args:
-        voice: Voice name (``default`` is the only voice of the English model).
+        voice: Voice name from the model's voice list (see ``ollama show phonon``).
         host: Base URL of the Ollama server.
         timeout_s: Request timeout.
 
     Raises:
-        PhononError: If Ollama is unreachable or older than :data:`MIN_OLLAMA_VERSION`.
+        PhononError: If Ollama is unreachable or older than :data:`MIN_OLLAMA_VERSION`, or the
+            model has no such voice.
     """
 
     def __init__(
@@ -57,6 +58,7 @@ class PhononSynthesizer:
         self.sample_rate: int = PHONON_SAMPLE_RATE
         self._client = httpx.Client(base_url=host, timeout=timeout_s)
         self._check_version()
+        self._check_voice()
 
     def _check_version(self) -> None:
         try:
@@ -66,6 +68,18 @@ class PhononSynthesizer:
         if _version_tuple(version) < MIN_OLLAMA_VERSION:
             needed = ".".join(map(str, MIN_OLLAMA_VERSION))
             raise PhononError(f"Ollama {version} cannot speak: update to {needed} or newer")
+
+    def _check_voice(self) -> None:
+        try:
+            response = self._client.post("/api/show", json={"model": PHONON_MODEL})
+        except httpx.HTTPError as exc:
+            raise PhononError(f"Ollama request failed: {exc}") from exc
+        if response.status_code == 404:
+            raise PhononError(f"Model {PHONON_MODEL!r} is missing: run `ollama pull phonon`")
+        voices = response.json().get("voices", []) if response.status_code == 200 else []
+        if voices and self.voice not in voices:
+            available = ", ".join(voices)
+            raise PhononError(f"Unknown phonon voice {self.voice!r}; available: {available}")
 
     def synthesize(self, text: str) -> np.ndarray:
         """Render ``text``; returns an empty array when there is nothing to say.

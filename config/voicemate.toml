@@ -51,10 +51,11 @@ device = "cpu"
 engine = "piper"
 voice = "hu_HU-anna-medium"
 
-# English: "phonon" (Ollama, small and fast) or "kokoro" (voice "af_heart"); both work.
+# English: "phonon" (Ollama, small and fast; female voices: Zoey, Harper, Hadley, Imogen, Maeve)
+# or "kokoro" (voice "af_heart"); both are female and both work.
 [tts.en]
 engine = "phonon"
-voice = "default"
+voice = "Zoey"
 
 [vad]
 threshold = 0.5
