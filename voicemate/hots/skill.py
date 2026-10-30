@@ -6,6 +6,7 @@ import logging
 
 from voicemate.config import Config
 from voicemate.hots.advisor import Advisor
+from voicemate.hots.aliases import AliasStore
 from voicemate.hots.intents import Intents
 from voicemate.hots.knowledge import Knowledge, RefreshReport
 from voicemate.pipeline.skills import Skill, SkillAnswer
@@ -37,10 +38,15 @@ class Hots:
         report: What the startup refresh changed.
     """
 
-    def __init__(self, knowledge: Knowledge, report: RefreshReport) -> None:
+    def __init__(
+        self, knowledge: Knowledge, report: RefreshReport, aliases: AliasStore | None = None
+    ) -> None:
         self.knowledge = knowledge
         self.report = report
+        self.aliases = aliases
         self.advisor = Advisor(knowledge)
+        for spelling, slug in (aliases.load() if aliases else {}).items():
+            self.advisor.roster.learn(spelling, slug)
 
     @classmethod
     def open(cls, config: Config) -> Hots | None:
@@ -53,7 +59,7 @@ class Hots:
             return None
         knowledge = Knowledge(config.hots_database_path, config.hots.pages_path)
         report = knowledge.refresh()
-        hots = cls(knowledge, report)
+        hots = cls(knowledge, report, AliasStore(config.hots.aliases_path))
         if not len(hots.advisor.roster):
             logger.info("No HotS pages in %s; the draft skill is off", config.hots.pages_path)
             knowledge.close()
@@ -63,7 +69,7 @@ class Hots:
 
     def skill(self) -> HotsSkill:
         """A skill with a fresh, empty draft for one session."""
-        return HotsSkill(Intents(self.advisor))
+        return HotsSkill(Intents(self.advisor, aliases=self.aliases))
 
     def session_skills(self) -> list[Skill]:
         """The skills of one new session (what :attr:`Runtime.skills` calls)."""

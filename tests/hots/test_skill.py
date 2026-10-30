@@ -4,6 +4,7 @@ from pathlib import Path
 
 from tests.hots.builders import guide_html, write_pages
 from voicemate.config import Config, HotsConfig
+from voicemate.hots.aliases import AliasStore
 from voicemate.hots.skill import Hots
 from voicemate.pipeline.skills import SkillAnswer
 
@@ -26,6 +27,15 @@ class TestHots(unittest.TestCase):
             answer = hots.skill().answer("what is good against muradin")
             self.assertEqual(answer.lang, "en")
             self.assertTrue(answer.text.startswith("To counter Muradin: Tychus"))
+            hots.close()
+
+    def test_learned_spellings_are_known_at_the_next_start(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            write_pages(Path(tmp) / "pages", PAGES)
+            config = self.config(tmp, aliases_file=f"{tmp}/aliases.toml")
+            AliasStore(config.hots.aliases_path).add("tichus", "tychus")
+            hots = Hots.open(config)
+            self.assertEqual(hots.skill().answer("enemy has tichus").text, "Enemy team: Tychus.")
             hots.close()
 
     def test_every_session_gets_its_own_draft(self):

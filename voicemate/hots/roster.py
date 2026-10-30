@@ -138,6 +138,14 @@ class Roster:
         """Iterate over the heroes."""
         return iter(self._by_slug.values())
 
+    def learn(self, spelling: str, slug: str) -> bool:
+        """Make ``spelling`` mean the hero ``slug``; ``False`` when it already means something."""
+        key = normalize(spelling)
+        if slug not in self._by_slug or key in self._keys:
+            return False
+        self._keys[key] = self._by_slug[slug]
+        return True
+
     def get(self, slug: str) -> Hero | None:
         """The hero with this slug, if any."""
         return self._by_slug.get(slug)

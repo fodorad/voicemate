@@ -12,8 +12,10 @@ from __future__ import annotations
 import difflib
 import re
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 from voicemate.hots.advisor import Advisor, Suggestion
+from voicemate.hots.aliases import AliasStore
 from voicemate.hots.draft import Draft
 from voicemate.hots.roster import Hero, normalize
 
@@ -50,6 +52,12 @@ _FILLER = re.compile(r"^(?:(?:hey|ok|okay) )?(?:ava )?(?:please )?")
 _NOISE = re.compile(r"\b(?:a|an|the|also|then|and then|please)\b")
 _LIST_SPLIT = re.compile(r",| and | & ")
 
+_ORDINALS = {
+    "first": 0, "1st": 0, "one": 0, "yes": 0, "yeah": 0, "yep": 0,
+    "second": 1, "2nd": 1, "two": 1,
+    "third": 2, "3rd": 2, "three": 2,
+}  # fmt: skip
+
 #: How many heroes an answer names.
 ANSWER_HEROES: int = 3
 
@@ -69,23 +77,42 @@ def _side(word: str) -> str:
     )
 
 
+@dataclass(frozen=True)
+class _Question:
+    """A name that could be one of several heroes, waiting for Adam's pick."""
+
+    said: str
+    heard: str
+    candidates: tuple[Hero, ...]
+
+
 class Intents:
     """Recognizes draft commands and answers them.
 
     Args:
         advisor: Ranks counters, picks and bans.
         draft: The session's draft (a new one when omitted).
+        aliases: Where spellings settled by a question are remembered.
     """
 
-    def __init__(self, advisor: Advisor, draft: Draft | None = None) -> None:
+    def __init__(
+        self, advisor: Advisor, draft: Draft | None = None, aliases: AliasStore | None = None
+    ) -> None:
         self.advisor = advisor
         self.draft = draft if draft is not None else Draft()
+        self.aliases = aliases
+        self._said = ""
+        self._question: _Question | None = None
 
     def handle(self, text: str) -> str | None:
         """Answer ``text`` when it is a draft command, otherwise return ``None``."""
         said = _clean(text)
         if not said:
             return None
+        answered = self._answer_question(said)
+        if answered is not None:
+            return answered
+        self._said = said
         for rule in (
             self._reset, self._map, self._banned, self._remove, self._add,
             self._ban_advice, self._suggest, self._pick_advice, self._counter_advice,
@@ -94,6 +121,21 @@ class Intents:
             if answer is not None:
                 return answer
         return None
+
+    def _answer_question(self, said: str) -> str | None:
+        """Settle the pending "A or B?" with ``said``; any other speech drops the question."""
+        question, self._question = self._question, None
+        if question is None or question.heard not in question.said:
+            return None
+        if said in _ORDINALS and _ORDINALS[said] < len(question.candidates):
+            hero = question.candidates[_ORDINALS[said]]
+        else:
+            hero = self.advisor.roster.resolve(said, {c.slug for c in question.candidates}).hero
+        if hero is None:
+            return None
+        if self.advisor.roster.learn(question.heard, hero.slug) and self.aliases:
+            self.aliases.add(question.heard, hero.slug)
+        return self.handle(question.said.replace(question.heard, hero.name.lower(), 1))
 
     # ── commands that change the draft ───────────────────────────────────────
 
@@ -234,7 +276,9 @@ class Intents:
                     heroes.append(resolved.hero)
             elif resolved.candidates:
                 options = " or ".join(h.name for h in resolved.candidates)
-                problems.append(f"Did you mean {options}?")
+                problems.append(f"{options}?")
+                if not problems[1:] and len(resolved.candidates) > 1:
+                    self._question = _Question(self._said, name, resolved.candidates)
         return heroes, problems
 
     def _resolve_map(self, spoken: str) -> str | None:
