@@ -34,9 +34,33 @@ MAPS = {
 }
 
 
-def read(name: str, *extra: TextBox) -> DraftScreen:
-    frame = Frame(np.zeros((9, 16, 3), dtype=np.uint8), (*boxes(name), *extra))
-    return interpret(frame, HEROES, MAPS)
+LIGHT, DARK = 200, 40
+
+
+def paint(image: np.ndarray, box: TextBox, shade: int) -> None:
+    top, left = int(box.top * 108), int(box.left * 192)
+    image[top : top + max(int(box.height * 108), 1), left : left + max(int(box.width * 192), 1)] = (
+        shade
+    )
+
+
+def screen_of(*all_boxes: TextBox, pending: tuple[TextBox, ...] = ()) -> Frame:
+    """A small picture where every label sits on a light band, except the ``pending`` ones."""
+    image = np.zeros((108, 192, 3), dtype=np.uint8)
+    for box in all_boxes:
+        paint(image, box, LIGHT)
+    for box in pending:
+        paint(image, box, DARK)
+    return Frame(image, all_boxes)
+
+
+def label(name: str, text: str) -> TextBox:
+    """The first box of a calibration screen with this text."""
+    return next(box for box in boxes(name) if box.text == text)
+
+
+def read(name: str, *extra: TextBox, pending: tuple[TextBox, ...] = ()) -> DraftScreen:
+    return interpret(screen_of(*boxes(name), *extra, pending=pending), HEROES, MAPS)
 
 
 class TestPhase(unittest.TestCase):
@@ -100,6 +124,18 @@ class TestTeams(unittest.TestCase):
         self.assertEqual(screen.invalid, ("artanis",))
         self.assertNotIn("artanis", screen.ally)
         self.assertEqual(screen.enemy, ("artanis",))
+
+    def test_hovered_heroes_are_pending_not_on_the_team(self):
+        screen = read(
+            "our_pick", pending=(label("our_pick", "TYCHUS"), label("our_pick", "THRALL"))
+        )
+        self.assertEqual(screen.ally, ("auriel", "jaina", "johanna"))
+        self.assertEqual(screen.pending, ("tychus", "thrall"))
+
+    def test_a_pending_hero_the_enemy_locked_is_invalid(self):
+        enemy_artanis = TextBox("ARTANIS", 1.0, 0.95, 0.77, 0.045, 0.06)
+        screen = read("ban_mine", enemy_artanis, pending=(label("ban_mine", "ARTANIS"),))
+        self.assertEqual(screen.invalid, ("artanis",))
 
     def test_unsure_text_is_not_a_hero(self):
         faint = TextBox("TYCHUS", 0.3, 0.005, 0.2, 0.04, 0.05)
