@@ -57,6 +57,11 @@ dependencies = [
   "pypdf>=5.0",
   "huggingface_hub>=0.30",
   "psutil>=5.9",
+  # ── screen reading (HotS draft) ───────────────────────────────────────────
+  "pillow>=10.0",
+  # macOS Vision text recognition and Quartz window capture; elsewhere the screen is not read.
+  "ocrmac>=1.0; sys_platform == 'darwin'",
+  "pyobjc-framework-Quartz>=10.0; sys_platform == 'darwin'",
   # ── UI ────────────────────────────────────────────────────────────────────
   "nicegui>=3.0",
 ]
@@ -124,6 +129,8 @@ source = ["voicemate"]
 omit = [
   # Benchmarks only run on macOS with every model downloaded (`make bench`).
   "voicemate/bench/*",
+  # Needs macOS, a screen and the Apple frameworks; checked by the opt-in integration tests.
+  "voicemate/hots/screen/macos.py",
 ]
 
 [tool.coverage.report]
@@ -140,3 +147,8 @@ directory = "coverage_html"
 
 [tool.ty.environment]
 python-version = "3.12"
+
+[tool.ty.src]
+# pyobjc resolves the Quartz names at runtime and the package is macOS-only, so there is
+# nothing for the type checker to read.
+exclude = ["voicemate/hots/screen/macos.py"]

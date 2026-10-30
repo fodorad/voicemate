@@ -17,6 +17,12 @@ class TestLoadConfig(unittest.TestCase):
         self.assertAlmostEqual(config.location.latitude, 47.7826)
         self.assertEqual(config.files.roots, ["~/Documents", "~/Downloads"])
 
+    def test_screen_reading_is_configured_under_hots(self):
+        config = load_config(PROJECT_DIR / "config" / "voicemate.toml")
+        self.assertEqual(config.hots.screen.window, "Heroes")
+        self.assertFalse(config.hots.screen.proactive)
+        self.assertTrue(config.hots.screen.log_path.is_absolute())
+
     def test_kokoro_stays_selectable_for_english(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "c.toml"

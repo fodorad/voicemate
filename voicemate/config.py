@@ -232,6 +232,33 @@ class FilesConfig:
 
 
 @dataclass
+class ScreenConfig:
+    """Reading the draft from the screen.
+
+    Attributes:
+        enabled: Read the game screen (macOS only; needs the Screen Recording permission).
+        window: Part of the game's app or window name; the whole display is read when no
+            such window is open.
+        poll_s: Seconds between light looks at the screen while watching for a draft.
+        proactive: Say "Your ban." / "Your pick." when it becomes your turn.
+        log_dir: Folder for the log of captured screens, one subfolder per draft.
+        keep: How many draft subfolders to keep.
+    """
+
+    enabled: bool = True
+    window: str = "Heroes"
+    poll_s: float = 2.0
+    proactive: bool = False
+    log_dir: str = "data/game_screens"
+    keep: int = 20
+
+    @property
+    def log_path(self) -> Path:
+        """The screen log folder as an absolute path."""
+        return _resolve(self.log_dir)
+
+
+@dataclass
 class HotsConfig:
     """Heroes of the Storm draft advice.
 
@@ -240,12 +267,14 @@ class HotsConfig:
         pages_dir: Folder with the saved Icy Veins pages (filled by hand from the browser).
         database: SQLite file of the knowledge base, inside the data directory.
         aliases_file: TOML file of hero-name spellings Ava learned from Adam.
+        screen: Reading the draft from the screen.
     """
 
     enabled: bool = True
     pages_dir: str = "data/icyveins/raw"
     database: str = "hots.sqlite"
     aliases_file: str = "data/hots_aliases.toml"
+    screen: ScreenConfig = field(default_factory=ScreenConfig)
 
     @property
     def pages_path(self) -> Path:
