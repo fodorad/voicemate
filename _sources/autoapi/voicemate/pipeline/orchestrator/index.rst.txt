@@ -88,6 +88,12 @@ Module Contents
    .. py:attribute:: policy
 
 
+   .. py:method:: start() -> None
+
+      Start the skills that work in the background (call once, inside the event loop).
+
+
+
    .. py:method:: close() -> None
       :async:
 

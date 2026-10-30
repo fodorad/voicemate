@@ -42,6 +42,8 @@ Module Contents
 
 
    .. py:method:: answer(text: str) -> voicemate.pipeline.skills.SkillAnswer | None
+      :async:
+
 
       Answer a draft command in English, or ``None`` for anything else.
 

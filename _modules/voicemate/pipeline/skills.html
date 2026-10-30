@@ -332,14 +332,15 @@
 <span class="sd">A skill recognizes the questions it can answer exactly (from local data, in milliseconds) and</span>
 <span class="sd">answers them in one sentence; everything else returns ``None`` and goes to the agent. The</span>
 <span class="sd">session asks its skills before every ordinary turn and speaks the answer through the usual</span>
-<span class="sd">pipeline (text-to-speech, UI, metrics), so a skill only has to produce text.</span>
+<span class="sd">pipeline (text-to-speech, UI, metrics), so a skill only has to produce text. A skill may also</span>
+<span class="sd">run in the background for the life of a session and speak on its own (:class:`Background`).</span>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Awaitable</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">runtime_checkable</span>
 
 
 <div class="viewcode-block" id="SkillAnswer">
@@ -365,8 +366,26 @@
 
 <div class="viewcode-block" id="Skill.answer">
 <a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/skills/index.html#voicemate.pipeline.skills.Skill.answer">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SkillAnswer</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""The answer to ``text``, or ``None`` when this skill does not handle it."""</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SkillAnswer</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The answer to ``text``, or ``None`` when this skill does not handle it.</span>
+
+<span class="sd">        Asynchronous so a skill may look at the screen or a file without blocking the audio.</span>
+<span class="sd">        """</span>
+        <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Background">
+<a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/skills/index.html#voicemate.pipeline.skills.Background">[docs]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Background</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A skill that keeps working while the session is open and may speak on its own."""</span>
+
+<div class="viewcode-block" id="Background.run">
+<a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/skills/index.html#voicemate.pipeline.skills.Background.run">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">say</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SkillAnswer</span><span class="p">],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Work until cancelled; ``say`` shows and (when the assistant is idle) speaks."""</span>
         <span class="o">...</span></div>
 </div>
 
@@ -374,10 +393,10 @@
 
 <div class="viewcode-block" id="first_answer">
 <a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/skills/index.html#voicemate.pipeline.skills.first_answer">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">first_answer</span><span class="p">(</span><span class="n">skills</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Skill</span><span class="p">],</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SkillAnswer</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">first_answer</span><span class="p">(</span><span class="n">skills</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Skill</span><span class="p">],</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SkillAnswer</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""The first skill answer to ``text`` (skills are tried in order), or ``None``."""</span>
     <span class="k">for</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">skills</span><span class="p">:</span>
-        <span class="n">answer</span> <span class="o">=</span> <span class="n">skill</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="k">await</span> <span class="n">skill</span><span class="o">.</span><span class="n">answer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">answer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">answer</span>
     <span class="k">return</span> <span class="kc">None</span></div>
