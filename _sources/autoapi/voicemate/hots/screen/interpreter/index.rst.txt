@@ -20,6 +20,7 @@ Attributes
 .. autoapisummary::
 
    voicemate.hots.screen.interpreter.MIN_CONFIDENCE
+   voicemate.hots.screen.interpreter.LOCKED_BRIGHTNESS
    voicemate.hots.screen.interpreter.MIN_TIMER_CONFIDENCE
    voicemate.hots.screen.interpreter.ALLY_EDGE
    voicemate.hots.screen.interpreter.ENEMY_EDGE
@@ -52,6 +53,11 @@ Module Contents
 .. py:data:: MIN_CONFIDENCE
    :type:  float
    :value: 0.5
+
+
+.. py:data:: LOCKED_BRIGHTNESS
+   :type:  float
+   :value: 110.0
 
 
 .. py:data:: MIN_TIMER_CONFIDENCE
@@ -118,8 +124,9 @@ Module Contents
    :ivar phase: The current phase.
    :ivar map_slug: The map, when its name was read.
    :ivar seconds: The countdown, when it was read.
-   :ivar ally: Heroes on Adam's team, top slot first.
-   :ivar enemy: Heroes on the enemy team, top slot first.
+   :ivar ally: Heroes locked in on Adam's team, top slot first.
+   :ivar enemy: Heroes locked in on the enemy team, top slot first.
+   :ivar pending: Heroes shown but not locked in yet (hovered picks of either team).
    :ivar banned: Heroes named by a "BANNED" announcement.
    :ivar invalid: Heroes shown on Adam's side that the enemy has or that are banned.
 
@@ -148,6 +155,12 @@ Module Contents
 
 
    .. py:attribute:: enemy
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: pending
       :type:  tuple[str, ...]
       :value: ()
 
