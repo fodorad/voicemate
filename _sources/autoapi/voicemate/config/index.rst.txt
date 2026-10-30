@@ -37,6 +37,7 @@ Classes
    voicemate.config.MemoryConfig
    voicemate.config.SearchConfig
    voicemate.config.FilesConfig
+   voicemate.config.ScreenConfig
    voicemate.config.HotsConfig
    voicemate.config.ActivationConfig
    voicemate.config.UIConfig
@@ -432,6 +433,63 @@ Module Contents
       Papers directory as an absolute path.
 
 
+.. py:class:: ScreenConfig
+
+   Reading the draft from the screen.
+
+   :ivar enabled: Read the game screen (macOS only; needs the Screen Recording permission).
+   :ivar window: Part of the game's app or window name; the whole display is read when no
+                 such window is open.
+   :ivar poll_s: Seconds between light looks at the screen while watching for a draft.
+   :ivar proactive: Say "Your ban." / "Your pick." when it becomes your turn.
+   :ivar log_dir: Folder for the log of captured screens, one subfolder per draft.
+   :ivar keep: How many draft subfolders to keep.
+
+
+
+   .. py:attribute:: enabled
+      :type:  bool
+      :value: True
+
+
+
+   .. py:attribute:: window
+      :type:  str
+      :value: 'Heroes'
+
+
+
+   .. py:attribute:: poll_s
+      :type:  float
+      :value: 2.0
+
+
+
+   .. py:attribute:: proactive
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: log_dir
+      :type:  str
+      :value: 'data/game_screens'
+
+
+
+   .. py:attribute:: keep
+      :type:  int
+      :value: 20
+
+
+
+   .. py:property:: log_path
+      :type: pathlib.Path
+
+
+      The screen log folder as an absolute path.
+
+
 .. py:class:: HotsConfig
 
    Heroes of the Storm draft advice.
@@ -440,6 +498,7 @@ Module Contents
    :ivar pages_dir: Folder with the saved Icy Veins pages (filled by hand from the browser).
    :ivar database: SQLite file of the knowledge base, inside the data directory.
    :ivar aliases_file: TOML file of hero-name spellings Ava learned from Adam.
+   :ivar screen: Reading the draft from the screen.
 
 
 
@@ -465,6 +524,10 @@ Module Contents
       :type:  str
       :value: 'data/hots_aliases.toml'
 
+
+
+   .. py:attribute:: screen
+      :type:  ScreenConfig
 
 
    .. py:property:: pages_path

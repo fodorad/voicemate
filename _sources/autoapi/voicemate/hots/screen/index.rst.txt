@@ -1,0 +1,21 @@
+voicemate.hots.screen
+=====================
+
+.. py:module:: voicemate.hots.screen
+
+.. autoapi-nested-parse::
+
+   Reading the Heroes of the Storm draft screen: capture, text recognition, interpretation.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/voicemate/hots/screen/macos/index
+   /autoapi/voicemate/hots/screen/reader/index
+
+

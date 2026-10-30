@@ -1,0 +1,149 @@
+voicemate.hots.screen.reader
+============================
+
+.. py:module:: voicemate.hots.screen.reader
+
+.. autoapi-nested-parse::
+
+   What a screen read returns, and the seam every screen source implements.
+
+   A :class:`ScreenReader` turns "look at the screen" into a :class:`Frame`: the picture (for
+   colours and portraits) and the text recognized on it. Positions are fractions of the picture
+   (0-1, measured from the top-left), so nothing downstream depends on the resolution.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.reader.Region
+   voicemate.hots.screen.reader.FULL
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.reader.ScreenError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.reader.TextBox
+   voicemate.hots.screen.reader.Frame
+   voicemate.hots.screen.reader.ScreenReader
+
+
+Module Contents
+---------------
+
+.. py:data:: Region
+
+.. py:data:: FULL
+   :type:  Region
+   :value: (0.0, 0.0, 1.0, 1.0)
+
+
+.. py:exception:: ScreenError
+
+   Bases: :py:obj:`RuntimeError`
+
+
+   The screen cannot be read; the message says what to fix.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:class:: TextBox
+
+   One piece of recognized text.
+
+   :ivar text: The text.
+   :ivar confidence: Recognizer confidence, 0-1.
+   :ivar left: Left edge, fraction of the picture width.
+   :ivar top: Top edge, fraction of the picture height.
+   :ivar width: Width, fraction of the picture width.
+   :ivar height: Height, fraction of the picture height.
+
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: confidence
+      :type:  float
+
+
+   .. py:attribute:: left
+      :type:  float
+
+
+   .. py:attribute:: top
+      :type:  float
+
+
+   .. py:attribute:: width
+      :type:  float
+
+
+   .. py:attribute:: height
+      :type:  float
+
+
+   .. py:property:: cx
+      :type: float
+
+
+      Horizontal centre.
+
+
+   .. py:property:: cy
+      :type: float
+
+
+      Vertical centre.
+
+
+.. py:class:: Frame
+
+   One look at the screen.
+
+   :ivar image: The picture, ``(height, width, 3)`` uint8 RGB.
+   :ivar boxes: Text recognized in the requested region (positions relative to the whole picture).
+
+
+
+   .. py:attribute:: image
+      :type:  numpy.ndarray
+
+
+   .. py:attribute:: boxes
+      :type:  tuple[TextBox, ...]
+
+
+.. py:class:: ScreenReader
+
+   Bases: :py:obj:`Protocol`
+
+
+   Looks at the screen (or a saved screenshot) and reads the text on it.
+
+
+   .. py:method:: read(region: Region = FULL, fast: bool = False) -> Frame
+
+      Capture the picture and recognize the text inside ``region``.
+
+      :param region: Only text inside this part is recognized (the picture is always whole).
+      :param fast: Use the quicker, rougher recognition (good for big, clear text).
+
+      :raises ScreenError: If the screen cannot be captured.
+
+
+

@@ -1,0 +1,99 @@
+voicemate.hots.screen.macos
+===========================
+
+.. py:module:: voicemate.hots.screen.macos
+
+.. autoapi-nested-parse::
+
+   The macOS screen readers: Quartz capture and Apple Vision text recognition.
+
+   Both run on the CPU/Neural Engine with no model of ours: a full read takes about half a
+   second. Capturing another app's window needs the Screen Recording permission for the app
+   that launched Ava (System Settings → Privacy & Security → Screen & System Audio Recording).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.macos.logger
+   voicemate.hots.screen.macos.PERMISSION_HINT
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.macos.MacScreenReader
+   voicemate.hots.screen.macos.ImageFileReader
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.macos.recognize
+   voicemate.hots.screen.macos.capture
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: PERMISSION_HINT
+   :value: 'Allow Screen Recording for the app that runs Ava (Terminal, iTerm or VS Code) in System...
+
+
+.. py:function:: recognize(image: numpy.ndarray, region: voicemate.hots.screen.reader.Region = FULL, fast: bool = False) -> tuple[voicemate.hots.screen.reader.TextBox, ...]
+
+   Recognize the text inside ``region`` of an RGB picture with Apple Vision.
+
+
+.. py:function:: capture(window: str) -> numpy.ndarray
+
+   The picture of the ``window`` app's window, or of the whole screen when it is not open.
+
+   :raises ScreenError: If macOS returns nothing or a blank picture (permission missing).
+
+
+.. py:class:: MacScreenReader(window: str = 'Heroes')
+
+   Reads the live screen (the game window when it is open, otherwise the whole display).
+
+   :param window: Part of the game's app or window name (``"Heroes"``).
+
+
+   .. py:attribute:: window
+      :value: 'Heroes'
+
+
+
+   .. py:method:: read(region: voicemate.hots.screen.reader.Region = FULL, fast: bool = False) -> voicemate.hots.screen.reader.Frame
+
+      Capture the screen now and recognize the text inside ``region``.
+
+
+
+.. py:class:: ImageFileReader(newest: collections.abc.Callable[[], pathlib.Path | None])
+
+   Reads a saved screenshot instead of the live screen.
+
+   :param newest: Returns the file to read (e.g. the newest screenshot in a folder).
+
+
+   .. py:attribute:: newest
+
+
+   .. py:method:: read(region: voicemate.hots.screen.reader.Region = FULL, fast: bool = False) -> voicemate.hots.screen.reader.Frame
+
+      Load the screenshot and recognize the text inside ``region``.
+
+      :raises ScreenError: If there is no screenshot.
+
+
+
