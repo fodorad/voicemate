@@ -155,6 +155,38 @@ class TestTeams(unittest.TestCase):
         self.assertIn("jaina", screen.invalid)
 
 
+class FakeBans:
+    """Stands in for the portrait matcher: always sees the same bans."""
+
+    def __init__(self, *slugs: str) -> None:
+        self.slugs = slugs
+        self.looks = 0
+
+    def bans(self, image: np.ndarray) -> tuple[str, ...]:
+        self.looks += 1
+        return self.slugs
+
+
+class TestPortraitBans(unittest.TestCase):
+    def interpret(self, name: str, bans: FakeBans):
+        return interpret(screen_of(*boxes(name)), HEROES, MAPS, portraits=bans)
+
+    def test_bans_from_the_slots_join_announced_ones_once(self):
+        screen = self.interpret("banned_announce", FakeBans("xalatath", "abathur"))
+        self.assertEqual(screen.banned, ("abathur", "xalatath"))
+
+    def test_a_banned_hero_on_my_side_is_invalid(self):
+        screen = self.interpret("ban_mine", FakeBans("auriel"))
+        self.assertEqual(screen.invalid, ("auriel",))
+        self.assertNotIn("auriel", screen.ally + screen.pending)
+
+    def test_slots_are_only_read_on_draft_screens(self):
+        bans = FakeBans("xalatath")
+        self.assertEqual(self.interpret("loading", bans).banned, ())
+        self.assertEqual(self.interpret("starting", bans).banned, ())
+        self.assertEqual(bans.looks, 0)
+
+
 class TestPurity(unittest.TestCase):
     def test_the_interpreter_does_no_io_and_knows_no_macos(self):
         modules = imported_modules(module_source("hots/screen/interpreter.py"))
