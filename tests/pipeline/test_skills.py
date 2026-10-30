@@ -4,19 +4,19 @@ from tests.helpers import ScriptedSkill, imported_modules, module_source
 from voicemate.pipeline.skills import SkillAnswer, first_answer
 
 
-class TestFirstAnswer(unittest.TestCase):
-    def test_skills_are_tried_in_order_and_the_first_answer_wins(self):
+class TestFirstAnswer(unittest.IsolatedAsyncioTestCase):
+    async def test_skills_are_tried_in_order_and_the_first_answer_wins(self):
         first, second = (
             ScriptedSkill({"a": "from first"}),
             ScriptedSkill({"a": "x", "b": "from second"}),
         )
-        self.assertEqual(first_answer([first, second], "a"), SkillAnswer("from first", "en"))
-        self.assertEqual(first_answer([first, second], "b"), SkillAnswer("from second", "en"))
+        self.assertEqual(await first_answer([first, second], "a"), SkillAnswer("from first", "en"))
+        self.assertEqual(await first_answer([first, second], "b"), SkillAnswer("from second", "en"))
         self.assertEqual(second.asked, ["b"])  # the second skill was not asked about "a"
 
-    def test_no_skill_means_no_answer(self):
-        self.assertIsNone(first_answer([], "a"))
-        self.assertIsNone(first_answer([ScriptedSkill({})], "a"))
+    async def test_no_skill_means_no_answer(self):
+        self.assertIsNone(await first_answer([], "a"))
+        self.assertIsNone(await first_answer([ScriptedSkill({})], "a"))
 
 
 class TestSeams(unittest.TestCase):

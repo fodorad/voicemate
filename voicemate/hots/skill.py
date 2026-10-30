@@ -24,7 +24,7 @@ class HotsSkill:
     def __init__(self, intents: Intents) -> None:
         self.intents = intents
 
-    def answer(self, text: str) -> SkillAnswer | None:
+    async def answer(self, text: str) -> SkillAnswer | None:
         """Answer a draft command in English, or ``None`` for anything else."""
         answer = self.intents.handle(text)
         return None if answer is None else SkillAnswer(answer, "en")

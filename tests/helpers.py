@@ -124,13 +124,39 @@ class ScriptedSkill:
         self.lang = lang
         self.asked: list[str] = []
 
-    def answer(self, text: str):
+    async def answer(self, text: str):
         """The scripted answer for ``text``, or ``None``."""
         from voicemate.pipeline.skills import SkillAnswer
 
         self.asked.append(text)
         found = self.answers.get(text)
         return None if found is None else SkillAnswer(found, self.lang)
+
+
+class ScriptedAnnouncer(ScriptedSkill):
+    """A skill that also works in the background: it says the scripted lines once, then idles.
+
+    Implements :class:`~voicemate.pipeline.skills.Background`; ``stopped`` is set when the
+    session cancels it.
+    """
+
+    def __init__(self, lines: list[str], lang: str = "en") -> None:
+        super().__init__({}, lang)
+        self.lines = lines
+        self.stopped = False
+
+    async def run(self, say) -> None:
+        """Say every scripted line, then wait until cancelled."""
+        import asyncio
+
+        from voicemate.pipeline.skills import SkillAnswer
+
+        try:
+            for line in self.lines:
+                await say(SkillAnswer(line, self.lang))
+            await asyncio.Event().wait()
+        finally:
+            self.stopped = True
 
 
 class ScriptedScreen:

@@ -10,6 +10,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 from tests.helpers import (
     EnergyVAD,
+    ScriptedAnnouncer,
     ScriptedRecognizer,
     ScriptedSkill,
     ToneSynthesizer,
@@ -42,6 +43,7 @@ from voicemate.pipeline.orchestrator import (
     turns_log_path,
 )
 from voicemate.pipeline.reply import APOLOGIES, FILLERS
+from voicemate.pipeline.skills import SkillAnswer
 from voicemate.runtime import Runtime
 from voicemate.speech import Speech
 from voicemate.tts.voices import VoiceBank
@@ -265,6 +267,34 @@ class TestSkills(SessionTestCase):
                 ("assistant", "Because it counters them."),
             ],
         )
+
+    async def test_a_background_skill_speaks_on_its_own_when_idle(self):
+        self.make_session(["x"], skills=[ScriptedAnnouncer(["Your ban."])])
+        self.session.start()
+        await asyncio.sleep(0.05)
+        events = self.drain()
+        self.assertEqual([e.text for e in events if isinstance(e, ReplyEvent)], ["Your ban."])
+        self.assertTrue(any(isinstance(e, AudioEvent) for e in events))
+        self.assertEqual(self.voice.calls, ["Your ban."])
+        await self.session.close()
+
+    async def test_a_background_skill_stays_silent_while_the_assistant_is_busy(self):
+        self.make_session(["slow answer"], delay=0.5, skills=[ScriptedAnnouncer([])])
+        await self.session.submit_text("a question")
+        await asyncio.sleep(0.05)
+        self.drain()
+        await self.session._announce_skill(SkillAnswer("Your pick.", "en"))
+        events = self.drain()
+        self.assertTrue(any(isinstance(e, ReplyEvent) for e in events))
+        self.assertEqual(self.voice.calls, [])
+
+    async def test_closing_the_session_stops_background_skills(self):
+        skill = ScriptedAnnouncer([])
+        self.make_session(["x"], skills=[skill])
+        self.session.start()
+        await asyncio.sleep(0.02)
+        await self.session.close()
+        self.assertTrue(skill.stopped)
 
     async def test_other_questions_still_reach_the_model(self):
         skill = self.skill()

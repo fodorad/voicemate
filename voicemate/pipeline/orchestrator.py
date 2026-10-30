@@ -60,7 +60,7 @@ from voicemate.pipeline.conversation import (
 from voicemate.pipeline.listener import Listener, ListenerCallbacks, Utterance
 from voicemate.pipeline.reminders import spoken_text
 from voicemate.pipeline.reply import Reply
-from voicemate.pipeline.skills import first_answer
+from voicemate.pipeline.skills import Background, SkillAnswer, first_answer
 from voicemate.pipeline.turn_taking import Begin, Collect, Decision, Interrupt, TurnTaking
 from voicemate.runtime import Runtime
 
@@ -108,6 +108,12 @@ class VoiceSession:
         self._tasks: set[asyncio.Task] = set()
 
     # ── lifecycle ────────────────────────────────────────────────────────────
+
+    def start(self) -> None:
+        """Start the skills that work in the background (call once, inside the event loop)."""
+        for skill in self.skills:
+            if isinstance(skill, Background):
+                self._spawn(skill.run(self._announce_skill))
 
     async def close(self) -> None:
         """Cancel everything this session is doing."""
@@ -355,7 +361,7 @@ class VoiceSession:
         resume: str | None = None,
     ) -> None:
         """Stream one agent run into speech; ``resume`` answers a pending confirmation."""
-        skill_answer = first_answer(self.skills, text) if resume is None else None
+        skill_answer = await first_answer(self.skills, text) if resume is None else None
         if skill_answer is not None:
             lang = skill_answer.lang
         reply = Reply(lang, ended_at)
@@ -473,6 +479,12 @@ class VoiceSession:
         self.bus.publish(ReminderEvent(note.text))
         if not self.busy and not self.holding:
             await self._speak(spoken_text(note, self.lang), self.lang)
+
+    async def _announce_skill(self, answer: SkillAnswer) -> None:
+        """What a background skill says: shown always, spoken when the assistant is idle."""
+        self.bus.publish(ReplyEvent(answer.text))
+        if not self.busy and not self.holding:
+            await self._speak(answer.text, answer.lang)
 
 
 def turns_log_path(data_path: Path) -> Path:
