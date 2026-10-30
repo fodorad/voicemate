@@ -248,6 +248,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/roster/index.html">voicemate.hots.roster</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/voicemate/hots/screen/index.html">voicemate.hots.screen</a><input aria-label="Toggle navigation of voicemate.hots.screen" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/hots/screen/interpreter/index.html">voicemate.hots.screen.interpreter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/hots/screen/log/index.html">voicemate.hots.screen.log</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/hots/screen/macos/index.html">voicemate.hots.screen.macos</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/hots/screen/reader/index.html">voicemate.hots.screen.reader</a></li>
@@ -537,6 +538,29 @@
                 <span class="k">return</span> <span class="n">Resolved</span><span class="p">(</span><span class="n">ranked</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">Resolved</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">close</span><span class="p">)</span></div>
 </div>
+
+
+
+<div class="viewcode-block" id="resolve_map">
+<a class="viewcode-back" href="../../../autoapi/voicemate/hots/roster/index.html#voicemate.hots.roster.resolve_map">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_map</span><span class="p">(</span><span class="n">spoken</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">maps</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The slug of the map ``spoken`` names (``maps`` is ``slug → name``), if exactly one fits.</span>
+
+<span class="sd">    A part of a name counts (``temple`` alone fits several maps and so names none); otherwise</span>
+<span class="sd">    a close spelling counts when it is clearly the best.</span>
+<span class="sd">    """</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">spoken</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MIN_PREFIX</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">{</span><span class="n">slug</span><span class="p">:</span> <span class="n">normalize</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">slug</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">maps</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="p">[</span><span class="n">slug</span> <span class="k">for</span> <span class="n">slug</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">name</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+        <span class="n">ratios</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">slug</span><span class="p">:</span> <span class="n">difflib</span><span class="o">.</span><span class="n">SequenceMatcher</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">ratio</span><span class="p">()</span> <span class="k">for</span> <span class="n">slug</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="n">best</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ratios</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="p">[</span><span class="n">slug</span> <span class="k">for</span> <span class="n">slug</span><span class="p">,</span> <span class="n">ratio</span> <span class="ow">in</span> <span class="n">ratios</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">ratio</span> <span class="o">&gt;=</span> <span class="mf">0.75</span> <span class="ow">and</span> <span class="n">ratio</span> <span class="o">==</span> <span class="n">best</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 </pre></div>
         </article>

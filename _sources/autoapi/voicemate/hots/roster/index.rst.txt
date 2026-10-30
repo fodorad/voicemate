@@ -39,6 +39,7 @@ Functions
 
    voicemate.hots.roster.normalize
    voicemate.hots.roster.sound_key
+   voicemate.hots.roster.resolve_map
 
 
 Module Contents
@@ -160,5 +161,13 @@ Module Contents
       :param available: Slugs of the heroes that can still be meant; the start-of-name and
                         sound-alike matches look only at these (an exact name always wins).
 
+
+
+.. py:function:: resolve_map(spoken: str, maps: collections.abc.Mapping[str, str]) -> str | None
+
+   The slug of the map ``spoken`` names (``maps`` is ``slug → name``), if exactly one fits.
+
+   A part of a name counts (``temple`` alone fits several maps and so names none); otherwise
+   a close spelling counts when it is clearly the best.
 
 

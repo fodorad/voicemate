@@ -1,0 +1,183 @@
+voicemate.hots.screen.interpreter
+=================================
+
+.. py:module:: voicemate.hots.screen.interpreter
+
+.. autoapi-nested-parse::
+
+   What a draft screen says: phase, map, timer and the heroes on each team.
+
+   A pure function over a :class:`~voicemate.hots.screen.reader.Frame`: it knows where the game
+   puts things (hero names in big capitals at the left edge for Adam's team and the right edge for
+   the enemy, the map name at the top, the phase in the middle) and nothing about how the text was
+   recognized. Player names are ignored.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.interpreter.MIN_CONFIDENCE
+   voicemate.hots.screen.interpreter.MIN_TIMER_CONFIDENCE
+   voicemate.hots.screen.interpreter.ALLY_EDGE
+   voicemate.hots.screen.interpreter.ENEMY_EDGE
+   voicemate.hots.screen.interpreter.MIDDLE
+   voicemate.hots.screen.interpreter.MAP_STRIP_BOTTOM
+   voicemate.hots.screen.interpreter.TIMER_BAND
+   voicemate.hots.screen.interpreter.BANNED_NAME_GAP
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.interpreter.Phase
+   voicemate.hots.screen.interpreter.DraftScreen
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.interpreter.interpret
+
+
+Module Contents
+---------------
+
+.. py:data:: MIN_CONFIDENCE
+   :type:  float
+   :value: 0.5
+
+
+.. py:data:: MIN_TIMER_CONFIDENCE
+   :type:  float
+   :value: 0.3
+
+
+.. py:data:: ALLY_EDGE
+   :type:  float
+   :value: 0.15
+
+
+.. py:data:: ENEMY_EDGE
+   :type:  float
+   :value: 0.85
+
+
+.. py:data:: MIDDLE
+   :type:  tuple[float, float]
+   :value: (0.25, 0.75)
+
+
+.. py:data:: MAP_STRIP_BOTTOM
+   :type:  float
+   :value: 0.1
+
+
+.. py:data:: TIMER_BAND
+   :type:  tuple[float, float]
+   :value: (0.03, 0.15)
+
+
+.. py:data:: BANNED_NAME_GAP
+   :type:  float
+   :value: 0.08
+
+
+.. py:class:: Phase
+
+   Where the draft is.
+
+   :ivar kind: ``"ban"`` or ``"pick"`` during the draft, ``"starting"`` once it is over,
+               ``"none"`` when this is not a draft screen.
+   :ivar mine: It is Adam's turn to ban or pick.
+
+
+
+   .. py:attribute:: kind
+      :type:  str
+      :value: 'none'
+
+
+
+   .. py:attribute:: mine
+      :type:  bool
+      :value: False
+
+
+
+.. py:class:: DraftScreen
+
+   The draft as one screen shows it.
+
+   :ivar phase: The current phase.
+   :ivar map_slug: The map, when its name was read.
+   :ivar seconds: The countdown, when it was read.
+   :ivar ally: Heroes on Adam's team, top slot first.
+   :ivar enemy: Heroes on the enemy team, top slot first.
+   :ivar banned: Heroes named by a "BANNED" announcement.
+   :ivar invalid: Heroes shown on Adam's side that the enemy has or that are banned.
+
+
+
+   .. py:attribute:: phase
+      :type:  Phase
+
+
+   .. py:attribute:: map_slug
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: seconds
+      :type:  int | None
+      :value: None
+
+
+
+   .. py:attribute:: ally
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: enemy
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: banned
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: invalid
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:property:: is_draft
+      :type: bool
+
+
+      Whether this is a banning or picking screen.
+
+
+.. py:function:: interpret(frame: voicemate.hots.screen.reader.Frame, roster: voicemate.hots.roster.Roster, maps: collections.abc.Mapping[str, str]) -> DraftScreen
+
+   Read the draft off one screen.
+
+   :param frame: The captured screen and its text.
+   :param roster: Resolves hero names (the big capital labels).
+   :param maps: ``slug → name`` of the maps.
+
+

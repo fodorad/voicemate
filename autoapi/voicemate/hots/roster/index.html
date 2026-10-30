@@ -249,6 +249,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#">voicemate.hots.roster</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../screen/index.html">voicemate.hots.screen</a><input aria-label="Toggle navigation of voicemate.hots.screen" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../screen/interpreter/index.html">voicemate.hots.screen.interpreter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../screen/log/index.html">voicemate.hots.screen.log</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../screen/macos/index.html">voicemate.hots.screen.macos</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../screen/reader/index.html">voicemate.hots.screen.reader</a></li>
@@ -389,6 +390,9 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.roster.sound_key" title="voicemate.hots.roster.sound_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sound_key</span></code></a>(→ str)</p></td>
 <td><p>A rough sound-alike key: the consonant skeleton of how <code class="docutils literal notranslate"><span class="pre">text</span></code> is pronounced.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.roster.resolve_map" title="voicemate.hots.roster.resolve_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_map</span></code></a>(→ str | None)</p></td>
+<td><p>The slug of the map <code class="docutils literal notranslate"><span class="pre">spoken</span></code> names (<code class="docutils literal notranslate"><span class="pre">maps</span></code> is <code class="docutils literal notranslate"><span class="pre">slug</span> <span class="pre">→</span> <span class="pre">name</span></code>), if exactly one fits.</p></td>
 </tr>
 </tbody>
 </table>
@@ -538,6 +542,14 @@ sound-alike matches look only at these (an exact name always wins).</p></li>
 
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="voicemate.hots.roster.resolve_map">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.roster.</span></span><span class="sig-name descname"><span class="pre">resolve_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spoken</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/hots/roster.html#resolve_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.roster.resolve_map" title="Link to this definition">¶</a></dt>
+<dd><p>The slug of the map <code class="docutils literal notranslate"><span class="pre">spoken</span></code> names (<code class="docutils literal notranslate"><span class="pre">maps</span></code> is <code class="docutils literal notranslate"><span class="pre">slug</span> <span class="pre">→</span> <span class="pre">name</span></code>), if exactly one fits.</p>
+<p>A part of a name counts (<code class="docutils literal notranslate"><span class="pre">temple</span></code> alone fits several maps and so names none); otherwise
+a close spelling counts when it is clearly the best.</p>
+</dd></dl>
+
 </section>
 </section>
 
@@ -626,6 +638,7 @@ sound-alike matches look only at these (an exact name always wins).</p></li>
 <li><a class="reference internal" href="#voicemate.hots.roster.Roster.resolve"><code class="docutils literal notranslate"><span class="pre">Roster.resolve()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#voicemate.hots.roster.resolve_map"><code class="docutils literal notranslate"><span class="pre">resolve_map()</span></code></a></li>
 </ul>
 </li>
 </ul>
