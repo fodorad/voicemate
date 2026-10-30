@@ -265,6 +265,7 @@ class HotsConfig:
     Attributes:
         enabled: Answer draft questions from the local knowledge base.
         pages_dir: Folder with the saved Icy Veins pages (filled by hand from the browser).
+        images_dir: Folder with the saved Icy Veins images (hero portraits read the ban slots).
         database: SQLite file of the knowledge base, inside the data directory.
         aliases_file: TOML file of hero-name spellings Ava learned from Adam.
         screen: Reading the draft from the screen.
@@ -272,6 +273,7 @@ class HotsConfig:
 
     enabled: bool = True
     pages_dir: str = "data/icyveins/raw"
+    images_dir: str = "data/icyveins/images"
     database: str = "hots.sqlite"
     aliases_file: str = "data/hots_aliases.toml"
     screen: ScreenConfig = field(default_factory=ScreenConfig)
@@ -280,6 +282,11 @@ class HotsConfig:
     def pages_path(self) -> Path:
         """Saved pages folder as an absolute path."""
         return _resolve(self.pages_dir)
+
+    @property
+    def images_path(self) -> Path:
+        """Saved images folder as an absolute path."""
+        return _resolve(self.images_dir)
 
     @property
     def aliases_path(self) -> Path:

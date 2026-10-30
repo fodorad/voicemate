@@ -106,6 +106,7 @@ variants = ["eva"]
 # Heroes of the Storm draft advice from pages saved from icy-veins.com (never fetched by Ava).
 enabled = true
 pages_dir = "data/icyveins/raw"
+images_dir = "data/icyveins/images"   # hero portraits: the ban slots are read by them
 database = "hots.sqlite"
 # Hero-name spellings Ava learned when you picked between two heroes.
 aliases_file = "data/hots_aliases.toml"
