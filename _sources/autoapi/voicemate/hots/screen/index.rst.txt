@@ -18,6 +18,7 @@ Submodules
    /autoapi/voicemate/hots/screen/interpreter/index
    /autoapi/voicemate/hots/screen/log/index
    /autoapi/voicemate/hots/screen/macos/index
+   /autoapi/voicemate/hots/screen/portraits/index
    /autoapi/voicemate/hots/screen/reader/index
 
 

@@ -1,0 +1,122 @@
+voicemate.hots.screen.portraits
+===============================
+
+.. py:module:: voicemate.hots.screen.portraits
+
+.. autoapi-nested-parse::
+
+   Reading the ban slots by comparing their pictures with the hero portraits.
+
+   A ban shows only the hero's face in one of six slots at the top of the draft screen; the name
+   appears for two seconds in the middle and is easy to miss. The portraits Adam saved from Icy
+   Veins show the same art, so each slot is matched against all of them by normalized correlation
+   (a few scales and shifts), on the CPU with no model. Looks at a slot that did not change are
+   answered from a cache.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.portraits.logger
+   voicemate.hots.screen.portraits.SLOT_CENTERS
+   voicemate.hots.screen.portraits.SLOT_HALF_WIDTH
+   voicemate.hots.screen.portraits.SLOT_TOP
+   voicemate.hots.screen.portraits.SLOT_BOTTOM
+   voicemate.hots.screen.portraits.PATCH
+   voicemate.hots.screen.portraits.SCALES
+   voicemate.hots.screen.portraits.STEP
+   voicemate.hots.screen.portraits.MIN_SCORE
+   voicemate.hots.screen.portraits.MIN_MARGIN
+   voicemate.hots.screen.portraits.FILE_PREFIX
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.portraits.Portraits
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: SLOT_CENTERS
+   :type:  tuple[float, ...]
+   :value: (0.1635, 0.215, 0.267, 0.734, 0.786, 0.838)
+
+
+.. py:data:: SLOT_HALF_WIDTH
+   :type:  float
+   :value: 0.0177
+
+
+.. py:data:: SLOT_TOP
+   :type:  float
+   :value: 0.0262
+
+
+.. py:data:: SLOT_BOTTOM
+   :type:  float
+   :value: 0.0707
+
+
+.. py:data:: PATCH
+   :type:  tuple[int, int]
+   :value: (24, 34)
+
+
+.. py:data:: SCALES
+   :type:  tuple[int, ...]
+   :value: (39, 42, 46, 50)
+
+
+.. py:data:: STEP
+   :type:  int
+   :value: 2
+
+
+.. py:data:: MIN_SCORE
+   :type:  float
+   :value: 0.65
+
+
+.. py:data:: MIN_MARGIN
+   :type:  float
+   :value: 0.06
+
+
+.. py:data:: FILE_PREFIX
+   :type:  str
+   :value: 'img_hero-portraits_'
+
+
+.. py:class:: Portraits(images: dict[str, PIL.Image.Image])
+
+   The hero portraits and the ban-slot matcher.
+
+   :param images: ``slug → portrait`` (any size; RGB).
+
+
+   .. py:attribute:: slugs
+
+
+   .. py:method:: from_folder(folder: pathlib.Path) -> Portraits
+      :classmethod:
+
+
+      Load the portraits saved in ``folder`` (``img_hero-portraits_<slug>.jpg``).
+
+
+
+   .. py:method:: bans(image: numpy.ndarray) -> tuple[str, ...]
+
+      The heroes shown in the six ban slots of a draft screen, left to right.
+
+
+

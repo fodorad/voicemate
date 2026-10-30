@@ -252,6 +252,7 @@
 <li class="toctree-l5 current current-page"><a class="current reference internal" href="#">voicemate.hots.screen.interpreter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../log/index.html">voicemate.hots.screen.log</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../macos/index.html">voicemate.hots.screen.macos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../portraits/index.html">voicemate.hots.screen.portraits</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../reader/index.html">voicemate.hots.screen.reader</a></li>
 </ul>
 </li>
@@ -385,6 +386,9 @@ recognized. Player names are ignored.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen" title="voicemate.hots.screen.interpreter.DraftScreen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DraftScreen</span></code></a></p></td>
 <td><p>The draft as one screen shows it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.BanReader" title="voicemate.hots.screen.interpreter.BanReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BanReader</span></code></a></p></td>
+<td><p>Recognizes the heroes in the ban slots from the picture.</p></td>
 </tr>
 </tbody>
 </table>
@@ -540,9 +544,22 @@ recognized. Player names are ignored.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.BanReader">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">BanReader</span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/interpreter.html#BanReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.interpreter.BanReader" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Recognizes the heroes in the ban slots from the picture.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.BanReader.bans">
+<span class="sig-name descname"><span class="pre">bans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/interpreter.html#BanReader.bans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.interpreter.BanReader.bans" title="Link to this definition">¶</a></dt>
+<dd><p>Hero slugs shown in the ban slots of a draft screen.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.interpret">
-<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">interpret</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../reader/index.html#voicemate.hots.screen.reader.Frame" title="voicemate.hots.screen.reader.Frame"><span class="pre">voicemate.hots.screen.reader.Frame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">roster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../roster/index.html#voicemate.hots.roster.Roster" title="voicemate.hots.roster.Roster"><span class="pre">voicemate.hots.roster.Roster</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen" title="voicemate.hots.screen.interpreter.DraftScreen"><span class="pre">DraftScreen</span></a></span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/interpreter.html#interpret"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.interpreter.interpret" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">interpret</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../reader/index.html#voicemate.hots.screen.reader.Frame" title="voicemate.hots.screen.reader.Frame"><span class="pre">voicemate.hots.screen.reader.Frame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">roster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../roster/index.html#voicemate.hots.roster.Roster" title="voicemate.hots.roster.Roster"><span class="pre">voicemate.hots.roster.Roster</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">portraits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#voicemate.hots.screen.interpreter.BanReader" title="voicemate.hots.screen.interpreter.BanReader"><span class="pre">BanReader</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen" title="voicemate.hots.screen.interpreter.DraftScreen"><span class="pre">DraftScreen</span></a></span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/interpreter.html#interpret"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.interpreter.interpret" title="Link to this definition">¶</a></dt>
 <dd><p>Read the draft off one screen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -550,6 +567,7 @@ recognized. Player names are ignored.</p>
 <li><p><strong>frame</strong> – The captured screen and its text.</p></li>
 <li><p><strong>roster</strong> – Resolves hero names (the big capital labels).</p></li>
 <li><p><strong>maps</strong> – <code class="docutils literal notranslate"><span class="pre">slug</span> <span class="pre">→</span> <span class="pre">name</span></code> of the maps.</p></li>
+<li><p><strong>portraits</strong> – Reads the ban slots; without it only announced bans are known.</p></li>
 </ul>
 </dd>
 </dl>
@@ -642,6 +660,10 @@ recognized. Player names are ignored.</p>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen.banned"><code class="docutils literal notranslate"><span class="pre">DraftScreen.banned</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen.invalid"><code class="docutils literal notranslate"><span class="pre">DraftScreen.invalid</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen.is_draft"><code class="docutils literal notranslate"><span class="pre">DraftScreen.is_draft</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#voicemate.hots.screen.interpreter.BanReader"><code class="docutils literal notranslate"><span class="pre">BanReader</span></code></a><ul>
+<li><a class="reference internal" href="#voicemate.hots.screen.interpreter.BanReader.bans"><code class="docutils literal notranslate"><span class="pre">BanReader.bans()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.interpret"><code class="docutils literal notranslate"><span class="pre">interpret()</span></code></a></li>

@@ -37,6 +37,7 @@ Classes
 
    voicemate.hots.screen.interpreter.Phase
    voicemate.hots.screen.interpreter.DraftScreen
+   voicemate.hots.screen.interpreter.BanReader
 
 
 Functions
@@ -185,12 +186,27 @@ Module Contents
       Whether this is a banning or picking screen.
 
 
-.. py:function:: interpret(frame: voicemate.hots.screen.reader.Frame, roster: voicemate.hots.roster.Roster, maps: collections.abc.Mapping[str, str]) -> DraftScreen
+.. py:class:: BanReader
+
+   Bases: :py:obj:`Protocol`
+
+
+   Recognizes the heroes in the ban slots from the picture.
+
+
+   .. py:method:: bans(image: numpy.ndarray) -> tuple[str, ...]
+
+      Hero slugs shown in the ban slots of a draft screen.
+
+
+
+.. py:function:: interpret(frame: voicemate.hots.screen.reader.Frame, roster: voicemate.hots.roster.Roster, maps: collections.abc.Mapping[str, str], portraits: BanReader | None = None) -> DraftScreen
 
    Read the draft off one screen.
 
    :param frame: The captured screen and its text.
    :param roster: Resolves hero names (the big capital labels).
    :param maps: ``slug → name`` of the maps.
+   :param portraits: Reads the ban slots; without it only announced bans are known.
 
 

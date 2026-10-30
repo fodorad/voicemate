@@ -251,6 +251,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/hots/screen/interpreter/index.html">voicemate.hots.screen.interpreter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/hots/screen/log/index.html">voicemate.hots.screen.log</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/hots/screen/macos/index.html">voicemate.hots.screen.macos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/hots/screen/portraits/index.html">voicemate.hots.screen.portraits</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/voicemate/hots/screen/reader/index.html">voicemate.hots.screen.reader</a></li>
 </ul>
 </li>
@@ -339,6 +340,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -425,20 +427,39 @@
 
 
 
+<div class="viewcode-block" id="BanReader">
+<a class="viewcode-back" href="../../../../autoapi/voicemate/hots/screen/interpreter/index.html#voicemate.hots.screen.interpreter.BanReader">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BanReader</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Recognizes the heroes in the ban slots from the picture."""</span>
+
+<div class="viewcode-block" id="BanReader.bans">
+<a class="viewcode-back" href="../../../../autoapi/voicemate/hots/screen/interpreter/index.html#voicemate.hots.screen.interpreter.BanReader.bans">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Hero slugs shown in the ban slots of a draft screen."""</span>
+        <span class="o">...</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="interpret">
 <a class="viewcode-back" href="../../../../autoapi/voicemate/hots/screen/interpreter/index.html#voicemate.hots.screen.interpreter.interpret">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">interpret</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">roster</span><span class="p">:</span> <span class="n">Roster</span><span class="p">,</span> <span class="n">maps</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">DraftScreen</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">interpret</span><span class="p">(</span>
+    <span class="n">frame</span><span class="p">:</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">roster</span><span class="p">:</span> <span class="n">Roster</span><span class="p">,</span> <span class="n">maps</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">portraits</span><span class="p">:</span> <span class="n">BanReader</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DraftScreen</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Read the draft off one screen.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        frame: The captured screen and its text.</span>
 <span class="sd">        roster: Resolves hero names (the big capital labels).</span>
 <span class="sd">        maps: ``slug → name`` of the maps.</span>
+<span class="sd">        portraits: Reads the ban slots; without it only announced bans are known.</span>
 <span class="sd">    """</span>
     <span class="n">boxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">boxes</span> <span class="k">if</span> <span class="n">box</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
     <span class="n">ally</span><span class="p">,</span> <span class="n">ally_pending</span> <span class="o">=</span> <span class="n">_team</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">boxes</span><span class="p">,</span> <span class="n">roster</span><span class="p">,</span> <span class="s2">"ally"</span><span class="p">)</span>
     <span class="n">enemy</span><span class="p">,</span> <span class="n">enemy_pending</span> <span class="o">=</span> <span class="n">_team</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">boxes</span><span class="p">,</span> <span class="n">roster</span><span class="p">,</span> <span class="s2">"enemy"</span><span class="p">)</span>
     <span class="n">banned</span> <span class="o">=</span> <span class="n">_banned</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">roster</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">portraits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_phase</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"ban"</span><span class="p">,</span> <span class="s2">"pick"</span><span class="p">):</span>
+        <span class="n">banned</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">((</span><span class="o">*</span><span class="n">banned</span><span class="p">,</span> <span class="o">*</span><span class="n">portraits</span><span class="o">.</span><span class="n">bans</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">image</span><span class="p">))))</span>
     <span class="n">taken</span> <span class="o">=</span> <span class="p">{</span><span class="o">*</span><span class="n">enemy</span><span class="p">,</span> <span class="o">*</span><span class="n">banned</span><span class="p">}</span>
     <span class="n">shown</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">ally</span><span class="p">,</span> <span class="o">*</span><span class="n">ally_pending</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">DraftScreen</span><span class="p">(</span>
