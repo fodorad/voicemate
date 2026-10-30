@@ -1,7 +1,6 @@
 import os
 import sys
 import unittest
-from pathlib import Path
 
 from voicemate.config import load_config
 
