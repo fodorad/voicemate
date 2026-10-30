@@ -133,6 +133,26 @@ class ScriptedSkill:
         return None if found is None else SkillAnswer(found, self.lang)
 
 
+class ScriptedScreen:
+    """A screen that shows the scripted frames one read at a time (the last one stays up).
+
+    Implements :class:`~voicemate.hots.screen.reader.ScreenReader`; ``reads`` records the
+    ``(region, fast)`` of every read. An exception in the script is raised instead of returned.
+    """
+
+    def __init__(self, *frames) -> None:
+        self.frames = list(frames)
+        self.reads: list[tuple[tuple[float, float, float, float], bool]] = []
+
+    def read(self, region=(0.0, 0.0, 1.0, 1.0), fast: bool = False):
+        """The next scripted frame."""
+        self.reads.append((region, fast))
+        frame = self.frames.pop(0) if len(self.frames) > 1 else self.frames[0]
+        if isinstance(frame, Exception):
+            raise frame
+        return frame
+
+
 class HashingEmbedder:
     """Bag-of-words feature hashing embedder: identical texts → identical vectors,
     texts sharing words → positive cosine similarity."""
