@@ -1,6 +1,6 @@
 import unittest
 
-from voicemate.hots.roster import Hero, Roster, normalize
+from voicemate.hots.roster import Hero, Roster, normalize, sound_key
 
 HEROES = [
     Hero("zuljin", "Zul'jin", "Ranged Assassin"),
@@ -72,3 +72,46 @@ class TestResolve(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+SOUNDS = [
+    Hero("xalatath", "Xal'atath"),
+    Hero("kel-thuzad", "Kel'Thuzad"),
+    Hero("tychus", "Tychus"),
+    Hero("tyrael", "Tyrael"),
+    Hero("thrall", "Thrall"),
+    Hero("dehaka", "Dehaka"),
+]
+
+
+class TestSoundAlike(unittest.TestCase):
+    def setUp(self):
+        self.roster = Roster(SOUNDS)
+
+    def test_names_that_sound_alike_share_a_key(self):
+        self.assertEqual(sound_key("Kszalatat"), sound_key("Xal'atath"))
+        self.assertNotEqual(sound_key("Tychus"), sound_key("Dehaka"))
+
+    def test_badly_pronounced_names_resolve(self):
+        for spoken, slug in [
+            ("kszalatat", "xalatath"),
+            ("kel tazad", "kel-thuzad"),
+            ("tichus", "tychus"),
+        ]:
+            with self.subTest(spoken=spoken):
+                self.assertEqual(self.roster.resolve(spoken).hero.slug, slug)
+
+    def test_a_name_that_sounds_like_two_heroes_stays_ambiguous(self):
+        result = self.roster.resolve("trl")
+        self.assertIsNone(result.hero)
+        self.assertEqual({h.slug for h in result.candidates}, {"tyrael", "thrall"})
+
+    def test_only_available_heroes_are_considered(self):
+        result = self.roster.resolve("trl", available={"thrall", "dehaka"})
+        self.assertEqual(result.hero.slug, "thrall")
+
+    def test_an_exact_name_wins_even_when_unavailable(self):
+        self.assertEqual(self.roster.resolve("Tyrael", available={"thrall"}).hero.slug, "tyrael")
+
+    def test_short_keys_do_not_match_by_sound(self):
+        self.assertIsNone(self.roster.resolve("dk").hero)

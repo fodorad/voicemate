@@ -102,6 +102,11 @@ class TestDraftCommands(IntentCase):
             (self.draft.enemy[:2], self.draft.ally), (["tychus", "muradin"], ["zeratul"])
         )
 
+    def test_a_name_that_sounds_like_two_heroes_goes_to_the_one_still_available(self):
+        self.ask("we have tyrael")
+        self.assertEqual(self.ask("enemy has tyrand"), "Enemy team: Tyrande.")
+        self.assertEqual(self.draft.ally, ["tyrael"])
+
     def test_remove_and_reset(self):
         self.ask("enemy has tychus, muradin")
         self.assertEqual(self.ask("remove tychus from the enemy"), "Enemy team: Muradin.")

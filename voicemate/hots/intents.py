@@ -138,7 +138,7 @@ class Intents:
         return self._change(side, match.group("h") or match.group("h2"), add=True)
 
     def _change(self, side: str, fragment: str, add: bool) -> str | None:
-        heroes, problems = self._heroes(fragment)
+        heroes, problems = self._heroes(fragment, self._available() if add else None)
         if not heroes and not problems:
             return None
         if heroes:
@@ -210,15 +210,25 @@ class Intents:
 
     # ── names ────────────────────────────────────────────────────────────────
 
-    def _heroes(self, fragment: str) -> tuple[list[Hero], list[str]]:
-        """Heroes named in ``fragment`` and messages about names that were not clear."""
+    def _available(self) -> set[str]:
+        """Heroes that can still be picked or banned."""
+        taken = {*self.draft.enemy, *self.draft.ally, *self.draft.banned}
+        return {hero.slug for hero in self.advisor.roster} - taken
+
+    def _heroes(
+        self, fragment: str, available: set[str] | None = None
+    ) -> tuple[list[Hero], list[str]]:
+        """Heroes named in ``fragment`` and messages about names that were not clear.
+
+        ``available`` limits sound-alike guesses to heroes not yet in the draft.
+        """
         heroes: list[Hero] = []
         problems: list[str] = []
         for part in _LIST_SPLIT.split(_NOISE.sub(" ", fragment)):
             name = part.strip(" ,")
             if not name:
                 continue
-            resolved = self.advisor.roster.resolve(name)
+            resolved = self.advisor.roster.resolve(name, available)
             if resolved.hero is not None:
                 if resolved.hero not in heroes:
                     heroes.append(resolved.hero)

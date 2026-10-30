@@ -5,7 +5,7 @@ from __future__ import annotations
 import difflib
 import re
 import unicodedata
-from collections.abc import Iterable, Iterator, Mapping
+from collections.abc import Collection, Iterable, Iterator, Mapping
 from dataclasses import dataclass
 
 #: Spoken spellings that do not normalize to the hero's name, as ``spelling → slug``.
@@ -47,10 +47,32 @@ MIN_PREFIX: int = 3
 SUGGEST_THRESHOLD: float = 0.6
 
 
+#: Letter groups that sound alike, replaced in this order before the vowels are dropped.
+_SOUNDS: tuple[tuple[str, str], ...] = (
+    ("ph", "f"), ("th", "t"), ("sh", "S"), ("ch", "S"), ("ck", "k"), ("x", "ks"), ("q", "k"),
+    ("c", "k"), ("z", "s"), ("w", "v"), ("y", "i"),
+)  # fmt: skip
+#: Sound keys shorter than this say too little to match by.
+MIN_SOUND_KEY: int = 3
+
+
 def normalize(text: str) -> str:
     """Lower-case ``text`` without accents, punctuation or spaces (``Zul'jin`` → ``zuljin``)."""
     plain = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]", "", plain.lower())
+
+
+def sound_key(text: str) -> str:
+    """A rough sound-alike key: the consonant skeleton of how ``text`` is pronounced.
+
+    ``Kszalatat`` and ``Xal'atath`` both become ``kslt``, so a badly pronounced name still
+    lands next to the right hero.
+    """
+    key = normalize(text)
+    for letters, sound in _SOUNDS:
+        key = key.replace(letters, sound)
+    key = re.sub(r"[aeiouh0-9]", "", key)
+    return re.sub(r"(.)\1+", r"\1", key)
 
 
 @dataclass(frozen=True)
@@ -79,6 +101,15 @@ class Resolved:
 
     hero: Hero | None
     candidates: tuple[Hero, ...] = ()
+
+
+def _similarity(spelled: str, candidate: str, heard: str) -> float:
+    """How well a spelling and its sound key fit a candidate name (0-1)."""
+    ratio = difflib.SequenceMatcher(None, spelled, candidate).ratio()
+    sound = sound_key(candidate)
+    if len(heard) < MIN_SOUND_KEY or len(sound) < MIN_SOUND_KEY:
+        return ratio
+    return (ratio + difflib.SequenceMatcher(None, heard, sound).ratio()) / 2
 
 
 class Roster:
@@ -111,27 +142,34 @@ class Roster:
         """The hero with this slug, if any."""
         return self._by_slug.get(slug)
 
-    def resolve(self, text: str) -> Resolved:
+    def resolve(self, text: str, available: Collection[str] | None = None) -> Resolved:
         """Find the hero ``text`` names.
 
         An exact (normalized) name, slug or alias wins; so does the start of exactly one name
-        (``mura``); otherwise the best fuzzy match counts when it clearly beats every other hero.
-        Anything else returns the closest candidates.
+        (``mura``); otherwise the best match by spelling and sound counts when it clearly beats
+        every other hero. Anything else returns the closest candidates.
+
+        Args:
+            text: The typed or recognized name.
+            available: Slugs of the heroes that can still be meant; the start-of-name and
+                sound-alike matches look only at these (an exact name always wins).
         """
         key = normalize(text)
         if not key:
             return Resolved(None)
         if key in self._keys:
             return Resolved(self._keys[key])
+        keys = {k: h for k, h in self._keys.items() if available is None or h.slug in available}
         if len(key) >= MIN_PREFIX:
-            starting = {h.slug: h for k, h in self._keys.items() if k.startswith(key)}
+            starting = {h.slug: h for k, h in keys.items() if k.startswith(key)}
             if len(starting) == 1:
                 return Resolved(next(iter(starting.values())))
             if starting:
                 return Resolved(None, tuple(starting.values())[:3])
         best: dict[str, tuple[float, Hero]] = {}
-        for candidate, hero in self._keys.items():
-            ratio = difflib.SequenceMatcher(None, key, candidate).ratio()
+        heard = sound_key(text)
+        for candidate, hero in keys.items():
+            ratio = _similarity(key, candidate, heard)
             if ratio > best.get(hero.slug, (0.0, hero))[0]:
                 best[hero.slug] = (ratio, hero)
         ranked = sorted(best.values(), key=lambda pair: pair[0], reverse=True)
