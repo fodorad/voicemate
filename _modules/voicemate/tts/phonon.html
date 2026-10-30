@@ -367,12 +367,13 @@
 <span class="w">    </span><span class="sd">"""A Phonon voice behind the local Ollama.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        voice: Voice name (``default`` is the only voice of the English model).</span>
+<span class="sd">        voice: Voice name from the model's voice list (see ``ollama show phonon``).</span>
 <span class="sd">        host: Base URL of the Ollama server.</span>
 <span class="sd">        timeout_s: Request timeout.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        PhononError: If Ollama is unreachable or older than :data:`MIN_OLLAMA_VERSION`.</span>
+<span class="sd">        PhononError: If Ollama is unreachable or older than :data:`MIN_OLLAMA_VERSION`, or the</span>
+<span class="sd">            model has no such voice.</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -382,6 +383,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">PHONON_SAMPLE_RATE</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout_s</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_version</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_voice</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -391,6 +393,18 @@
         <span class="k">if</span> <span class="n">_version_tuple</span><span class="p">(</span><span class="n">version</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MIN_OLLAMA_VERSION</span><span class="p">:</span>
             <span class="n">needed</span> <span class="o">=</span> <span class="s2">"."</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">MIN_OLLAMA_VERSION</span><span class="p">))</span>
             <span class="k">raise</span> <span class="n">PhononError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Ollama </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> cannot speak: update to </span><span class="si">{</span><span class="n">needed</span><span class="si">}</span><span class="s2"> or newer"</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_voice</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/api/show"</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">"model"</span><span class="p">:</span> <span class="n">PHONON_MODEL</span><span class="p">})</span>
+        <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PhononError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Ollama request failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PhononError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Model </span><span class="si">{</span><span class="n">PHONON_MODEL</span><span class="si">!r}</span><span class="s2"> is missing: run `ollama pull phonon`"</span><span class="p">)</span>
+        <span class="n">voices</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"voices"</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">voices</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">voice</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">voices</span><span class="p">:</span>
+            <span class="n">available</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">voices</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PhononError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown phonon voice </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">voice</span><span class="si">!r}</span><span class="s2">; available: </span><span class="si">{</span><span class="n">available</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PhononSynthesizer.synthesize">
 <a class="viewcode-back" href="../../../autoapi/voicemate/tts/phonon/index.html#voicemate.tts.phonon.PhononSynthesizer.synthesize">[docs]</a>

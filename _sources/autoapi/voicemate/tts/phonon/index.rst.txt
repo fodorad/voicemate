@@ -80,11 +80,12 @@ Module Contents
 
    A Phonon voice behind the local Ollama.
 
-   :param voice: Voice name (``default`` is the only voice of the English model).
+   :param voice: Voice name from the model's voice list (see ``ollama show phonon``).
    :param host: Base URL of the Ollama server.
    :param timeout_s: Request timeout.
 
-   :raises PhononError: If Ollama is unreachable or older than :data:`MIN_OLLAMA_VERSION`.
+   :raises PhononError: If Ollama is unreachable or older than :data:`MIN_OLLAMA_VERSION`, or the
+       model has no such voice.
 
 
    .. py:attribute:: voice

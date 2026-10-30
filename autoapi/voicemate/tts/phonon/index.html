@@ -420,13 +420,14 @@ Portuguese (not Hungarian), so Hungarian keeps using Piper.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>voice</strong> – Voice name (<code class="docutils literal notranslate"><span class="pre">default</span></code> is the only voice of the English model).</p></li>
+<li><p><strong>voice</strong> – Voice name from the model’s voice list (see <code class="docutils literal notranslate"><span class="pre">ollama</span> <span class="pre">show</span> <span class="pre">phonon</span></code>).</p></li>
 <li><p><strong>host</strong> – Base URL of the Ollama server.</p></li>
 <li><p><strong>timeout_s</strong> – Request timeout.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#voicemate.tts.phonon.PhononError" title="voicemate.tts.phonon.PhononError"><strong>PhononError</strong></a> – If Ollama is unreachable or older than <a class="reference internal" href="#voicemate.tts.phonon.MIN_OLLAMA_VERSION" title="voicemate.tts.phonon.MIN_OLLAMA_VERSION"><code class="xref py py-data docutils literal notranslate"><span class="pre">MIN_OLLAMA_VERSION</span></code></a>.</p>
+<dd class="field-even"><p><a class="reference internal" href="#voicemate.tts.phonon.PhononError" title="voicemate.tts.phonon.PhononError"><strong>PhononError</strong></a> – If Ollama is unreachable or older than <a class="reference internal" href="#voicemate.tts.phonon.MIN_OLLAMA_VERSION" title="voicemate.tts.phonon.MIN_OLLAMA_VERSION"><code class="xref py py-data docutils literal notranslate"><span class="pre">MIN_OLLAMA_VERSION</span></code></a>, or the
+model has no such voice.</p>
 </dd>
 </dl>
 <dl class="py attribute">
