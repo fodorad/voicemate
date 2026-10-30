@@ -473,6 +473,7 @@ class Server:
             raise RuntimeError("models are not loaded yet")
         sid = uuid.uuid4().hex
         session = VoiceSession(self.runtime, thread_id=self.thread_id())
+        session.start()
         self.sessions[sid] = session
         return sid, session
 
