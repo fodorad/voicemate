@@ -145,7 +145,7 @@ class TTSVoiceConfig:
 def _default_tts() -> dict[str, TTSVoiceConfig]:
     return {
         "hu": TTSVoiceConfig(engine="piper", voice="hu_HU-anna-medium"),
-        "en": TTSVoiceConfig(engine="phonon", voice="default"),
+        "en": TTSVoiceConfig(engine="phonon", voice="Zoey"),
     }
 
 

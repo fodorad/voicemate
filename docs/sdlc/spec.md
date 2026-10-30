@@ -502,7 +502,7 @@ the memory and the CPU. The skill answers from a local knowledge base, not from 
   follow-up ("why?") has context.
 - **Activation:** `[activation] mode = "wake_word"` handles only speech that starts with the
   assistant's name; other speech is dropped before it is shown, logged, stored or saved.
-- **Voice output:** `phonon` (Ollama, 24 kHz, English only) is the default English voice; Kokoro
+- **Voice output:** `phonon` (Ollama, 24 kHz, English only; female voice Zoey) is the default English voice; Kokoro
   stays selectable. Hungarian stays on Piper.
 - **Not done yet:** global push-to-talk hotkey (macOS permission), reading the draft from a
   screenshot (needs sample screenshots and Screen Recording permission), a smaller default chat

@@ -13,7 +13,7 @@ class TestLoadConfig(unittest.TestCase):
         self.assertEqual(
             config.tts["hu"], TTSVoiceConfig(engine="piper", voice="hu_HU-anna-medium")
         )
-        self.assertEqual(config.tts["en"], TTSVoiceConfig(engine="phonon", voice="default"))
+        self.assertEqual(config.tts["en"], TTSVoiceConfig(engine="phonon", voice="Zoey"))
         self.assertAlmostEqual(config.location.latitude, 47.7826)
         self.assertEqual(config.files.roots, ["~/Documents", "~/Downloads"])
 
