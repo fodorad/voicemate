@@ -57,7 +57,9 @@ class Portraits:
         self._scaled = {
             scale: np.stack(
                 [
-                    np.asarray(image.convert("RGB").resize((scale, scale), Image.BILINEAR))
+                    np.asarray(
+                        image.convert("RGB").resize((scale, scale), Image.Resampling.BILINEAR)
+                    )
                     for image in images.values()
                 ]
             ).astype(np.float32)
@@ -85,7 +87,7 @@ class Portraits:
                 int((center + SLOT_HALF_WIDTH) * width),
                 int(SLOT_BOTTOM * height),
             )
-            patch = Image.fromarray(image).crop(box).resize(PATCH[::-1], Image.BILINEAR)
+            patch = Image.fromarray(image).crop(box).resize(PATCH[::-1], Image.Resampling.BILINEAR)
             slug = self._identify(np.asarray(patch, dtype=np.float32))
             if slug is not None:
                 found.append(slug)

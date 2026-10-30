@@ -13,7 +13,7 @@ WIDTH, HEIGHT = 960, 540
 def portrait(seed: int) -> Image.Image:
     """A blocky random 'face': distinct per seed, smooth enough to survive resizing."""
     blocks = np.random.default_rng(seed).integers(0, 255, (8, 8, 3), dtype=np.uint8)
-    return Image.fromarray(blocks).resize((92, 92), Image.NEAREST)
+    return Image.fromarray(blocks).resize((92, 92), Image.Resampling.NEAREST)
 
 
 def screen(slots: dict[int, Image.Image]) -> np.ndarray:
@@ -21,7 +21,7 @@ def screen(slots: dict[int, Image.Image]) -> np.ndarray:
     image = Image.new("RGB", (WIDTH, HEIGHT), (20, 10, 40))
     for slot, face in slots.items():
         size = 42  # a bit larger than the compared window, as in the game
-        face = face.resize((size, size), Image.BILINEAR)
+        face = face.resize((size, size), Image.Resampling.BILINEAR)
         image.paste(face, (int(SLOT_CENTERS[slot] * WIDTH) - size // 2, int(0.054 * HEIGHT) - 21))
     return np.asarray(image)
 
