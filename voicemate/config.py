@@ -239,16 +239,23 @@ class HotsConfig:
         enabled: Answer draft questions from the local knowledge base.
         pages_dir: Folder with the saved Icy Veins pages (filled by hand from the browser).
         database: SQLite file of the knowledge base, inside the data directory.
+        aliases_file: TOML file of hero-name spellings Ava learned from Adam.
     """
 
     enabled: bool = True
     pages_dir: str = "data/icyveins/raw"
     database: str = "hots.sqlite"
+    aliases_file: str = "data/hots_aliases.toml"
 
     @property
     def pages_path(self) -> Path:
         """Saved pages folder as an absolute path."""
         return _resolve(self.pages_dir)
+
+    @property
+    def aliases_path(self) -> Path:
+        """Learned aliases file as an absolute path."""
+        return _resolve(self.aliases_file)
 
 
 @dataclass

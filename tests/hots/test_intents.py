@@ -5,6 +5,7 @@ from pathlib import Path
 from tests.helpers import imported_modules, module_source
 from tests.hots.builders import guide_html, tier_html, write_pages
 from voicemate.hots.advisor import Advisor
+from voicemate.hots.aliases import AliasStore
 from voicemate.hots.draft import Draft
 from voicemate.hots.intents import Intents
 from voicemate.hots.knowledge import Knowledge
@@ -84,10 +85,38 @@ class TestCounters(IntentCase):
 
     def test_misheard_names_resolve_and_ambiguous_ones_ask(self):
         self.assertTrue(self.ask("who counters muradan").startswith("To counter Muradin"))
-        self.assertEqual(self.ask("who counters tyra"), "Did you mean Tyrael or Tyrande?")
+        self.assertEqual(self.ask("who counters tyra"), "Tyrael or Tyrande?")
 
     def test_names_nobody_knows_fall_through_to_the_chat_model(self):
         self.assertIsNone(self.ask("what is good against the cold weather"))
+
+
+class TestClarify(IntentCase):
+    def test_the_answer_to_a_question_runs_the_original_command(self):
+        self.assertEqual(self.ask("who counters tyra"), "Tyrael or Tyrande?")
+        self.assertEqual(self.ask("second"), "I have no counters listed for Tyrande.")
+
+    def test_a_hero_name_answers_the_question(self):
+        self.ask("enemy has tyra")
+        self.assertEqual(self.ask("tyrael"), "Enemy team: Tyrael.")
+
+    def test_yes_takes_the_first_candidate(self):
+        self.ask("enemy has tyra")
+        self.assertEqual(self.ask("yes"), "Enemy team: Tyrael.")
+
+    def test_other_speech_drops_the_question(self):
+        self.ask("who counters tyra")
+        self.assertIsNone(self.ask("what time is it"))
+        self.assertIsNone(self.ask("first"))
+
+    def test_a_settled_spelling_is_learned_and_stored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = AliasStore(Path(tmp) / "aliases.toml")
+            self.intents.aliases = store
+            self.ask("who counters tyra")
+            self.ask("second")
+            self.assertEqual(store.load(), {"tyra": "tyrande"})
+            self.assertEqual(self.intents.advisor.roster.resolve("tyra").hero.slug, "tyrande")
 
 
 class TestDraftCommands(IntentCase):
@@ -132,7 +161,7 @@ class TestDraftCommands(IntentCase):
 
     def test_a_partly_unknown_list_adds_what_it_knows_and_asks_about_the_rest(self):
         answer = self.ask("enemy has tychus and tyra")
-        self.assertEqual(answer, "Enemy team: Tychus. Did you mean Tyrael or Tyrande?")
+        self.assertEqual(answer, "Enemy team: Tychus. Tyrael or Tyrande?")
         self.assertIsNone(self.ask("enemy has banana"))
         self.assertEqual(self.draft.enemy, ["tychus"])
 

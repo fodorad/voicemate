@@ -107,3 +107,5 @@ variants = ["eva"]
 enabled = true
 pages_dir = "data/icyveins/raw"
 database = "hots.sqlite"
+# Hero-name spellings Ava learned when you picked between two heroes.
+aliases_file = "data/hots_aliases.toml"
