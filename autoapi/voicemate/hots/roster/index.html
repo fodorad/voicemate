@@ -347,6 +347,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.roster.SUGGEST_THRESHOLD" title="voicemate.hots.roster.SUGGEST_THRESHOLD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SUGGEST_THRESHOLD</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.roster.MIN_SOUND_KEY" title="voicemate.hots.roster.MIN_SOUND_KEY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MIN_SOUND_KEY</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -376,6 +379,9 @@
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.roster.normalize" title="voicemate.hots.roster.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>(→ str)</p></td>
 <td><p>Lower-case <code class="docutils literal notranslate"><span class="pre">text</span></code> without accents, punctuation or spaces (<code class="docutils literal notranslate"><span class="pre">Zul'jin</span></code> → <code class="docutils literal notranslate"><span class="pre">zuljin</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.roster.sound_key" title="voicemate.hots.roster.sound_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sound_key</span></code></a>(→ str)</p></td>
+<td><p>A rough sound-alike key: the consonant skeleton of how <code class="docutils literal notranslate"><span class="pre">text</span></code> is pronounced.</p></td>
 </tr>
 </tbody>
 </table>
@@ -408,10 +414,23 @@
 <span class="sig-prename descclassname"><span class="pre">voicemate.hots.roster.</span></span><span class="sig-name descname"><span class="pre">SUGGEST_THRESHOLD</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.6</span></span><a class="headerlink" href="#voicemate.hots.roster.SUGGEST_THRESHOLD" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="voicemate.hots.roster.MIN_SOUND_KEY">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.roster.</span></span><span class="sig-name descname"><span class="pre">MIN_SOUND_KEY</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></span><a class="headerlink" href="#voicemate.hots.roster.MIN_SOUND_KEY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="voicemate.hots.roster.normalize">
 <span class="sig-prename descclassname"><span class="pre">voicemate.hots.roster.</span></span><span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/hots/roster.html#normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.roster.normalize" title="Link to this definition">¶</a></dt>
 <dd><p>Lower-case <code class="docutils literal notranslate"><span class="pre">text</span></code> without accents, punctuation or spaces (<code class="docutils literal notranslate"><span class="pre">Zul'jin</span></code> → <code class="docutils literal notranslate"><span class="pre">zuljin</span></code>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="voicemate.hots.roster.sound_key">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.roster.</span></span><span class="sig-name descname"><span class="pre">sound_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/hots/roster.html#sound_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.roster.sound_key" title="Link to this definition">¶</a></dt>
+<dd><p>A rough sound-alike key: the consonant skeleton of how <code class="docutils literal notranslate"><span class="pre">text</span></code> is pronounced.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Kszalatat</span></code> and <code class="docutils literal notranslate"><span class="pre">Xal'atath</span></code> both become <code class="docutils literal notranslate"><span class="pre">kslt</span></code>, so a badly pronounced name still
+lands next to the right hero.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -488,11 +507,20 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="voicemate.hots.roster.Roster.resolve">
-<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#voicemate.hots.roster.Resolved" title="voicemate.hots.roster.Resolved"><span class="pre">Resolved</span></a></span></span><a class="reference internal" href="../../../../_modules/voicemate/hots/roster.html#Roster.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.roster.Roster.resolve" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">available</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Collection</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#voicemate.hots.roster.Resolved" title="voicemate.hots.roster.Resolved"><span class="pre">Resolved</span></a></span></span><a class="reference internal" href="../../../../_modules/voicemate/hots/roster.html#Roster.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.roster.Roster.resolve" title="Link to this definition">¶</a></dt>
 <dd><p>Find the hero <code class="docutils literal notranslate"><span class="pre">text</span></code> names.</p>
 <p>An exact (normalized) name, slug or alias wins; so does the start of exactly one name
-(<code class="docutils literal notranslate"><span class="pre">mura</span></code>); otherwise the best fuzzy match counts when it clearly beats every other hero.
-Anything else returns the closest candidates.</p>
+(<code class="docutils literal notranslate"><span class="pre">mura</span></code>); otherwise the best match by spelling and sound counts when it clearly beats
+every other hero. Anything else returns the closest candidates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> – The typed or recognized name.</p></li>
+<li><p><strong>available</strong> – Slugs of the heroes that can still be meant; the start-of-name and
+sound-alike matches look only at these (an exact name always wins).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -565,7 +593,9 @@ Anything else returns the closest candidates.</p>
 <li><a class="reference internal" href="#voicemate.hots.roster.MATCH_MARGIN"><code class="docutils literal notranslate"><span class="pre">MATCH_MARGIN</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.roster.MIN_PREFIX"><code class="docutils literal notranslate"><span class="pre">MIN_PREFIX</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.roster.SUGGEST_THRESHOLD"><code class="docutils literal notranslate"><span class="pre">SUGGEST_THRESHOLD</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.roster.MIN_SOUND_KEY"><code class="docutils literal notranslate"><span class="pre">MIN_SOUND_KEY</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.roster.normalize"><code class="docutils literal notranslate"><span class="pre">normalize()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.roster.sound_key"><code class="docutils literal notranslate"><span class="pre">sound_key()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.roster.Hero"><code class="docutils literal notranslate"><span class="pre">Hero</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.hots.roster.Hero.slug"><code class="docutils literal notranslate"><span class="pre">Hero.slug</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.roster.Hero.name"><code class="docutils literal notranslate"><span class="pre">Hero.name</span></code></a></li>

@@ -19,6 +19,7 @@ Attributes
    voicemate.hots.roster.MATCH_MARGIN
    voicemate.hots.roster.MIN_PREFIX
    voicemate.hots.roster.SUGGEST_THRESHOLD
+   voicemate.hots.roster.MIN_SOUND_KEY
 
 
 Classes
@@ -37,6 +38,7 @@ Functions
 .. autoapisummary::
 
    voicemate.hots.roster.normalize
+   voicemate.hots.roster.sound_key
 
 
 Module Contents
@@ -65,9 +67,22 @@ Module Contents
    :value: 0.6
 
 
+.. py:data:: MIN_SOUND_KEY
+   :type:  int
+   :value: 3
+
+
 .. py:function:: normalize(text: str) -> str
 
    Lower-case ``text`` without accents, punctuation or spaces (``Zul'jin`` → ``zuljin``).
+
+
+.. py:function:: sound_key(text: str) -> str
+
+   A rough sound-alike key: the consonant skeleton of how ``text`` is pronounced.
+
+   ``Kszalatat`` and ``Xal'atath`` both become ``kslt``, so a badly pronounced name still
+   lands next to the right hero.
 
 
 .. py:class:: Hero
@@ -127,13 +142,17 @@ Module Contents
 
 
 
-   .. py:method:: resolve(text: str) -> Resolved
+   .. py:method:: resolve(text: str, available: collections.abc.Collection[str] | None = None) -> Resolved
 
       Find the hero ``text`` names.
 
       An exact (normalized) name, slug or alias wins; so does the start of exactly one name
-      (``mura``); otherwise the best fuzzy match counts when it clearly beats every other hero.
-      Anything else returns the closest candidates.
+      (``mura``); otherwise the best match by spelling and sound counts when it clearly beats
+      every other hero. Anything else returns the closest candidates.
+
+      :param text: The typed or recognized name.
+      :param available: Slugs of the heroes that can still be meant; the start-of-name and
+                        sound-alike matches look only at these (an exact name always wins).
 
 
 
