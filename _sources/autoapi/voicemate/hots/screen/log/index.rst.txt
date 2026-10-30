@@ -1,0 +1,83 @@
+voicemate.hots.screen.log
+=========================
+
+.. py:module:: voicemate.hots.screen.log
+
+.. autoapi-nested-parse::
+
+   The log of captured draft screens: one folder per draft, numbered screenshots inside.
+
+   ``data/game_screens/<YYYY-MM-DD_HHMMSS>/01.png, 02.png, … + draft.json`` lets Adam check later
+   which screens Ava saw and what she made of each. Old drafts are deleted so the folder stays
+   small.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.log.logger
+   voicemate.hots.screen.log.SUMMARY_FILE
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.log.ScreenLog
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: SUMMARY_FILE
+   :value: 'draft.json'
+
+
+.. py:class:: ScreenLog(folder: pathlib.Path, keep: int = 20, clock: collections.abc.Callable[[], datetime.datetime] = datetime.now)
+
+   Saves the screens of drafts.
+
+   :param folder: The log folder (created when the first draft starts).
+   :param keep: How many draft folders to keep; the oldest are deleted when a draft starts.
+   :param clock: Current time (replaceable for tests).
+
+
+   .. py:attribute:: folder
+
+
+   .. py:attribute:: keep
+      :value: 20
+
+
+
+   .. py:method:: start_draft() -> pathlib.Path
+
+      Open the folder of a new draft and delete the oldest drafts beyond ``keep``.
+
+
+
+   .. py:method:: save(image: numpy.ndarray, state: dict[str, Any]) -> pathlib.Path
+
+      Save ``image`` as the next screen of the current draft with what was read from it.
+
+      Starts a draft first when none is open.
+
+      :param image: The captured picture, RGB uint8.
+      :param state: What Ava made of it (JSON-able); stored in ``draft.json``.
+
+      :returns: The saved PNG.
+
+
+
+   .. py:method:: newest_screenshot() -> pathlib.Path | None
+
+      The latest saved screen of the newest draft, or ``None`` when nothing was saved.
+
+
+

@@ -15,6 +15,7 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
+   /autoapi/voicemate/hots/screen/log/index
    /autoapi/voicemate/hots/screen/macos/index
    /autoapi/voicemate/hots/screen/reader/index
 
