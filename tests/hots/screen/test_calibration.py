@@ -26,6 +26,10 @@ EXPECTED = {
 }
 
 
+#: Bans shown in the six slots of the screen at 20.15.29, left to right.
+BANS = ("xalatath", "abathur", "stitches", "anduin", "qhira", "rehgar")
+
+
 @unittest.skipUnless(INTEGRATION and CALIBRATION.is_dir(), "needs macOS and data/calibration")
 class TestCalibrationScreens(unittest.TestCase):  # pragma: no cover - integration only
     @classmethod
@@ -49,6 +53,16 @@ class TestCalibrationScreens(unittest.TestCase):  # pragma: no cover - integrati
                 self.assertEqual(screen.ally, ally)
                 self.assertEqual(screen.pending, pending)
                 self.assertEqual(screen.enemy, enemy)
+
+    def test_ban_slots_are_matched_to_portraits(self):
+        from voicemate.hots.screen.macos import ImageFileReader
+        from voicemate.hots.screen.portraits import Portraits
+
+        portraits = Portraits.from_folder(CONFIG.hots.pages_path.parent / "images")
+        path = next(CALIBRATION.glob("*20.15.29.png"))
+        self.assertEqual(portraits.bans(ImageFileReader(lambda: path).read(fast=True).image), BANS)
+        empty = next(CALIBRATION.glob("*20.12.07.png"))  # the queue screen has no ban slots
+        self.assertEqual(portraits.bans(ImageFileReader(lambda: empty).read(fast=True).image), ())
 
 
 if __name__ == "__main__":

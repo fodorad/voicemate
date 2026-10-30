@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import Protocol
 
 import numpy as np
 
@@ -91,18 +92,31 @@ class DraftScreen:
         return self.phase.kind in ("ban", "pick")
 
 
-def interpret(frame: Frame, roster: Roster, maps: Mapping[str, str]) -> DraftScreen:
+class BanReader(Protocol):
+    """Recognizes the heroes in the ban slots from the picture."""
+
+    def bans(self, image: np.ndarray) -> tuple[str, ...]:
+        """Hero slugs shown in the ban slots of a draft screen."""
+        ...
+
+
+def interpret(
+    frame: Frame, roster: Roster, maps: Mapping[str, str], portraits: BanReader | None = None
+) -> DraftScreen:
     """Read the draft off one screen.
 
     Args:
         frame: The captured screen and its text.
         roster: Resolves hero names (the big capital labels).
         maps: ``slug → name`` of the maps.
+        portraits: Reads the ban slots; without it only announced bans are known.
     """
     boxes = [box for box in frame.boxes if box.text.strip()]
     ally, ally_pending = _team(frame.image, boxes, roster, "ally")
     enemy, enemy_pending = _team(frame.image, boxes, roster, "enemy")
     banned = _banned(boxes, roster)
+    if portraits is not None and _phase(boxes).kind in ("ban", "pick"):
+        banned = tuple(dict.fromkeys((*banned, *portraits.bans(frame.image))))
     taken = {*enemy, *banned}
     shown = [*ally, *ally_pending]
     return DraftScreen(
