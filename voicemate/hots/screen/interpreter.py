@@ -12,11 +12,17 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 
+import numpy as np
+
 from voicemate.hots.roster import Roster, normalize, resolve_map
 from voicemate.hots.screen.reader import Frame, TextBox
 
 #: Recognized text below this confidence is not trusted for hero names.
 MIN_CONFIDENCE: float = 0.5
+#: A hero label is locked in when its band is this bright (75th percentile of the label's
+#: pixel brightness, 0-255): locked bands are light lavender or white-blue (measured 136-170 on
+#: Adam's screens), hovered picks stay dark (at most 97).
+LOCKED_BRIGHTNESS: float = 110.0
 #: A timer digit is read at lower confidence (it is one big number).
 MIN_TIMER_CONFIDENCE: float = 0.3
 #: Hero labels centred left of this belong to Adam's team.
@@ -63,8 +69,9 @@ class DraftScreen:
         phase: The current phase.
         map_slug: The map, when its name was read.
         seconds: The countdown, when it was read.
-        ally: Heroes on Adam's team, top slot first.
-        enemy: Heroes on the enemy team, top slot first.
+        ally: Heroes locked in on Adam's team, top slot first.
+        enemy: Heroes locked in on the enemy team, top slot first.
+        pending: Heroes shown but not locked in yet (hovered picks of either team).
         banned: Heroes named by a "BANNED" announcement.
         invalid: Heroes shown on Adam's side that the enemy has or that are banned.
     """
@@ -74,6 +81,7 @@ class DraftScreen:
     seconds: int | None = None
     ally: tuple[str, ...] = ()
     enemy: tuple[str, ...] = ()
+    pending: tuple[str, ...] = ()
     banned: tuple[str, ...] = ()
     invalid: tuple[str, ...] = ()
 
@@ -92,17 +100,20 @@ def interpret(frame: Frame, roster: Roster, maps: Mapping[str, str]) -> DraftScr
         maps: ``slug → name`` of the maps.
     """
     boxes = [box for box in frame.boxes if box.text.strip()]
-    ally, enemy = (_team(boxes, roster, side) for side in ("ally", "enemy"))
+    ally, ally_pending = _team(frame.image, boxes, roster, "ally")
+    enemy, enemy_pending = _team(frame.image, boxes, roster, "enemy")
     banned = _banned(boxes, roster)
     taken = {*enemy, *banned}
+    shown = [*ally, *ally_pending]
     return DraftScreen(
         phase=_phase(boxes),
         map_slug=_map(boxes, maps),
         seconds=_seconds(boxes),
         ally=tuple(h for h in ally if h not in taken),
         enemy=enemy,
+        pending=tuple(h for h in (*ally_pending, *enemy_pending) if h not in taken),
         banned=banned,
-        invalid=tuple(h for h in ally if h in taken),
+        invalid=tuple(h for h in shown if h in taken),
     )
 
 
@@ -151,16 +162,32 @@ def _is_label(box: TextBox) -> bool:
     return box.confidence >= MIN_CONFIDENCE and len(letters) >= 3 and box.text == box.text.upper()
 
 
-def _team(boxes: list[TextBox], roster: Roster, side: str) -> tuple[str, ...]:
-    """Hero slugs labelled on one side, top slot first."""
-    heroes: list[str] = []
+def _locked(image: np.ndarray, box: TextBox) -> bool:
+    """Whether the band under a hero label is light (locked in) rather than dark (hovered)."""
+    height, width = image.shape[:2]
+    top, bottom = int(box.top * height), max(int((box.top + box.height) * height), 1)
+    left, right = int(box.left * width), max(int((box.left + box.width) * width), 1)
+    patch = image[top:bottom, left:right].astype(np.float32)
+    if patch.size == 0:
+        return False
+    brightness = patch @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
+    return float(np.percentile(brightness, 75)) >= LOCKED_BRIGHTNESS
+
+
+def _team(
+    image: np.ndarray, boxes: list[TextBox], roster: Roster, side: str
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Hero slugs labelled on one side, top slot first: ``(locked, pending)``."""
+    locked: list[str] = []
+    pending: list[str] = []
     for box in sorted(boxes, key=lambda b: b.cy):
         on_side = box.cx < ALLY_EDGE if side == "ally" else box.cx > ENEMY_EDGE
         if on_side and _is_label(box):
             hero = roster.resolve(box.text).hero
-            if hero is not None and hero.slug not in heroes:
-                heroes.append(hero.slug)
-    return tuple(heroes)
+            group = locked if _locked(image, box) else pending
+            if hero is not None and hero.slug not in locked + pending:
+                group.append(hero.slug)
+    return tuple(locked), tuple(pending)
 
 
 def _banned(boxes: list[TextBox], roster: Roster) -> tuple[str, ...]:
