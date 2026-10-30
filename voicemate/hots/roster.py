@@ -187,3 +187,23 @@ class Roster:
             if ranked[0][0] - runner_up >= MATCH_MARGIN:
                 return Resolved(ranked[0][1])
         return Resolved(None, close)
+
+
+def resolve_map(spoken: str, maps: Mapping[str, str]) -> str | None:
+    """The slug of the map ``spoken`` names (``maps`` is ``slug → name``), if exactly one fits.
+
+    A part of a name counts (``temple`` alone fits several maps and so names none); otherwise
+    a close spelling counts when it is clearly the best.
+    """
+    key = normalize(spoken)
+    if len(key) < MIN_PREFIX:
+        return None
+    names = {slug: normalize(name) for slug, name in maps.items()}
+    found = [slug for slug, name in names.items() if key in name]
+    if not found:
+        ratios = {
+            slug: difflib.SequenceMatcher(None, key, name).ratio() for slug, name in names.items()
+        }
+        best = max(ratios.values(), default=0.0)
+        found = [slug for slug, ratio in ratios.items() if ratio >= 0.75 and ratio == best]
+    return found[0] if len(found) == 1 else None

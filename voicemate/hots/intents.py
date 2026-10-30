@@ -9,7 +9,6 @@ per command. An utterance it does not recognize, or one that names nothing it kn
 
 from __future__ import annotations
 
-import difflib
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -17,7 +16,7 @@ from dataclasses import dataclass
 from voicemate.hots.advisor import Advisor, Suggestion
 from voicemate.hots.aliases import AliasStore
 from voicemate.hots.draft import Draft
-from voicemate.hots.roster import Hero, normalize
+from voicemate.hots.roster import Hero, resolve_map
 
 _ENEMY = r"(?:the )?(?:enemy(?: team)?|enemies|they|opponents?|their team)"
 _ALLY = r"(?:my team|our team|the team|allies|ally|we|i)"
@@ -149,7 +148,7 @@ class Intents:
         match = _MAP.match(said)
         if not match:
             return None
-        slug = self._resolve_map(match.group("m") or match.group("m2"))
+        slug = resolve_map(match.group("m") or match.group("m2"), self.advisor.maps)
         if slug is None:
             return None
         self.draft.map_slug = slug
@@ -280,24 +279,6 @@ class Intents:
                 if not problems[1:] and len(resolved.candidates) > 1:
                     self._question = _Question(self._said, name, resolved.candidates)
         return heroes, problems
-
-    def _resolve_map(self, spoken: str) -> str | None:
-        key = normalize(spoken)
-        if len(key) < 3:
-            return None
-        names = {slug: normalize(name) for slug, name in self.advisor.maps.items()}
-        found = [slug for slug, name in names.items() if key in name]
-        if not found:
-            ratios = {
-                slug: difflib.SequenceMatcher(None, key, name).ratio()
-                for slug, name in names.items()
-            }
-            found = [
-                slug
-                for slug, ratio in ratios.items()
-                if ratio >= 0.75 and ratio == max(ratios.values())
-            ]
-        return found[0] if len(found) == 1 else None
 
     def _name(self, slug: str) -> str:
         hero = self.advisor.roster.get(slug)
