@@ -1,0 +1,159 @@
+voicemate.hots.screen.watcher
+=============================
+
+.. py:module:: voicemate.hots.screen.watcher
+
+.. autoapi-nested-parse::
+
+   Draft mode: watches the screen and keeps the draft up to date.
+
+   The watcher is idle while no draft is on screen (a quick, rough look every few seconds). When a
+   ban or pick screen appears it starts a draft: the draft state is reset, a screen log folder is
+   opened and from then on every look is a full read that adds what the screen shows (locked
+   heroes, bans, the map) to the :class:`~voicemate.hots.draft.Draft`. "MATCH STARTING" ends the
+   draft; the watcher then stays quiet until the next draft screen shows up.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.watcher.logger
+   voicemate.hots.screen.watcher.LOST_AFTER
+   voicemate.hots.screen.watcher.SLOW_AFTER
+   voicemate.hots.screen.watcher.SLOW_FACTOR
+   voicemate.hots.screen.watcher.PROBLEM_RETRY_S
+   voicemate.hots.screen.watcher.FRESH_S
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.watcher.DraftWatcher
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: LOST_AFTER
+   :type:  int
+   :value: 5
+
+
+.. py:data:: SLOW_AFTER
+   :type:  int
+   :value: 30
+
+
+.. py:data:: SLOW_FACTOR
+   :type:  int
+   :value: 5
+
+
+.. py:data:: PROBLEM_RETRY_S
+   :type:  float
+   :value: 15.0
+
+
+.. py:data:: FRESH_S
+   :type:  float
+   :value: 2.0
+
+
+.. py:class:: DraftWatcher(reader: voicemate.hots.screen.reader.ScreenReader, roster: voicemate.hots.roster.Roster, maps: collections.abc.Mapping[str, str], draft: voicemate.hots.draft.Draft, portraits: voicemate.hots.screen.interpreter.BanReader | None = None, log: voicemate.hots.screen.log.ScreenLog | None = None, poll_s: float = 2.0, proactive: bool = False, sleep: collections.abc.Callable[[float], collections.abc.Awaitable[None]] = asyncio.sleep, monotonic: collections.abc.Callable[[], float] = time.monotonic)
+
+   Follows the draft on screen (a :class:`~voicemate.pipeline.skills.Background` worker).
+
+   :param reader: Looks at the screen.
+   :param roster: Resolves hero names.
+   :param maps: ``slug → name`` of the maps.
+   :param draft: The session's draft, kept current while a draft is on screen.
+   :param portraits: Reads the ban slots.
+   :param log: Where captured screens are saved (not saved when omitted).
+   :param poll_s: Seconds between looks.
+   :param proactive: Say "Your ban." / "Your pick." when it becomes Adam's turn.
+   :param sleep: Waits between looks (replaceable for tests).
+   :param monotonic: Clock for the age of a read (replaceable for tests).
+
+
+   .. py:attribute:: reader
+
+
+   .. py:attribute:: roster
+
+
+   .. py:attribute:: maps
+
+
+   .. py:attribute:: draft
+
+
+   .. py:attribute:: portraits
+      :value: None
+
+
+
+   .. py:attribute:: log
+      :value: None
+
+
+
+   .. py:attribute:: poll_s
+      :value: 2.0
+
+
+
+   .. py:attribute:: proactive
+      :value: False
+
+
+
+   .. py:attribute:: mode
+      :value: 'idle'
+
+
+
+   .. py:attribute:: screen
+      :type:  voicemate.hots.screen.interpreter.DraftScreen | None
+      :value: None
+
+
+
+   .. py:attribute:: problem
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:method:: run(say: collections.abc.Callable[[voicemate.pipeline.skills.SkillAnswer], collections.abc.Awaitable[None]]) -> None
+      :async:
+
+
+      Watch until cancelled; ``say`` is used for the optional proactive cues.
+
+
+
+   .. py:method:: poll() -> None
+      :async:
+
+
+      One look: rough while waiting for a draft, full during one.
+
+
+
+   .. py:method:: look() -> voicemate.hots.screen.interpreter.DraftScreen
+      :async:
+
+
+      A full read of the screen now (a recent one is reused); a draft screen joins the draft.
+
+      :raises ScreenError: If the screen cannot be read.
+
+
+

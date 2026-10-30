@@ -20,5 +20,6 @@ Submodules
    /autoapi/voicemate/hots/screen/macos/index
    /autoapi/voicemate/hots/screen/portraits/index
    /autoapi/voicemate/hots/screen/reader/index
+   /autoapi/voicemate/hots/screen/watcher/index
 
 
