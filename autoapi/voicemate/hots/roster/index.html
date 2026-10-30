@@ -242,6 +242,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../events/index.html">voicemate.events</a></li>
 <li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../advisor/index.html">voicemate.hots.advisor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../aliases/index.html">voicemate.hots.aliases</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -500,6 +501,12 @@ lands next to the right hero.</p>
 </dd>
 </dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="voicemate.hots.roster.Roster.learn">
+<span class="sig-name descname"><span class="pre">learn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spelling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/hots/roster.html#Roster.learn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.roster.Roster.learn" title="Link to this definition">¶</a></dt>
+<dd><p>Make <code class="docutils literal notranslate"><span class="pre">spelling</span></code> mean the hero <code class="docutils literal notranslate"><span class="pre">slug</span></code>; <code class="docutils literal notranslate"><span class="pre">False</span></code> when it already means something.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="voicemate.hots.roster.Roster.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#voicemate.hots.roster.Hero" title="voicemate.hots.roster.Hero"><span class="pre">Hero</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/hots/roster.html#Roster.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.roster.Roster.get" title="Link to this definition">¶</a></dt>
 <dd><p>The hero with this slug, if any.</p>
@@ -608,6 +615,7 @@ sound-alike matches look only at these (an exact name always wins).</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.hots.roster.Roster"><code class="docutils literal notranslate"><span class="pre">Roster</span></code></a><ul>
+<li><a class="reference internal" href="#voicemate.hots.roster.Roster.learn"><code class="docutils literal notranslate"><span class="pre">Roster.learn()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.roster.Roster.get"><code class="docutils literal notranslate"><span class="pre">Roster.get()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.roster.Roster.resolve"><code class="docutils literal notranslate"><span class="pre">Roster.resolve()</span></code></a></li>
 </ul>

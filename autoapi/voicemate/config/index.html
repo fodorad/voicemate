@@ -242,6 +242,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../events/index.html">voicemate.events</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../hots/advisor/index.html">voicemate.hots.advisor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../hots/aliases/index.html">voicemate.hots.aliases</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -815,6 +816,7 @@ next to it) the current working directory.</p>
 <li><p><strong>enabled</strong> – Answer draft questions from the local knowledge base.</p></li>
 <li><p><strong>pages_dir</strong> – Folder with the saved Icy Veins pages (filled by hand from the browser).</p></li>
 <li><p><strong>database</strong> – SQLite file of the knowledge base, inside the data directory.</p></li>
+<li><p><strong>aliases_file</strong> – TOML file of hero-name spellings Ava learned from Adam.</p></li>
 </ul>
 </dd>
 </dl>
@@ -833,10 +835,21 @@ next to it) the current working directory.</p>
 <span class="sig-name descname"><span class="pre">database</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hots.sqlite'</span></span><a class="headerlink" href="#voicemate.config.HotsConfig.database" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.config.HotsConfig.aliases_file">
+<span class="sig-name descname"><span class="pre">aliases_file</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'data/hots_aliases.toml'</span></span><a class="headerlink" href="#voicemate.config.HotsConfig.aliases_file" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="voicemate.config.HotsConfig.pages_path">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">pages_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span><a class="headerlink" href="#voicemate.config.HotsConfig.pages_path" title="Link to this definition">¶</a></dt>
 <dd><p>Saved pages folder as an absolute path.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="voicemate.config.HotsConfig.aliases_path">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">aliases_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span><a class="headerlink" href="#voicemate.config.HotsConfig.aliases_path" title="Link to this definition">¶</a></dt>
+<dd><p>Learned aliases file as an absolute path.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1167,7 +1180,9 @@ defaults apply.</p></li>
 <li><a class="reference internal" href="#voicemate.config.HotsConfig.enabled"><code class="docutils literal notranslate"><span class="pre">HotsConfig.enabled</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.HotsConfig.pages_dir"><code class="docutils literal notranslate"><span class="pre">HotsConfig.pages_dir</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.HotsConfig.database"><code class="docutils literal notranslate"><span class="pre">HotsConfig.database</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.config.HotsConfig.aliases_file"><code class="docutils literal notranslate"><span class="pre">HotsConfig.aliases_file</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.HotsConfig.pages_path"><code class="docutils literal notranslate"><span class="pre">HotsConfig.pages_path</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.config.HotsConfig.aliases_path"><code class="docutils literal notranslate"><span class="pre">HotsConfig.aliases_path</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.config.ActivationConfig"><code class="docutils literal notranslate"><span class="pre">ActivationConfig</span></code></a><ul>

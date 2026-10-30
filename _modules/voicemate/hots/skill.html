@@ -241,6 +241,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../autoapi/voicemate/events/index.html">voicemate.events</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -326,6 +327,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.advisor</span><span class="w"> </span><span class="kn">import</span> <span class="n">Advisor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.aliases</span><span class="w"> </span><span class="kn">import</span> <span class="n">AliasStore</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.intents</span><span class="w"> </span><span class="kn">import</span> <span class="n">Intents</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.knowledge</span><span class="w"> </span><span class="kn">import</span> <span class="n">Knowledge</span><span class="p">,</span> <span class="n">RefreshReport</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.skills</span><span class="w"> </span><span class="kn">import</span> <span class="n">Skill</span><span class="p">,</span> <span class="n">SkillAnswer</span>
@@ -365,10 +367,15 @@
 <span class="sd">        report: What the startup refresh changed.</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">knowledge</span><span class="p">:</span> <span class="n">Knowledge</span><span class="p">,</span> <span class="n">report</span><span class="p">:</span> <span class="n">RefreshReport</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">knowledge</span><span class="p">:</span> <span class="n">Knowledge</span><span class="p">,</span> <span class="n">report</span><span class="p">:</span> <span class="n">RefreshReport</span><span class="p">,</span> <span class="n">aliases</span><span class="p">:</span> <span class="n">AliasStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">knowledge</span> <span class="o">=</span> <span class="n">knowledge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">=</span> <span class="n">report</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span> <span class="o">=</span> <span class="n">aliases</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">advisor</span> <span class="o">=</span> <span class="n">Advisor</span><span class="p">(</span><span class="n">knowledge</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">spelling</span><span class="p">,</span> <span class="n">slug</span> <span class="ow">in</span> <span class="p">(</span><span class="n">aliases</span><span class="o">.</span><span class="n">load</span><span class="p">()</span> <span class="k">if</span> <span class="n">aliases</span> <span class="k">else</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">advisor</span><span class="o">.</span><span class="n">roster</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">spelling</span><span class="p">,</span> <span class="n">slug</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Hots.open">
 <a class="viewcode-back" href="../../../autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.Hots.open">[docs]</a>
@@ -383,7 +390,7 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">knowledge</span> <span class="o">=</span> <span class="n">Knowledge</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">hots_database_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">hots</span><span class="o">.</span><span class="n">pages_path</span><span class="p">)</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">knowledge</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
-        <span class="n">hots</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">knowledge</span><span class="p">,</span> <span class="n">report</span><span class="p">)</span>
+        <span class="n">hots</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">knowledge</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">AliasStore</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">hots</span><span class="o">.</span><span class="n">aliases_path</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">hots</span><span class="o">.</span><span class="n">advisor</span><span class="o">.</span><span class="n">roster</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No HotS pages in </span><span class="si">%s</span><span class="s2">; the draft skill is off"</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">hots</span><span class="o">.</span><span class="n">pages_path</span><span class="p">)</span>
             <span class="n">knowledge</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -396,7 +403,7 @@
 <a class="viewcode-back" href="../../../autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.Hots.skill">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">skill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HotsSkill</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""A skill with a fresh, empty draft for one session."""</span>
-        <span class="k">return</span> <span class="n">HotsSkill</span><span class="p">(</span><span class="n">Intents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">advisor</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="n">HotsSkill</span><span class="p">(</span><span class="n">Intents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">advisor</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aliases</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Hots.session_skills">

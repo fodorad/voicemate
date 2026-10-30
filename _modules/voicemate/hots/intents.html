@@ -241,6 +241,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../autoapi/voicemate/events/index.html">voicemate.events</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -332,8 +333,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">difflib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.advisor</span><span class="w"> </span><span class="kn">import</span> <span class="n">Advisor</span><span class="p">,</span> <span class="n">Suggestion</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.aliases</span><span class="w"> </span><span class="kn">import</span> <span class="n">AliasStore</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.draft</span><span class="w"> </span><span class="kn">import</span> <span class="n">Draft</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.roster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hero</span><span class="p">,</span> <span class="n">normalize</span>
 
@@ -370,6 +373,12 @@
 <span class="n">_NOISE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\b(?:a|an|the|also|then|and then|please)\b"</span><span class="p">)</span>
 <span class="n">_LIST_SPLIT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">",| and | &amp; "</span><span class="p">)</span>
 
+<span class="n">_ORDINALS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"first"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"1st"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"one"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"yeah"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"yep"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">"second"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"2nd"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"two"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">"third"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"3rd"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"three"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">}</span>  <span class="c1"># fmt: skip</span>
+
 <span class="c1">#: How many heroes an answer names.</span>
 <span class="n">ANSWER_HEROES</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
 
@@ -389,6 +398,15 @@
     <span class="p">)</span>
 
 
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Question</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A name that could be one of several heroes, waiting for Adam's pick."""</span>
+
+    <span class="n">said</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">heard</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">candidates</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Hero</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+
 <div class="viewcode-block" id="Intents">
 <a class="viewcode-back" href="../../../autoapi/voicemate/hots/intents/index.html#voicemate.hots.intents.Intents">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Intents</span><span class="p">:</span>
@@ -397,11 +415,17 @@
 <span class="sd">    Args:</span>
 <span class="sd">        advisor: Ranks counters, picks and bans.</span>
 <span class="sd">        draft: The session's draft (a new one when omitted).</span>
+<span class="sd">        aliases: Where spellings settled by a question are remembered.</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">advisor</span><span class="p">:</span> <span class="n">Advisor</span><span class="p">,</span> <span class="n">draft</span><span class="p">:</span> <span class="n">Draft</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">advisor</span><span class="p">:</span> <span class="n">Advisor</span><span class="p">,</span> <span class="n">draft</span><span class="p">:</span> <span class="n">Draft</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">aliases</span><span class="p">:</span> <span class="n">AliasStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">advisor</span> <span class="o">=</span> <span class="n">advisor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draft</span> <span class="o">=</span> <span class="n">draft</span> <span class="k">if</span> <span class="n">draft</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Draft</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span> <span class="o">=</span> <span class="n">aliases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_said</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_question</span><span class="p">:</span> <span class="n">_Question</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Intents.handle">
 <a class="viewcode-back" href="../../../autoapi/voicemate/hots/intents/index.html#voicemate.hots.intents.Intents.handle">[docs]</a>
@@ -410,6 +434,10 @@
         <span class="n">said</span> <span class="o">=</span> <span class="n">_clean</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">said</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">answered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_answer_question</span><span class="p">(</span><span class="n">said</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">answered</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">answered</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_said</span> <span class="o">=</span> <span class="n">said</span>
         <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_banned</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ban_advice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suggest</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pick_advice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_counter_advice</span><span class="p">,</span>
@@ -419,6 +447,21 @@
                 <span class="k">return</span> <span class="n">answer</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_answer_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">said</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Settle the pending "A or B?" with ``said``; any other speech drops the question."""</span>
+        <span class="n">question</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_question</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_question</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">question</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">question</span><span class="o">.</span><span class="n">heard</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">question</span><span class="o">.</span><span class="n">said</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">said</span> <span class="ow">in</span> <span class="n">_ORDINALS</span> <span class="ow">and</span> <span class="n">_ORDINALS</span><span class="p">[</span><span class="n">said</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">question</span><span class="o">.</span><span class="n">candidates</span><span class="p">):</span>
+            <span class="n">hero</span> <span class="o">=</span> <span class="n">question</span><span class="o">.</span><span class="n">candidates</span><span class="p">[</span><span class="n">_ORDINALS</span><span class="p">[</span><span class="n">said</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hero</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">advisor</span><span class="o">.</span><span class="n">roster</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">said</span><span class="p">,</span> <span class="p">{</span><span class="n">c</span><span class="o">.</span><span class="n">slug</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">question</span><span class="o">.</span><span class="n">candidates</span><span class="p">})</span><span class="o">.</span><span class="n">hero</span>
+        <span class="k">if</span> <span class="n">hero</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">advisor</span><span class="o">.</span><span class="n">roster</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">question</span><span class="o">.</span><span class="n">heard</span><span class="p">,</span> <span class="n">hero</span><span class="o">.</span><span class="n">slug</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">question</span><span class="o">.</span><span class="n">heard</span><span class="p">,</span> <span class="n">hero</span><span class="o">.</span><span class="n">slug</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">question</span><span class="o">.</span><span class="n">said</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">question</span><span class="o">.</span><span class="n">heard</span><span class="p">,</span> <span class="n">hero</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">1</span><span class="p">))</span>
 
     <span class="c1"># ── commands that change the draft ───────────────────────────────────────</span>
 
@@ -559,7 +602,9 @@
                     <span class="n">heroes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolved</span><span class="o">.</span><span class="n">hero</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">resolved</span><span class="o">.</span><span class="n">candidates</span><span class="p">:</span>
                 <span class="n">options</span> <span class="o">=</span> <span class="s2">" or "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">resolved</span><span class="o">.</span><span class="n">candidates</span><span class="p">)</span>
-                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Did you mean </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s2">?"</span><span class="p">)</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s2">?"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">problems</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">resolved</span><span class="o">.</span><span class="n">candidates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_question</span> <span class="o">=</span> <span class="n">_Question</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_said</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">resolved</span><span class="o">.</span><span class="n">candidates</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">heroes</span><span class="p">,</span> <span class="n">problems</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spoken</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>

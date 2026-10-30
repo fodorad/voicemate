@@ -439,6 +439,7 @@ Module Contents
    :ivar enabled: Answer draft questions from the local knowledge base.
    :ivar pages_dir: Folder with the saved Icy Veins pages (filled by hand from the browser).
    :ivar database: SQLite file of the knowledge base, inside the data directory.
+   :ivar aliases_file: TOML file of hero-name spellings Ava learned from Adam.
 
 
 
@@ -460,11 +461,24 @@ Module Contents
 
 
 
+   .. py:attribute:: aliases_file
+      :type:  str
+      :value: 'data/hots_aliases.toml'
+
+
+
    .. py:property:: pages_path
       :type: pathlib.Path
 
 
       Saved pages folder as an absolute path.
+
+
+   .. py:property:: aliases_path
+      :type: pathlib.Path
+
+
+      Learned aliases file as an absolute path.
 
 
 .. py:class:: ActivationConfig

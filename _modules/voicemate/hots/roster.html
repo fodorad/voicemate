@@ -241,6 +241,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../autoapi/voicemate/events/index.html">voicemate.events</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -471,6 +472,17 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Hero</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Iterate over the heroes."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_by_slug</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+<div class="viewcode-block" id="Roster.learn">
+<a class="viewcode-back" href="../../../autoapi/voicemate/hots/roster/index.html#voicemate.hots.roster.Roster.learn">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">learn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spelling</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">slug</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Make ``spelling`` mean the hero ``slug``; ``False`` when it already means something."""</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">spelling</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">slug</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_slug</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keys</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keys</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_slug</span><span class="p">[</span><span class="n">slug</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
 
 <div class="viewcode-block" id="Roster.get">
 <a class="viewcode-back" href="../../../autoapi/voicemate/hots/roster/index.html#voicemate.hots.roster.Roster.get">[docs]</a>

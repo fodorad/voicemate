@@ -1,0 +1,57 @@
+voicemate.hots.aliases
+======================
+
+.. py:module:: voicemate.hots.aliases
+
+.. autoapi-nested-parse::
+
+   Spellings Ava learned for hero names, kept between runs.
+
+   When a badly pronounced name was settled (Adam picked one of two candidates), the way the
+   recognizer spelled it is stored here, so the next time it resolves at once.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.aliases.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.aliases.AliasStore
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: AliasStore(path: pathlib.Path)
+
+   A TOML file of learned spellings (``spelling = "hero-slug"`` under ``[aliases]``).
+
+   :param path: The file; created on the first :meth:`add`.
+
+
+   .. py:attribute:: path
+
+
+   .. py:method:: load() -> dict[str, str]
+
+      The stored ``spelling → slug`` pairs (empty when the file is missing or unreadable).
+
+
+
+   .. py:method:: add(spelling: str, slug: str) -> None
+
+      Remember that ``spelling`` means the hero ``slug`` (written atomically).
+
+
+

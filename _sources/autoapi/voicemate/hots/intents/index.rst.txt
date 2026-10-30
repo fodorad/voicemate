@@ -39,18 +39,24 @@ Module Contents
    :value: 3
 
 
-.. py:class:: Intents(advisor: voicemate.hots.advisor.Advisor, draft: voicemate.hots.draft.Draft | None = None)
+.. py:class:: Intents(advisor: voicemate.hots.advisor.Advisor, draft: voicemate.hots.draft.Draft | None = None, aliases: voicemate.hots.aliases.AliasStore | None = None)
 
    Recognizes draft commands and answers them.
 
    :param advisor: Ranks counters, picks and bans.
    :param draft: The session's draft (a new one when omitted).
+   :param aliases: Where spellings settled by a question are remembered.
 
 
    .. py:attribute:: advisor
 
 
    .. py:attribute:: draft
+
+
+   .. py:attribute:: aliases
+      :value: None
+
 
 
    .. py:method:: handle(text: str) -> str | None

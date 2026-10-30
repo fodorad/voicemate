@@ -136,6 +136,12 @@ Module Contents
    :param aliases: Extra spellings as ``spelling → slug`` (default: :data:`SPOKEN_ALIASES`).
 
 
+   .. py:method:: learn(spelling: str, slug: str) -> bool
+
+      Make ``spelling`` mean the hero ``slug``; ``False`` when it already means something.
+
+
+
    .. py:method:: get(slug: str) -> Hero | None
 
       The hero with this slug, if any.

@@ -242,6 +242,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../events/index.html">voicemate.events</a></li>
 <li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../advisor/index.html">voicemate.hots.advisor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../aliases/index.html">voicemate.hots.aliases</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -365,13 +366,14 @@ per command. An utterance it does not recognize, or one that names nothing it kn
 
 <dl class="py class">
 <dt class="sig sig-object py" id="voicemate.hots.intents.Intents">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.hots.intents.</span></span><span class="sig-name descname"><span class="pre">Intents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">advisor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../advisor/index.html#voicemate.hots.advisor.Advisor" title="voicemate.hots.advisor.Advisor"><span class="pre">voicemate.hots.advisor.Advisor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">draft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../draft/index.html#voicemate.hots.draft.Draft" title="voicemate.hots.draft.Draft"><span class="pre">voicemate.hots.draft.Draft</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/voicemate/hots/intents.html#Intents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.intents.Intents" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.hots.intents.</span></span><span class="sig-name descname"><span class="pre">Intents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">advisor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../advisor/index.html#voicemate.hots.advisor.Advisor" title="voicemate.hots.advisor.Advisor"><span class="pre">voicemate.hots.advisor.Advisor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">draft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../draft/index.html#voicemate.hots.draft.Draft" title="voicemate.hots.draft.Draft"><span class="pre">voicemate.hots.draft.Draft</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../aliases/index.html#voicemate.hots.aliases.AliasStore" title="voicemate.hots.aliases.AliasStore"><span class="pre">voicemate.hots.aliases.AliasStore</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/voicemate/hots/intents.html#Intents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.intents.Intents" title="Link to this definition">¶</a></dt>
 <dd><p>Recognizes draft commands and answers them.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>advisor</strong> – Ranks counters, picks and bans.</p></li>
 <li><p><strong>draft</strong> – The session’s draft (a new one when omitted).</p></li>
+<li><p><strong>aliases</strong> – Where spellings settled by a question are remembered.</p></li>
 </ul>
 </dd>
 </dl>
@@ -383,6 +385,11 @@ per command. An utterance it does not recognize, or one that names nothing it kn
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.hots.intents.Intents.draft">
 <span class="sig-name descname"><span class="pre">draft</span></span><a class="headerlink" href="#voicemate.hots.intents.Intents.draft" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.hots.intents.Intents.aliases">
+<span class="sig-name descname"><span class="pre">aliases</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.hots.intents.Intents.aliases" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -459,6 +466,7 @@ per command. An utterance it does not recognize, or one that names nothing it kn
 <li><a class="reference internal" href="#voicemate.hots.intents.Intents"><code class="docutils literal notranslate"><span class="pre">Intents</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.hots.intents.Intents.advisor"><code class="docutils literal notranslate"><span class="pre">Intents.advisor</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.intents.Intents.draft"><code class="docutils literal notranslate"><span class="pre">Intents.draft</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.intents.Intents.aliases"><code class="docutils literal notranslate"><span class="pre">Intents.aliases</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.intents.Intents.handle"><code class="docutils literal notranslate"><span class="pre">Intents.handle()</span></code></a></li>
 </ul>
 </li>
