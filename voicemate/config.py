@@ -245,6 +245,8 @@ class ScreenConfig:
         proactive: Say "Your ban." / "Your pick." when it becomes your turn.
         calibration_file: TOML file where the measured screen layout is kept, so other screen
             sizes and window positions work without any setup.
+        faces_dir: Folder of the hero portraits Ava learned from labels she read with certainty;
+            they identify a label whose text was misread.
         log_dir: Folder for the log of captured screens, one subfolder per draft.
         keep: How many draft subfolders to keep.
     """
@@ -255,6 +257,7 @@ class ScreenConfig:
     game_mode: bool = False
     proactive: bool = False
     calibration_file: str = "data/hots_calibration.toml"
+    faces_dir: str = "data/hots_faces"
     log_dir: str = "data/game_screens"
     keep: int = 20
 
@@ -262,6 +265,11 @@ class ScreenConfig:
     def calibration_path(self) -> Path:
         """The calibration file as an absolute path."""
         return _resolve(self.calibration_file)
+
+    @property
+    def faces_path(self) -> Path:
+        """The learned faces folder as an absolute path."""
+        return _resolve(self.faces_dir)
 
     @property
     def log_path(self) -> Path:

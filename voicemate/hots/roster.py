@@ -97,10 +97,12 @@ class Resolved:
     Attributes:
         hero: The hero when the name is unambiguous, otherwise ``None``.
         candidates: Closest heroes when the name is ambiguous or unknown (best first).
+        exact: The hero was found by its exact name, slug or alias, not by a guess.
     """
 
     hero: Hero | None
     candidates: tuple[Hero, ...] = ()
+    exact: bool = False
 
 
 def _similarity(spelled: str, candidate: str, heard: str) -> float:
@@ -166,7 +168,7 @@ class Roster:
         if not key:
             return Resolved(None)
         if key in self._keys:
-            return Resolved(self._keys[key])
+            return Resolved(self._keys[key], exact=True)
         keys = {k: h for k, h in self._keys.items() if available is None or h.slug in available}
         if len(key) >= MIN_PREFIX:
             starting = {h.slug: h for k, h in keys.items() if k.startswith(key)}

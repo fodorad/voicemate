@@ -24,6 +24,8 @@ MIN_CONFIDENCE: float = 0.5
 #: pixel brightness, 0-255): locked bands are light lavender or white-blue (measured 136-170 on
 #: Adam's screens), hovered picks stay dark (at most 97).
 LOCKED_BRIGHTNESS: float = 110.0
+#: A label is certain (it teaches the hero's face) at this recognizer confidence.
+CERTAIN_CONFIDENCE: float = 0.9
 #: A timer digit is read at lower confidence (it is one big number).
 MIN_TIMER_CONFIDENCE: float = 0.3
 #: Hero labels centred left of this belong to Adam's team.
@@ -100,8 +102,22 @@ class BanReader(Protocol):
         ...
 
 
+class FaceReader(Protocol):
+    """Identifies a locked pick by its portrait when its label's text is in doubt."""
+
+    def check(
+        self, image: np.ndarray, side: str, y: float, hero: str | None, certain: bool
+    ) -> str | None:
+        """The hero of the label at height ``y`` on ``side`` (``hero`` is the text's guess)."""
+        ...
+
+
 def interpret(
-    frame: Frame, roster: Roster, maps: Mapping[str, str], portraits: BanReader | None = None
+    frame: Frame,
+    roster: Roster,
+    maps: Mapping[str, str],
+    portraits: BanReader | None = None,
+    faces: FaceReader | None = None,
 ) -> DraftScreen:
     """Read the draft off one screen.
 
@@ -110,10 +126,12 @@ def interpret(
         roster: Resolves hero names (the big capital labels).
         maps: ``slug → name`` of the maps.
         portraits: Reads the ban slots; without it only announced bans are known.
+        faces: Cross-checks the hero labels against the heroes' portraits (and learns the
+            portraits of the labels that are certain); without it the text alone counts.
     """
     boxes = [box for box in frame.boxes if box.text.strip()]
-    ally, ally_pending = _team(frame.image, boxes, roster, "ally")
-    enemy, enemy_pending = _team(frame.image, boxes, roster, "enemy")
+    ally, ally_pending = _team(frame.image, boxes, roster, "ally", faces)
+    enemy, enemy_pending = _team(frame.image, boxes, roster, "enemy", faces)
     banned = _banned(boxes, roster)
     if portraits is not None and _phase(boxes).kind in ("ban", "pick"):
         banned = tuple(dict.fromkeys((*banned, *portraits.bans(frame.image))))
@@ -189,7 +207,11 @@ def _locked(image: np.ndarray, box: TextBox) -> bool:
 
 
 def _team(
-    image: np.ndarray, boxes: list[TextBox], roster: Roster, side: str
+    image: np.ndarray,
+    boxes: list[TextBox],
+    roster: Roster,
+    side: str,
+    faces: FaceReader | None = None,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Hero slugs labelled on one side, top slot first: ``(locked, pending)``."""
     locked: list[str] = []
@@ -197,10 +219,14 @@ def _team(
     for box in sorted(boxes, key=lambda b: b.cy):
         on_side = box.cx < ALLY_EDGE if side == "ally" else box.cx > ENEMY_EDGE
         if on_side and _is_label(box):
-            hero = roster.resolve(box.text).hero
-            group = locked if _locked(image, box) else pending
-            if hero is not None and hero.slug not in locked + pending:
-                group.append(hero.slug)
+            resolved = roster.resolve(box.text)
+            slug = resolved.hero.slug if resolved.hero else None
+            is_locked = _locked(image, box)
+            if faces is not None and is_locked:
+                certain = resolved.exact and box.confidence >= CERTAIN_CONFIDENCE
+                slug = faces.check(image, side, box.cy, slug, certain)
+            if slug is not None and slug not in locked + pending:
+                (locked if is_locked else pending).append(slug)
     return tuple(locked), tuple(pending)
 
 

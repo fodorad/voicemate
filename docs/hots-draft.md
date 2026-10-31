@@ -45,6 +45,14 @@ a title bar or a window moved on the desktop all read like full screen. The meas
 per capture size in `data/hots_calibration.toml` (so the loading screen, which lacks those two
 texts, is mapped too) and is redone when it changes. Delete the file to start over.
 
+## Misread labels
+
+Every hero label read with certainty (exact name, clear text, locked in) teaches Ava the hero's
+face; the faces are kept in `data/hots_faces`. When a label is later misread (a letter cut off
+on the slanted text, a low resolution) the face names the hero instead. It starts empty and fills
+up over a few drafts; the small Icy Veins portraits only read the ban slots, because the big
+pick portraits are another painting.
+
 ## What is saved
 
 Every screen where the draft changed is saved to `data/game_screens/<date_time>/NN.png` with a
@@ -52,4 +60,4 @@ Every screen where the draft changed is saved to `data/game_screens/<date_time>/
 
 ## Settings
 
-`[hots.screen]` in `config/voicemate.toml`: `enabled`, `window` (app name of the game), `poll_s`, `game_mode`, `proactive` (say "Your ban." when it is your turn), `calibration_file`, `log_dir`, `keep`.
+`[hots.screen]` in `config/voicemate.toml`: `enabled`, `window` (app name of the game), `poll_s`, `game_mode`, `proactive` (say "Your ban." when it is your turn), `calibration_file`, `faces_dir`, `log_dir`, `keep`.

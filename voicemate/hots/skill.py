@@ -14,6 +14,7 @@ from voicemate.hots.commands import Command, parse
 from voicemate.hots.draft import Draft
 from voicemate.hots.intents import Intents, clean
 from voicemate.hots.knowledge import Knowledge, RefreshReport
+from voicemate.hots.screen.faces import Faces
 from voicemate.hots.screen.interpreter import DraftScreen
 from voicemate.hots.screen.layout import Calibration
 from voicemate.hots.screen.log import ScreenLog
@@ -40,6 +41,7 @@ class ScreenKit:
         settings: The ``[hots.screen]`` configuration.
         saved: Reads the newest saved screenshot instead (``read the last screenshot``).
         calibration: Finds where the draft screen sits in the captured picture.
+        faces: The learned pick portraits that cross-check the hero labels.
     """
 
     reader: ScreenReader
@@ -47,6 +49,7 @@ class ScreenKit:
     settings: ScreenConfig
     saved: ScreenReader | None = None
     calibration: Calibration | None = None
+    faces: Faces | None = None
 
 
 class HotsSkill:
@@ -211,6 +214,7 @@ class Hots:
             self.advisor.maps,
             draft,
             portraits=self.screen.portraits,
+            faces=self.screen.faces,
             calibration=self.screen.calibration,
             log=ScreenLog(settings.log_path, settings.keep),
             poll_s=settings.poll_s,
@@ -260,4 +264,5 @@ def _mac_kit(config: Config) -> ScreenKit:  # pragma: no cover - needs macOS and
         settings,
         ImageFileReader(newest),
         Calibration(settings.calibration_path),
+        Faces(settings.faces_path),
     )

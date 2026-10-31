@@ -19,7 +19,7 @@ from typing import Any
 
 from voicemate.hots.draft import Draft
 from voicemate.hots.roster import Roster
-from voicemate.hots.screen.interpreter import BanReader, DraftScreen, interpret
+from voicemate.hots.screen.interpreter import BanReader, DraftScreen, FaceReader, interpret
 from voicemate.hots.screen.layout import Calibration
 from voicemate.hots.screen.log import ScreenLog
 from voicemate.hots.screen.reader import FULL, Frame, ScreenError, ScreenReader
@@ -55,6 +55,7 @@ class DraftWatcher:
         maps: ``slug → name`` of the maps.
         draft: The session's draft, kept current while a draft is on screen.
         portraits: Reads the ban slots.
+        faces: Cross-checks hero labels against the heroes' portraits.
         calibration: Maps each capture onto the reference draft screen, whatever the machine's
             screen size or window position (the capture is read as it is when omitted).
         log: Where captured screens are saved (not saved when omitted).
@@ -71,6 +72,7 @@ class DraftWatcher:
         maps: Mapping[str, str],
         draft: Draft,
         portraits: BanReader | None = None,
+        faces: FaceReader | None = None,
         calibration: Calibration | None = None,
         log: ScreenLog | None = None,
         poll_s: float = 2.0,
@@ -83,6 +85,7 @@ class DraftWatcher:
         self.maps = maps
         self.draft = draft
         self.portraits = portraits
+        self.faces = faces
         self.calibration = calibration
         self.log = log
         self.poll_s = poll_s
@@ -198,7 +201,7 @@ class DraftWatcher:
         """What the draft screen in ``frame`` shows."""
         if self.calibration is not None:
             frame = self.calibration.canonical(frame, self.maps)
-        return interpret(frame, self.roster, self.maps, self.portraits)
+        return interpret(frame, self.roster, self.maps, self.portraits, self.faces)
 
     def _fail(self, message: str) -> None:
         if message != self.problem:
