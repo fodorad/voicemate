@@ -36,6 +36,15 @@ Names are matched by sound as well as by spelling ("Kszalatat" finds Xal'atath),
 heroes still available. When two heroes fit, Ava asks "One Thrall or two Tyrael?"; answer with
 the number (or the name), so a name she misheard once is not needed again. The spelling is remembered in `data/hots_aliases.toml`.
 
+## Other screens and windows
+
+The positions of everything on the draft screen are measured, not assumed: every ban and pick
+screen shows the map name and "Browse All Heroes", and the distance between them gives the
+scale and the middle line of the screen. So a 4K display, a laptop's 16:10 panel, a window with
+a title bar or a window moved on the desktop all read like full screen. The measurement is kept
+per capture size in `data/hots_calibration.toml` (so the loading screen, which lacks those two
+texts, is mapped too) and is redone when it changes. Delete the file to start over.
+
 ## What is saved
 
 Every screen where the draft changed is saved to `data/game_screens/<date_time>/NN.png` with a
@@ -43,4 +52,4 @@ Every screen where the draft changed is saved to `data/game_screens/<date_time>/
 
 ## Settings
 
-`[hots.screen]` in `config/voicemate.toml`: `enabled`, `window` (app name of the game), `poll_s`, `game_mode`, `proactive` (say "Your ban." when it is your turn), `log_dir`, `keep`.
+`[hots.screen]` in `config/voicemate.toml`: `enabled`, `window` (app name of the game), `poll_s`, `game_mode`, `proactive` (say "Your ban." when it is your turn), `calibration_file`, `log_dir`, `keep`.

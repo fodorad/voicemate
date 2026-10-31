@@ -252,6 +252,7 @@
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/roster/index.html">voicemate.hots.roster</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="autoapi/voicemate/hots/screen/index.html">voicemate.hots.screen</a><input aria-label="Toggle navigation of voicemate.hots.screen" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="autoapi/voicemate/hots/screen/interpreter/index.html">voicemate.hots.screen.interpreter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="autoapi/voicemate/hots/screen/layout/index.html">voicemate.hots.screen.layout</a></li>
 <li class="toctree-l5"><a class="reference internal" href="autoapi/voicemate/hots/screen/log/index.html">voicemate.hots.screen.log</a></li>
 <li class="toctree-l5"><a class="reference internal" href="autoapi/voicemate/hots/screen/macos/index.html">voicemate.hots.screen.macos</a></li>
 <li class="toctree-l5"><a class="reference internal" href="autoapi/voicemate/hots/screen/portraits/index.html">voicemate.hots.screen.portraits</a></li>
@@ -396,6 +397,15 @@ Ava never looks at the screen unless you ask her to read it. Say:</p>
 heroes still available. When two heroes fit, Ava asks “One Thrall or two Tyrael?”; answer with
 the number (or the name), so a name she misheard once is not needed again. The spelling is remembered in <code class="docutils literal notranslate"><span class="pre">data/hots_aliases.toml</span></code>.</p>
 </section>
+<section id="other-screens-and-windows">
+<h2>Other screens and windows<a class="headerlink" href="#other-screens-and-windows" title="Link to this heading">¶</a></h2>
+<p>The positions of everything on the draft screen are measured, not assumed: every ban and pick
+screen shows the map name and “Browse All Heroes”, and the distance between them gives the
+scale and the middle line of the screen. So a 4K display, a laptop’s 16:10 panel, a window with
+a title bar or a window moved on the desktop all read like full screen. The measurement is kept
+per capture size in <code class="docutils literal notranslate"><span class="pre">data/hots_calibration.toml</span></code> (so the loading screen, which lacks those two
+texts, is mapped too) and is redone when it changes. Delete the file to start over.</p>
+</section>
 <section id="what-is-saved">
 <h2>What is saved<a class="headerlink" href="#what-is-saved" title="Link to this heading">¶</a></h2>
 <p>Every screen where the draft changed is saved to <code class="docutils literal notranslate"><span class="pre">data/game_screens/&lt;date_time&gt;/NN.png</span></code> with a
@@ -403,7 +413,7 @@ the number (or the name), so a name she misheard once is not needed again. The s
 </section>
 <section id="settings">
 <h2>Settings<a class="headerlink" href="#settings" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">[hots.screen]</span></code> in <code class="docutils literal notranslate"><span class="pre">config/voicemate.toml</span></code>: <code class="docutils literal notranslate"><span class="pre">enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">window</span></code> (app name of the game), <code class="docutils literal notranslate"><span class="pre">poll_s</span></code>, <code class="docutils literal notranslate"><span class="pre">game_mode</span></code>, <code class="docutils literal notranslate"><span class="pre">proactive</span></code> (say “Your ban.” when it is your turn), <code class="docutils literal notranslate"><span class="pre">log_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">keep</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">[hots.screen]</span></code> in <code class="docutils literal notranslate"><span class="pre">config/voicemate.toml</span></code>: <code class="docutils literal notranslate"><span class="pre">enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">window</span></code> (app name of the game), <code class="docutils literal notranslate"><span class="pre">poll_s</span></code>, <code class="docutils literal notranslate"><span class="pre">game_mode</span></code>, <code class="docutils literal notranslate"><span class="pre">proactive</span></code> (say “Your ban.” when it is your turn), <code class="docutils literal notranslate"><span class="pre">calibration_file</span></code>, <code class="docutils literal notranslate"><span class="pre">log_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">keep</span></code>.</p>
 </section>
 </section>
 
@@ -466,6 +476,7 @@ the number (or the name), so a name she misheard once is not needed again. The s
 <li><a class="reference internal" href="#one-time-setup-macos">One-time setup (macOS)</a></li>
 <li><a class="reference internal" href="#during-a-draft">During a draft</a></li>
 <li><a class="reference internal" href="#names-that-are-said-badly">Names that are said badly</a></li>
+<li><a class="reference internal" href="#other-screens-and-windows">Other screens and windows</a></li>
 <li><a class="reference internal" href="#what-is-saved">What is saved</a></li>
 <li><a class="reference internal" href="#settings">Settings</a></li>
 </ul>

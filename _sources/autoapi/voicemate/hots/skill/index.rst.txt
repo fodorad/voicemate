@@ -50,6 +50,7 @@ Module Contents
    :ivar portraits: Reads the ban slots (``None`` when no portraits were saved).
    :ivar settings: The ``[hots.screen]`` configuration.
    :ivar saved: Reads the newest saved screenshot instead (``read the last screenshot``).
+   :ivar calibration: Finds where the draft screen sits in the captured picture.
 
 
 
@@ -67,6 +68,12 @@ Module Contents
 
    .. py:attribute:: saved
       :type:  voicemate.hots.screen.reader.ScreenReader | None
+      :value: None
+
+
+
+   .. py:attribute:: calibration
+      :type:  voicemate.hots.screen.layout.Calibration | None
       :value: None
 
 

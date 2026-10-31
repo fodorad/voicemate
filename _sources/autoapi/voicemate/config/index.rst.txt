@@ -444,6 +444,8 @@ Module Contents
    :ivar game_mode: Start every session in draft mode (otherwise "draft mode on" starts it, and
                     the screen is read only when asked).
    :ivar proactive: Say "Your ban." / "Your pick." when it becomes your turn.
+   :ivar calibration_file: TOML file where the measured screen layout is kept, so other screen
+                           sizes and window positions work without any setup.
    :ivar log_dir: Folder for the log of captured screens, one subfolder per draft.
    :ivar keep: How many draft subfolders to keep.
 
@@ -479,6 +481,12 @@ Module Contents
 
 
 
+   .. py:attribute:: calibration_file
+      :type:  str
+      :value: 'data/hots_calibration.toml'
+
+
+
    .. py:attribute:: log_dir
       :type:  str
       :value: 'data/game_screens'
@@ -489,6 +497,13 @@ Module Contents
       :type:  int
       :value: 20
 
+
+
+   .. py:property:: calibration_path
+      :type: pathlib.Path
+
+
+      The calibration file as an absolute path.
 
 
    .. py:property:: log_path

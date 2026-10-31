@@ -1,0 +1,189 @@
+voicemate.hots.screen.layout
+============================
+
+.. py:module:: voicemate.hots.screen.layout
+
+.. autoapi-nested-parse::
+
+   Where the draft screen sits in the captured picture, measured instead of assumed.
+
+   Every position the interpreter and the portrait matcher know is a fraction of the *reference
+   canvas*: the 1920×1080 draft screen the game draws at full screen. A capture of another size
+   (a 4K display, a window with a title bar, a laptop's 16:10 panel) shows that canvas scaled and
+   shifted. :class:`Layout` describes the scale and the shift and maps a :class:`Frame` back onto
+   the reference canvas (:meth:`Layout.canonical`), so nothing downstream depends on the machine.
+
+   The layout is measured from two texts every ban and pick screen shows: the map name at the
+   top and "Browse All Heroes" below the middle. Their distance gives the scale, the second one
+   gives the screen's middle line. :class:`Calibration` re-measures whenever those texts are
+   visible, notices a changed capture (another size, a moved window) and keeps what it measured in
+   a small file, so a screen without them (the loading screen) is still mapped correctly.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.layout.logger
+   voicemate.hots.screen.layout.REFERENCE
+   voicemate.hots.screen.layout.BROWSE_TEXT
+   voicemate.hots.screen.layout.BROWSE_AT
+   voicemate.hots.screen.layout.MAP_AT
+   voicemate.hots.screen.layout.SCALE_TOLERANCE
+   voicemate.hots.screen.layout.SAME_SCALE
+   voicemate.hots.screen.layout.SAME_OFFSET
+   voicemate.hots.screen.layout.MIN_CONFIDENCE
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.layout.Layout
+   voicemate.hots.screen.layout.Calibration
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.layout.measure
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: REFERENCE
+   :type:  tuple[int, int]
+   :value: (1920, 1080)
+
+
+.. py:data:: BROWSE_TEXT
+   :type:  str
+   :value: 'browseallheroes'
+
+
+.. py:data:: BROWSE_AT
+   :type:  tuple[float, float]
+   :value: (960.0, 784.4)
+
+
+.. py:data:: MAP_AT
+   :type:  tuple[float, float]
+   :value: (957.2, 25.5)
+
+
+.. py:data:: SCALE_TOLERANCE
+   :type:  float
+   :value: 0.35
+
+
+.. py:data:: SAME_SCALE
+   :type:  float
+   :value: 0.01
+
+
+.. py:data:: SAME_OFFSET
+   :type:  float
+   :value: 4.0
+
+
+.. py:data:: MIN_CONFIDENCE
+   :type:  float
+   :value: 0.5
+
+
+.. py:class:: Layout
+
+   How the reference canvas appears in a picture of one size.
+
+   :ivar size: ``(width, height)`` of the captured picture, pixels.
+   :ivar scale: Picture pixels per reference pixel.
+   :ivar center: Picture x of the canvas' middle line, pixels.
+   :ivar top: Picture y of the canvas' top edge, pixels (negative when it is cut off).
+
+
+
+   .. py:attribute:: size
+      :type:  tuple[int, int]
+
+
+   .. py:attribute:: scale
+      :type:  float
+
+
+   .. py:attribute:: center
+      :type:  float
+
+
+   .. py:attribute:: top
+      :type:  float
+
+
+   .. py:method:: default(size: tuple[int, int]) -> Layout
+      :classmethod:
+
+
+      The canvas filling the picture's height and centred in its width.
+
+
+
+   .. py:method:: same_as(other: Layout) -> bool
+
+      Whether ``other`` places the canvas in (nearly) the same way.
+
+
+
+   .. py:property:: is_identity
+      :type: bool
+
+
+      Whether the picture already is the canvas (at any resolution).
+
+
+   .. py:method:: canonical(frame: voicemate.hots.screen.reader.Frame) -> voicemate.hots.screen.reader.Frame
+
+      ``frame`` cut to the canvas: the same pixels, so only its size and text positions change.
+
+      Anything the picture does not show of the canvas is black.
+
+
+
+.. py:function:: measure(frame: voicemate.hots.screen.reader.Frame, maps: collections.abc.Mapping[str, str]) -> Layout | None
+
+   The layout a draft screen shows, or ``None`` when its anchor texts are not both readable.
+
+
+.. py:class:: Calibration(path: pathlib.Path | None = None)
+
+   Finds the layout of each frame and remembers what it measured.
+
+   :param path: TOML file where measured layouts are kept between runs (memory only when omitted).
+
+
+   .. py:attribute:: path
+      :value: None
+
+
+
+   .. py:method:: layout(frame: voicemate.hots.screen.reader.Frame, maps: collections.abc.Mapping[str, str]) -> Layout
+
+      The layout of ``frame``: measured when it shows its anchors, otherwise remembered.
+
+      A measurement that differs from the remembered layout (another capture size, a moved
+      window, a changed game setting) replaces it and is stored.
+
+
+
+   .. py:method:: canonical(frame: voicemate.hots.screen.reader.Frame, maps: collections.abc.Mapping[str, str]) -> voicemate.hots.screen.reader.Frame
+
+      ``frame`` on the reference canvas, whatever the machine's screen looks like.
+
+
+

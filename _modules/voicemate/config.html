@@ -251,6 +251,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/roster/index.html">voicemate.hots.roster</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../autoapi/voicemate/hots/screen/index.html">voicemate.hots.screen</a><input aria-label="Toggle navigation of voicemate.hots.screen" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../autoapi/voicemate/hots/screen/interpreter/index.html">voicemate.hots.screen.interpreter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../autoapi/voicemate/hots/screen/layout/index.html">voicemate.hots.screen.layout</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../autoapi/voicemate/hots/screen/log/index.html">voicemate.hots.screen.log</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../autoapi/voicemate/hots/screen/macos/index.html">voicemate.hots.screen.macos</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../autoapi/voicemate/hots/screen/portraits/index.html">voicemate.hots.screen.portraits</a></li>
@@ -607,6 +608,8 @@
 <span class="sd">        game_mode: Start every session in draft mode (otherwise "draft mode on" starts it, and</span>
 <span class="sd">            the screen is read only when asked).</span>
 <span class="sd">        proactive: Say "Your ban." / "Your pick." when it becomes your turn.</span>
+<span class="sd">        calibration_file: TOML file where the measured screen layout is kept, so other screen</span>
+<span class="sd">            sizes and window positions work without any setup.</span>
 <span class="sd">        log_dir: Folder for the log of captured screens, one subfolder per draft.</span>
 <span class="sd">        keep: How many draft subfolders to keep.</span>
 <span class="sd">    """</span>
@@ -616,8 +619,14 @@
     <span class="n">poll_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>
     <span class="n">game_mode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">proactive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">calibration_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"data/hots_calibration.toml"</span>
     <span class="n">log_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"data/game_screens"</span>
     <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calibration_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The calibration file as an absolute path."""</span>
+        <span class="k">return</span> <span class="n">_resolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_file</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">log_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
