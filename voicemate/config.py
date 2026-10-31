@@ -239,7 +239,9 @@ class ScreenConfig:
         enabled: Read the game screen (macOS only; needs the Screen Recording permission).
         window: Part of the game's app name (not a window title); the whole display is read
             when that app has no window open.
-        poll_s: Seconds between light looks at the screen while watching for a draft.
+        poll_s: Seconds between light looks at the screen while draft mode is on.
+        game_mode: Start every session in draft mode (otherwise "draft mode on" starts it, and
+            the screen is read only when asked).
         proactive: Say "Your ban." / "Your pick." when it becomes your turn.
         log_dir: Folder for the log of captured screens, one subfolder per draft.
         keep: How many draft subfolders to keep.
@@ -248,6 +250,7 @@ class ScreenConfig:
     enabled: bool = True
     window: str = "Heroes"
     poll_s: float = 2.0
+    game_mode: bool = False
     proactive: bool = False
     log_dir: str = "data/game_screens"
     keep: int = 20

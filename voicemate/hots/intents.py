@@ -52,10 +52,13 @@ _FILLER = re.compile(r"^(?:(?:hey|ok|okay) )?(?:ava )?(?:please )?")
 _NOISE = re.compile(r"\b(?:a|an|the|also|then|and then|please)\b")
 _LIST_SPLIT = re.compile(r",| and | & ")
 
+#: How a question numbers its choices; speech recognition often writes the number as a digit
+#: or a sound-alike word.
+_NUMBERS: tuple[str, ...] = ("one", "two", "three")
 _ORDINALS = {
-    "first": 0, "1st": 0, "one": 0, "yes": 0, "yeah": 0, "yep": 0,
-    "second": 1, "2nd": 1, "two": 1,
-    "third": 2, "3rd": 2, "three": 2,
+    "one": 0, "1": 0, "won": 0, "first": 0, "1st": 0, "yes": 0, "yeah": 0, "yep": 0,
+    "two": 1, "2": 1, "to": 1, "too": 1, "second": 1, "2nd": 1,
+    "three": 2, "3": 2, "third": 2, "3rd": 2,
 }  # fmt: skip
 
 #: How many heroes an answer names.
@@ -288,11 +291,18 @@ class Intents:
                 if resolved.hero not in heroes:
                     heroes.append(resolved.hero)
             elif resolved.candidates:
-                options = " or ".join(h.name for h in resolved.candidates)
-                problems.append(f"{options}?")
+                problems.append(self._ask(resolved.candidates))
                 if not problems[1:] and len(resolved.candidates) > 1:
                     self._question = _Question(self._said, name, resolved.candidates)
         return heroes, problems
+
+    @staticmethod
+    def _ask(candidates: Sequence[Hero]) -> str:
+        """Ask "One Thrall or two Tyrael?": a number is easier to say than a name that failed."""
+        if len(candidates) == 1:
+            return f"{candidates[0].name}?"
+        options = [f"{_NUMBERS[i]} {hero.name}" for i, hero in enumerate(candidates)]
+        return " or ".join(options).replace("one", "One", 1) + "?"
 
     def name(self, slug: str) -> str:
         """The display name of a hero."""

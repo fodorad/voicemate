@@ -115,7 +115,8 @@ aliases_file = "data/hots_aliases.toml"
 [hots.screen]
 enabled = true
 window = "Heroes"       # app name of the game; the whole display when it has no window open
-poll_s = 2.0            # seconds between light looks while waiting for a draft
+poll_s = 2.0            # seconds between light looks while draft mode is on
+game_mode = false       # start every session in draft mode; otherwise the screen is read on request
 proactive = false       # say "Your ban." / "Your pick." when it is your turn
 log_dir = "data/game_screens"
 keep = 20               # draft folders kept in the log

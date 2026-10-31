@@ -95,8 +95,15 @@ class TestDraftMode(DraftModeCase):
         self.assertFalse(self.skill_.draft_mode)
         self.assertIsNone(await self.ask("what time is it"))
 
-    async def test_a_draft_on_screen_switches_to_short_focused_answers(self):
+    async def test_a_draft_on_screen_without_draft_mode_stays_ordinary(self):
         skill = self.skill(shown("ban_mine"))
+        await skill.watcher.poll()
+        self.assertFalse(skill.draft_mode)
+        self.assertIsNone(await self.ask("what time is it"))
+
+    async def test_draft_mode_gives_short_focused_answers(self):
+        skill = self.skill(shown("ban_mine"))
+        await self.ask("game mode on")
         await skill.watcher.poll()
         self.assertTrue(skill.draft_mode)
         self.assertEqual(await self.ask("what time is it"), SAY_AGAIN)
@@ -110,6 +117,7 @@ class TestDraftMode(DraftModeCase):
 
     async def test_the_match_starting_ends_draft_mode(self):
         skill = self.skill(shown("team_picking"), shown("team_picking"), shown("starting"))
+        await self.ask("draft mode on")
         await skill.watcher.poll()
         await skill.watcher.poll()
         self.assertEqual(skill.watcher.mode, OVER)
@@ -126,12 +134,21 @@ class TestDraftMode(DraftModeCase):
         self.assertIsNone(await self.ask("what time is it"))
         self.assertEqual(self.skill_.watcher.mode, OVER)
 
-    async def test_manual_draft_mode_ends_with_the_match(self):
-        skill = self.skill(shown("starting"))
+    async def test_draft_mode_pauses_for_the_match_and_resumes_with_the_next_draft(self):
+        skill = self.skill(shown("starting"), shown("ban_mine"), shown("ban_mine"))
         await self.ask("draft mode on")
         skill.watcher.mode = DRAFT
         await skill.watcher.poll()
         self.assertFalse(skill.draft_mode)
+        await skill.watcher.poll()
+        self.assertTrue(skill.draft_mode)
+
+    async def test_a_session_can_start_in_draft_mode(self):
+        self.skill(shown("loading"))
+        self.hots.screen.settings.game_mode = True
+        skill = self.hots.skill()
+        self.assertTrue(skill.draft_mode)
+        self.assertTrue(skill.watcher.watching)
 
 
 class TestReadCommands(DraftModeCase):
