@@ -31,6 +31,8 @@ logger = logging.getLogger(__name__)
 IDLE: str = "idle"
 #: A draft is on screen: the watcher follows it.
 DRAFT: str = "draft"
+#: The loading screen shows both teams: the watcher noted them (and briefed Adam) and waits.
+LOADING: str = "loading"
 #: The match started: the watcher is quiet until the next draft screen.
 OVER: str = "over"
 #: A draft screen missing for this many looks in a row means the draft was abandoned.
@@ -56,6 +58,9 @@ class DraftWatcher:
         draft: The session's draft, kept current while a draft is on screen.
         portraits: Reads the ban slots.
         faces: Cross-checks hero labels against the heroes' portraits.
+        briefing: Says what the two teams mean for the match; called once when the loading
+            screen shows them, and what it returns is said (nothing is said when it returns
+            ``None``).
         calibration: Maps each capture onto the reference draft screen, whatever the machine's
             screen size or window position (the capture is read as it is when omitted).
         log: Where captured screens are saved (not saved when omitted).
@@ -73,6 +78,7 @@ class DraftWatcher:
         draft: Draft,
         portraits: BanReader | None = None,
         faces: FaceReader | None = None,
+        briefing: Callable[[], str | None] | None = None,
         calibration: Calibration | None = None,
         log: ScreenLog | None = None,
         poll_s: float = 2.0,
@@ -86,6 +92,7 @@ class DraftWatcher:
         self.draft = draft
         self.portraits = portraits
         self.faces = faces
+        self.briefing = briefing
         self.calibration = calibration
         self.log = log
         self.poll_s = poll_s
@@ -149,6 +156,15 @@ class DraftWatcher:
                 return
             self.problem = None
             screen = self._see(frame)
+            if screen.is_loading:
+                await self._loading(frame, screen)
+                return
+            if self.mode == LOADING and not screen.is_draft:
+                self._missed += 1
+                if self._missed >= LOST_AFTER:
+                    logger.info("Loading screen gone: the match is on")
+                    self.end()
+                return
             if self.mode != DRAFT:
                 if not screen.is_draft:
                     self._idle_looks += 1
@@ -186,6 +202,8 @@ class DraftWatcher:
                     self.mode = IDLE
             frame = await self._capture(fast=False, reader=reader)
             screen = self._see(frame)
+            if screen.is_loading:
+                self._enter_loading(frame, screen)
             if self.mode != DRAFT and screen.is_draft:
                 self._begin()
             if self.mode == DRAFT:
@@ -207,6 +225,42 @@ class DraftWatcher:
         if message != self.problem:
             logger.warning("Cannot read the screen: %s", message)
         self.problem = message
+
+    async def _loading(self, frame: Frame, screen: DraftScreen) -> None:
+        """The loading screen: note the teams and brief Adam once (it is read in full first)."""
+        if self.mode != LOADING:
+            try:
+                frame = await self._capture(fast=False)
+            except ScreenError as exc:
+                self._fail(str(exc))
+                return
+            screen = self._see(frame)
+            if not screen.is_loading:
+                return
+        if self._enter_loading(frame, screen):
+            await self._brief()
+
+    def _enter_loading(self, frame: Frame, screen: DraftScreen) -> bool:
+        """Take the teams of a loading screen into the draft; ``True`` when it just appeared."""
+        fresh = self.mode != LOADING
+        if fresh:
+            logger.info("Loading screen: the match is about to start")
+            if self.mode == IDLE:
+                self.draft.reset()  # no draft was seen: these teams are all there is
+            self.mode = LOADING
+        self._missed = 0
+        self._apply(screen)
+        self.screen = screen
+        self._read_at = self._monotonic()
+        if fresh and self.log is not None:
+            self.log.save(frame.image, self._state(screen))
+        return fresh
+
+    async def _brief(self) -> None:
+        """Say what the teams mean for the match (when there is a briefing to give)."""
+        text = self.briefing() if self.briefing is not None else None
+        if text and self._say is not None:
+            await self._say(SkillAnswer(text, "en"))
 
     def _begin(self) -> None:
         """A draft screen appeared: forget the old draft and open a new log folder."""
@@ -250,9 +304,10 @@ class DraftWatcher:
         draft.add("ally", [h for h in screen.ally if h not in draft.enemy + draft.banned])
         draft.remove("ally", [*draft.enemy, *draft.banned])
 
-    def _record(self, frame: Frame, screen: DraftScreen) -> None:
-        """Save the screen to the log when what it shows changed."""
-        state = {
+    @staticmethod
+    def _state(screen: DraftScreen) -> dict[str, Any]:
+        """What was read from a screen, as stored in the screen log."""
+        return {
             "phase": screen.phase.kind,
             "mine": screen.phase.mine,
             "map": screen.map_slug,
@@ -261,6 +316,10 @@ class DraftWatcher:
             "enemy": list(screen.enemy),
             "banned": list(screen.banned),
         }
+
+    def _record(self, frame: Frame, screen: DraftScreen) -> None:
+        """Save the screen to the log when what it shows changed."""
+        state = self._state(screen)
         if self.log is not None and state != self._logged:
             self.log.save(frame.image, {**state, "seconds": screen.seconds})
         self._logged = state

@@ -534,7 +534,13 @@ the memory and the CPU. The skill answers from a local knowledge base, not from 
   certainty (exact name, confidence ≥ 0.9, locked) stores its hexagon face in
   `data/hots_faces`, and a label whose text is misread (a clipped letter at 1440p) is identified
   by the face (same hero ≥ 0.88 correlation, different heroes ≤ 0.50 on the real screens).
+- **Loading screen briefing (2026-10-31):** "WELCOME TO <map>" marks the loading screen (both
+  teams stand in rows at the screen's edges, the hero name above the player's). The watcher
+  enters a `loading` mode, merges the teams into the draft and says a *briefing* once: the
+  heaviest three notes from `hots/briefing.py` (team shape, matchups from the counter lists,
+  map ratings, combos). "brief" asks for it any time. Not covered: free-text map tips (the map
+  guide chunks are flattened lists that cannot be split reliably).
 - **Not done yet:** global push-to-talk hotkey (macOS permission), a smaller default chat model
-  (needs the benchmark downloads), embedding map/text chunks for "why" follow-ups, advice during
-  the loading screen.
+  (needs the benchmark downloads), embedding map/text chunks for "why" follow-ups, free-text
+  map tips on the loading screen.
 

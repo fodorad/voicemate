@@ -22,13 +22,21 @@ _OFF = re.compile(
 )
 
 
+_BRIEF = re.compile(
+    r"^(?:(?:give me |what is |what's |whats )?(?:a |the |our )?(?:team |game )?"
+    r"(?:brief|briefing|plan)|(?:analy[sz]e|rate|check|review) (?:the |our |both )?"
+    r"(?:teams?|lineups?|comps?|compositions?)|how (?:do|does) (?:we|our team|the teams?|it) look)$"
+)
+
+
 @dataclass(frozen=True)
 class Command:
     """A recognized screen or mode command.
 
     Attributes:
         kind: ``"read"`` (look at the screen), ``"last"`` (read the newest saved screenshot),
-            ``"on"`` or ``"off"`` (draft mode).
+            ``"brief"`` (what the two teams mean for the match), ``"on"`` or ``"off"`` (draft
+            mode).
         advice: What to advise after reading: ``"ban"``, ``"pick"`` or ``""`` (what fits the
             phase).
     """
@@ -44,6 +52,8 @@ def parse(said: str) -> Command | None:
         return Command("off")
     if _ON.match(said):
         return Command("on")
+    if _BRIEF.match(said):
+        return Command("brief")
     if _LAST.search(said):
         return Command("last", advice)
     if _READ.match(said):

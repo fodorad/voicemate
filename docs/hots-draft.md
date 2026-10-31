@@ -26,9 +26,26 @@ Ava never looks at the screen unless you ask her to read it. Say:
 | "what is good against Zul'jin" | the best counters |
 | "why" | the reasons of the last advice |
 | "read the last screenshot" | reads the newest saved screen instead of the live one |
+| "brief", "what's the plan" | what the two teams mean for the match (see below) |
 | "draft mode on" / "draft mode off" | switch the mode (`game_mode = true` starts every session in it) |
 
 When the match starts Ava stays quiet until the next draft screen, and draft mode stays on.
+
+## The loading screen
+
+The loading screen shows both full teams. In draft mode Ava reads them and says the three most
+important things about the lineups, each as one short sentence (`loading_briefing = false` turns
+the voice off; say "brief", "what's the plan" or "how do we look" any time to hear it):
+
+* **Shape of the teams:** "No healer: don't overextend.", "No frontline: don't fight in the
+  open.", "Squishy team: stay grouped." and the same for the enemy ("No enemy healer: keep
+  trading.", "Two enemy healers: kill one first.", "Enemy is squishy: dive them.").
+* **Matchups:** "Johanna counters Brightwing and Cassia." (focus them), "Valla counters Tychus:
+  protect." (from the counter lists of the hero pages).
+* **The map:** "Weak on Sky Temple: Tychus.", "Enemy strong on Sky Temple: Dehaka."
+* **Combos:** "Jaina and Johanna combo well."
+
+The heaviest notes win: missing healer, then missing frontline, then matchups, then the rest.
 
 ## Names that are said badly
 
@@ -60,4 +77,4 @@ Every screen where the draft changed is saved to `data/game_screens/<date_time>/
 
 ## Settings
 
-`[hots.screen]` in `config/voicemate.toml`: `enabled`, `window` (app name of the game), `poll_s`, `game_mode`, `proactive` (say "Your ban." when it is your turn), `calibration_file`, `faces_dir`, `log_dir`, `keep`.
+`[hots.screen]` in `config/voicemate.toml`: `enabled`, `window` (app name of the game), `poll_s`, `game_mode`, `proactive` (say "Your ban." when it is your turn), `loading_briefing`, `calibration_file`, `faces_dir`, `log_dir`, `keep`.

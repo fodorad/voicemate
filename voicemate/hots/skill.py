@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from voicemate.config import Config, ScreenConfig
 from voicemate.hots.advisor import Advisor
 from voicemate.hots.aliases import AliasStore
+from voicemate.hots.briefing import Briefing
 from voicemate.hots.commands import Command, parse
 from voicemate.hots.draft import Draft
 from voicemate.hots.intents import Intents, clean
@@ -65,6 +66,7 @@ class HotsSkill:
         watcher: Follows the draft on screen (``None`` when the screen cannot be read).
         saved: Reads the newest saved screenshot.
         on: Start in draft mode.
+        briefing: Says what the two teams mean for the match (the loading screen, "brief").
     """
 
     def __init__(
@@ -73,10 +75,12 @@ class HotsSkill:
         watcher: DraftWatcher | None = None,
         saved: ScreenReader | None = None,
         on: bool = False,
+        briefing: Briefing | None = None,
     ) -> None:
         self.intents = intents
         self.watcher = watcher
         self.saved = saved
+        self.briefing = briefing
         self._on = False
         if on:
             self._switch(True)
@@ -117,6 +121,9 @@ class HotsSkill:
         if command.kind in ("on", "off"):
             self._switch(command.kind == "on")
             return f"Draft mode {command.kind}."
+        if command.kind == "brief":
+            await self._refresh()
+            return self._brief()
         if self.watcher is None:
             return "I can't read the screen here."
         reader = self.saved if command.kind == "last" else None
@@ -127,6 +134,13 @@ class HotsSkill:
             return str(exc) if command.kind == "last" else BLIND
         self.intents.terse = True
         return self._readback(screen, command.advice)
+
+    def _brief(self) -> str:
+        """What the teams in the draft mean for the match."""
+        draft = self.intents.draft
+        if self.briefing is None:
+            return "I have no briefing here."
+        return self.briefing.say(draft.ally, draft.enemy, draft.map_slug)
 
     def _readback(self, screen: DraftScreen, wanted: str) -> str:
         """What the screen shows, then the advice that fits the phase."""
@@ -140,6 +154,8 @@ class HotsSkill:
         for label, heroes in (("Team", draft.ally), ("Enemy", draft.enemy), ("Bans", draft.banned)):
             if heroes:
                 parts.append(f"{label} {', '.join(names(h) for h in heroes)}.")
+        if screen.is_loading and self.briefing is not None:
+            parts.append(self._brief())
         kind = wanted or (screen.phase.kind if screen.phase.mine else "")
         if kind in ("ban", "pick"):
             advice = self.intents.handle(kind)
@@ -205,8 +221,9 @@ class Hots:
         """A skill with a fresh, empty draft for one session."""
         draft = Draft()
         intents = Intents(self.advisor, draft, aliases=self.aliases)
+        briefing = Briefing(self.advisor)
         if self.screen is None:
-            return HotsSkill(intents)
+            return HotsSkill(intents, briefing=briefing)
         settings = self.screen.settings
         watcher = DraftWatcher(
             self.screen.reader,
@@ -215,12 +232,17 @@ class Hots:
             draft,
             portraits=self.screen.portraits,
             faces=self.screen.faces,
+            briefing=(lambda: briefing.say(draft.ally, draft.enemy, draft.map_slug))
+            if settings.loading_briefing
+            else None,
             calibration=self.screen.calibration,
             log=ScreenLog(settings.log_path, settings.keep),
             poll_s=settings.poll_s,
             proactive=settings.proactive,
         )
-        return HotsSkill(intents, watcher, self.screen.saved, on=settings.game_mode)
+        return HotsSkill(
+            intents, watcher, self.screen.saved, on=settings.game_mode, briefing=briefing
+        )
 
     def session_skills(self) -> list[Skill]:
         """The skills of one new session (what :attr:`Runtime.skills` calls)."""

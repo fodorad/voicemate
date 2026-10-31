@@ -17,6 +17,7 @@ from voicemate.hots.screen.watcher import (
     DRAFT,
     FRESH_S,
     IDLE,
+    LOADING,
     LOST_AFTER,
     OVER,
     PROBLEM_RETRY_S,
@@ -82,6 +83,90 @@ class WatcherCase(unittest.IsolatedAsyncioTestCase):
 
         watcher._say = say
         return watcher
+
+
+class TestLoading(WatcherCase):
+    def briefed(self, *frames, text: str | None = "Plan."):
+        watcher = self.watch(*frames)
+        watcher.briefing = None if text is None else lambda: text
+        return watcher
+
+    async def test_the_loading_screen_is_read_in_full_and_briefed_once(self):
+        watcher = self.briefed(shown("match_loading"))
+        await watcher.poll()
+        self.assertEqual(watcher.mode, LOADING)
+        self.assertEqual(self.screen.reads, [(FULL, True), (FULL, False)])
+        self.assertEqual(self.draft.ally, ["thrall", "auriel", "tychus", "jaina", "johanna"])
+        self.assertEqual(self.draft.enemy, ["brightwing", "cassia", "dehaka", "valla", "artanis"])
+        self.assertEqual(self.draft.map_slug, "sky-temple")
+        await watcher.poll()
+        self.assertEqual(self.said, ["Plan."])
+        self.assertEqual(self.screen.reads[2:], [(FULL, True)])  # one quick look is enough
+
+    async def test_what_the_draft_found_survives_into_the_loading_screen(self):
+        watcher = self.briefed(shown("match_loading"))
+        watcher.mode = OVER
+        self.draft.add("banned", ["abathur"])
+        await watcher.poll()
+        self.assertEqual(self.draft.banned, ["abathur"])
+        self.assertEqual(len(self.draft.enemy), 5)
+
+    async def test_without_a_draft_the_loading_screen_is_the_whole_picture(self):
+        self.draft.enemy.append("tychus")  # left over from an earlier match
+        watcher = self.briefed(shown("match_loading"))
+        await watcher.poll()
+        self.assertNotIn("tychus", self.draft.enemy)
+
+    async def test_nothing_is_said_without_a_briefing(self):
+        watcher = self.briefed(shown("match_loading"), text=None)
+        await watcher.poll()
+        self.assertEqual(self.said, [])
+        silent = self.briefed(shown("match_loading"), text="")
+        await silent.poll()
+        self.assertEqual(self.said, [])
+
+    async def test_the_match_begins_when_the_loading_screen_is_gone(self):
+        watcher = self.briefed(shown("match_loading"), shown("match_loading"), shown("loading"))
+        await watcher.poll()
+        for _ in range(LOST_AFTER - 1):
+            await watcher.poll()
+            self.assertEqual(watcher.mode, LOADING)
+        await watcher.poll()
+        self.assertEqual(watcher.mode, OVER)
+
+    async def test_a_draft_screen_after_loading_starts_a_new_draft(self):
+        watcher = self.briefed(shown("match_loading"), shown("ban_mine"))
+        await watcher.poll()
+        await watcher.poll()
+        self.assertEqual(watcher.mode, DRAFT)
+        self.assertEqual(self.draft.enemy, [])
+
+    async def test_the_loading_screen_is_saved_to_the_screen_log(self):
+        watcher = self.briefed(shown("match_loading"))
+        await watcher.poll()
+        await watcher.poll()
+        saved = json.loads(next(self.folder.iterdir()).joinpath("draft.json").read_text())
+        self.assertEqual([s["phase"] for s in saved["screens"]], ["loading"])
+
+    async def test_a_read_on_request_notes_the_teams_without_briefing(self):
+        watcher = self.briefed(shown("match_loading"))
+        screen = await watcher.look()
+        self.assertTrue(screen.is_loading)
+        self.assertEqual(watcher.mode, LOADING)
+        self.assertEqual(len(self.draft.enemy), 5)
+        self.assertEqual(self.said, [])
+
+    async def test_an_unreadable_screen_after_the_first_quick_look_is_a_problem(self):
+        watcher = self.briefed(shown("match_loading"), ScreenError("blocked"))
+        await watcher.poll()
+        self.assertEqual(watcher.problem, "blocked")
+        self.assertEqual(watcher.mode, IDLE)
+
+    async def test_a_screen_that_stops_loading_between_the_two_reads_is_ignored(self):
+        watcher = self.briefed(shown("match_loading"), shown("loading"))
+        await watcher.poll()
+        self.assertEqual(watcher.mode, IDLE)
+        self.assertEqual(self.said, [])
 
 
 class TestModes(WatcherCase):

@@ -3,7 +3,8 @@
 A pure function over a :class:`~voicemate.hots.screen.reader.Frame`: it knows where the game
 puts things (hero names in big capitals at the left edge for Adam's team and the right edge for
 the enemy, the map name at the top, the phase in the middle) and nothing about how the text was
-recognized. Player names are ignored.
+recognized. Player names are ignored. It also reads the loading screen that follows the draft:
+"WELCOME TO <map>" on top and both full teams in rows at the screen's edges.
 """
 
 from __future__ import annotations
@@ -38,6 +39,14 @@ MIDDLE: tuple[float, float] = (0.25, 0.75)
 MAP_STRIP_BOTTOM: float = 0.1
 #: The countdown sits just under the map name.
 TIMER_BAND: tuple[float, float] = (0.03, 0.15)
+#: On the loading screen each hero's name stands in a column at the screen's edge, with the
+#: player's name right under it: columns left of / right of these, between these heights.
+LOADING_EDGE: float = 0.2
+LOADING_ROWS: tuple[float, float] = (0.18, 0.8)
+#: Boxes closer than this (fraction of the height) are one row; the hero is its top box.
+ROW_GAP: float = 0.04
+#: Loading-screen text is read at this confidence (the names sit on busy art).
+LOADING_CONFIDENCE: float = 0.3
 #: How far above "BANNED" the banned hero's name stands (fraction of the screen height).
 BANNED_NAME_GAP: float = 0.08
 
@@ -48,6 +57,7 @@ _PICK = re.compile(
 )
 _MINE = re.compile(r"your ban|ban hero|lock in")
 _STARTING = re.compile(r"match starting")
+_LOADING = re.compile(r"^welcome to$")
 
 
 @dataclass(frozen=True)
@@ -56,7 +66,7 @@ class Phase:
 
     Attributes:
         kind: ``"ban"`` or ``"pick"`` during the draft, ``"starting"`` once it is over,
-            ``"none"`` when this is not a draft screen.
+            ``"loading"`` on the loading screen, ``"none"`` for any other screen.
         mine: It is Adam's turn to ban or pick.
     """
 
@@ -92,6 +102,11 @@ class DraftScreen:
     def is_draft(self) -> bool:
         """Whether this is a banning or picking screen."""
         return self.phase.kind in ("ban", "pick")
+
+    @property
+    def is_loading(self) -> bool:
+        """Whether this is the loading screen (both teams, no draft)."""
+        return self.phase.kind == "loading"
 
 
 class BanReader(Protocol):
@@ -130,15 +145,23 @@ def interpret(
             portraits of the labels that are certain); without it the text alone counts.
     """
     boxes = [box for box in frame.boxes if box.text.strip()]
+    phase = _phase(boxes)
+    if phase.kind == "loading":
+        return DraftScreen(
+            phase,
+            _map(boxes, maps),
+            ally=_rows(boxes, roster, "ally"),
+            enemy=_rows(boxes, roster, "enemy"),
+        )
     ally, ally_pending = _team(frame.image, boxes, roster, "ally", faces)
     enemy, enemy_pending = _team(frame.image, boxes, roster, "enemy", faces)
     banned = _banned(boxes, roster)
-    if portraits is not None and _phase(boxes).kind in ("ban", "pick"):
+    if portraits is not None and phase.kind in ("ban", "pick"):
         banned = tuple(dict.fromkeys((*banned, *portraits.bans(frame.image))))
     taken = {*enemy, *banned}
     shown = [*ally, *ally_pending]
     return DraftScreen(
-        phase=_phase(boxes),
+        phase=phase,
         map_slug=_map(boxes, maps),
         seconds=_seconds(boxes),
         ally=tuple(h for h in ally if h not in taken),
@@ -155,6 +178,9 @@ def _text(box: TextBox) -> str:
 
 def _phase(boxes: list[TextBox]) -> Phase:
     texts = [_text(b) for b in boxes if MIDDLE[0] < b.cx < MIDDLE[1]]
+    top = (_text(b) for b in boxes if b.cy < MAP_STRIP_BOTTOM and MIDDLE[0] < b.cx < MIDDLE[1])
+    if any(_LOADING.match(text) for text in top):
+        return Phase("loading")
     if any(_STARTING.search(_text(b)) for b in boxes):
         return Phase("starting")
     mine = any(_MINE.search(t) for t in texts)
@@ -228,6 +254,31 @@ def _team(
             if slug is not None and slug not in locked + pending:
                 (locked if is_locked else pending).append(slug)
     return tuple(locked), tuple(pending)
+
+
+def _rows(boxes: list[TextBox], roster: Roster, side: str) -> tuple[str, ...]:
+    """The heroes of one team on the loading screen, top row first."""
+    low, high = LOADING_ROWS
+    column = sorted(
+        (
+            b
+            for b in boxes
+            if (b.cx < LOADING_EDGE if side == "ally" else b.cx > 1 - LOADING_EDGE)
+            and low < b.cy < high
+            and b.confidence >= LOADING_CONFIDENCE
+        ),
+        key=lambda b: b.cy,
+    )
+    tops: list[TextBox] = []
+    for box in column:
+        if not tops or box.cy - tops[-1].cy >= ROW_GAP:
+            tops.append(box)
+    heroes: list[str] = []
+    for box in tops:
+        hero = roster.resolve(box.text).hero
+        if hero is not None and hero.slug not in heroes:
+            heroes.append(hero.slug)
+    return tuple(heroes)
 
 
 def _banned(boxes: list[TextBox], roster: Roster) -> tuple[str, ...]:
