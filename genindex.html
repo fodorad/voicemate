@@ -241,6 +241,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -374,6 +375,8 @@
         <li><a href="autoapi/voicemate/pipeline/reply/index.html#voicemate.pipeline.reply.Reply.add_text">add_text() (voicemate.pipeline.reply.Reply method)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/knowledge/index.html#voicemate.hots.knowledge.RefreshReport.added">added (voicemate.hots.knowledge.RefreshReport attribute)</a>
+</li>
+        <li><a href="autoapi/voicemate/hots/commands/index.html#voicemate.hots.commands.Command.advice">advice (voicemate.hots.commands.Command attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/advisor/index.html#voicemate.hots.advisor.Advisor">Advisor (class in voicemate.hots.advisor)</a>
 </li>
@@ -544,15 +547,17 @@
 </li>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Begin">Begin (class in voicemate.pipeline.turn_taking)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/bench/run/index.html#voicemate.bench.run.bench_asr">bench_asr() (in module voicemate.bench.run)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/bench/index.html#voicemate.bench.BENCH_DIR">BENCH_DIR (in module voicemate.bench)</a>
 </li>
         <li><a href="autoapi/voicemate/bench/run/index.html#voicemate.bench.run.bench_llm">bench_llm() (in module voicemate.bench.run)</a>
 </li>
         <li><a href="autoapi/voicemate/bench/run/index.html#voicemate.bench.run.bench_tts">bench_tts() (in module voicemate.bench.run)</a>
+</li>
+        <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.BLIND">BLIND (in module voicemate.hots.skill)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/screen/reader/index.html#voicemate.hots.screen.reader.Frame.boxes">boxes (voicemate.hots.screen.reader.Frame attribute)</a>
 </li>
@@ -624,6 +629,8 @@
 </li>
         <li><a href="autoapi/voicemate/hots/knowledge/index.html#voicemate.hots.knowledge.classify">classify() (in module voicemate.hots.knowledge)</a>
 </li>
+        <li><a href="autoapi/voicemate/hots/intents/index.html#voicemate.hots.intents.clean">clean() (in module voicemate.hots.intents)</a>
+</li>
         <li><a href="autoapi/voicemate/hots/knowledge/index.html#voicemate.hots.knowledge.Knowledge.close">close() (voicemate.hots.knowledge.Knowledge method)</a>
 
         <ul>
@@ -638,6 +645,8 @@
 </li>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Collect">Collect (class in voicemate.pipeline.turn_taking)</a>
 </li>
+        <li><a href="autoapi/voicemate/hots/commands/index.html#voicemate.hots.commands.Command">Command (class in voicemate.hots.commands)</a>
+</li>
         <li><a href="autoapi/voicemate/pipeline/activation/index.html#voicemate.pipeline.activation.Activation.command">command() (voicemate.pipeline.activation.Activation method)</a>
 </li>
         <li><a href="autoapi/voicemate/memory/notes/index.html#voicemate.memory.notes.NotesStore.complete">complete() (voicemate.memory.notes.NotesStore method)</a>
@@ -650,10 +659,10 @@
           <li><a href="autoapi/app/index.html#app.Server.config">(app.Server attribute)</a>
 </li>
         </ul></li>
-        <li><a href="autoapi/voicemate/config/index.html#voicemate.config.Config">Config (class in voicemate.config)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/voicemate/config/index.html#voicemate.config.Config">Config (class in voicemate.config)</a>
+</li>
         <li><a href="autoapi/voicemate/agent/tools/base/index.html#voicemate.agent.tools.base.ToolContext.config">config (voicemate.agent.tools.base.ToolContext attribute)</a>
 
         <ul>
@@ -752,10 +761,10 @@
         </ul></li>
         <li><a href="autoapi/voicemate/asr/langid/index.html#voicemate.asr.langid.LanguageDetector.detect">detect() (voicemate.asr.langid.LanguageDetector method)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.ASRConfig.device">device (voicemate.config.ASRConfig attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Begin.discard">discard (voicemate.pipeline.turn_taking.Begin attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.Conversation.discard">discard() (voicemate.pipeline.conversation.Conversation method)</a>
@@ -772,12 +781,16 @@
 </li>
         <li><a href="autoapi/voicemate/hots/draft/index.html#voicemate.hots.draft.Draft">Draft (class in voicemate.hots.draft)</a>
 </li>
+        <li><a href="autoapi/voicemate/hots/screen/watcher/index.html#voicemate.hots.screen.watcher.DRAFT">DRAFT (in module voicemate.hots.screen.watcher)</a>
+</li>
         <li><a href="autoapi/voicemate/hots/intents/index.html#voicemate.hots.intents.Intents.draft">draft (voicemate.hots.intents.Intents attribute)</a>
 
         <ul>
           <li><a href="autoapi/voicemate/hots/screen/watcher/index.html#voicemate.hots.screen.watcher.DraftWatcher.draft">(voicemate.hots.screen.watcher.DraftWatcher attribute)</a>
 </li>
         </ul></li>
+        <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.HotsSkill.draft_mode">draft_mode (voicemate.hots.skill.HotsSkill property)</a>
+</li>
         <li><a href="autoapi/voicemate/hots/screen/interpreter/index.html#voicemate.hots.screen.interpreter.DraftScreen">DraftScreen (class in voicemate.hots.screen.interpreter)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/screen/watcher/index.html#voicemate.hots.screen.watcher.DraftWatcher">DraftWatcher (class in voicemate.hots.screen.watcher)</a>
@@ -826,6 +839,8 @@
           <li><a href="autoapi/voicemate/config/index.html#voicemate.config.ScreenConfig.enabled">(voicemate.config.ScreenConfig attribute)</a>
 </li>
         </ul></li>
+        <li><a href="autoapi/voicemate/hots/screen/watcher/index.html#voicemate.hots.screen.watcher.DraftWatcher.end">end() (voicemate.hots.screen.watcher.DraftWatcher method)</a>
+</li>
         <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Utterance.ended_at">ended_at (voicemate.pipeline.listener.Utterance attribute)</a>
 
         <ul>
@@ -1122,13 +1137,21 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/memory/notes/index.html#voicemate.memory.notes.Note.id">id (voicemate.memory.notes.Note attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/events/index.html#voicemate.events.LaneState.IDLE">IDLE (voicemate.events.LaneState attribute)</a>
+        <li><a href="autoapi/voicemate/hots/screen/watcher/index.html#voicemate.hots.screen.watcher.IDLE">IDLE (in module voicemate.hots.screen.watcher)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/events/index.html#voicemate.events.LaneState.IDLE">(voicemate.events.LaneState attribute)</a>
 </li>
+        </ul></li>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Ignore">Ignore (class in voicemate.pipeline.turn_taking)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/screen/reader/index.html#voicemate.hots.screen.reader.Frame.image">image (voicemate.hots.screen.reader.Frame attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/screen/macos/index.html#voicemate.hots.screen.macos.ImageFileReader">ImageFileReader (class in voicemate.hots.screen.macos)</a>
+</li>
+        <li><a href="autoapi/voicemate/config/index.html#voicemate.config.HotsConfig.images_dir">images_dir (voicemate.config.HotsConfig attribute)</a>
+</li>
+        <li><a href="autoapi/voicemate/config/index.html#voicemate.config.HotsConfig.images_path">images_path (voicemate.config.HotsConfig property)</a>
 </li>
         <li><a href="autoapi/voicemate/audio/vad/index.html#voicemate.audio.vad.Segmenter.in_speech">in_speech (voicemate.audio.vad.Segmenter property)</a>
 
@@ -1142,12 +1165,12 @@
 </li>
         <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.HotsSkill.intents">intents (voicemate.hots.skill.HotsSkill attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/hots/screen/interpreter/index.html#voicemate.hots.screen.interpreter.interpret">interpret() (in module voicemate.hots.screen.interpreter)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.Interrupt">Interrupt (class in voicemate.pipeline.turn_taking)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession.interrupt">interrupt() (voicemate.pipeline.orchestrator.VoiceSession method)</a>
 </li>
         <li><a href="autoapi/voicemate/events/index.html#voicemate.events.ReplyEvent.interrupted">interrupted (voicemate.events.ReplyEvent attribute)</a>
@@ -1192,9 +1215,11 @@
 </li>
         <li><a href="autoapi/voicemate/hots/knowledge/index.html#voicemate.hots.knowledge.PageId.key">key (voicemate.hots.knowledge.PageId attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/hots/knowledge/index.html#voicemate.hots.knowledge.PageId.kind">kind (voicemate.hots.knowledge.PageId attribute)</a>
+        <li><a href="autoapi/voicemate/hots/commands/index.html#voicemate.hots.commands.Command.kind">kind (voicemate.hots.commands.Command attribute)</a>
 
         <ul>
+          <li><a href="autoapi/voicemate/hots/knowledge/index.html#voicemate.hots.knowledge.PageId.kind">(voicemate.hots.knowledge.PageId attribute)</a>
+</li>
           <li><a href="autoapi/voicemate/hots/screen/interpreter/index.html#voicemate.hots.screen.interpreter.Phase.kind">(voicemate.hots.screen.interpreter.Phase attribute)</a>
 </li>
           <li><a href="autoapi/voicemate/memory/notes/index.html#voicemate.memory.notes.Note.kind">(voicemate.memory.notes.Note attribute)</a>
@@ -1259,6 +1284,8 @@
         <li><a href="autoapi/voicemate/agent/prompts/index.html#voicemate.agent.prompts.LANGUAGE_NAMES">LANGUAGE_NAMES (in module voicemate.agent.prompts)</a>
 </li>
         <li><a href="autoapi/voicemate/asr/langid/index.html#voicemate.asr.langid.LanguageDetector">LanguageDetector (class in voicemate.asr.langid)</a>
+</li>
+        <li><a href="autoapi/voicemate/hots/intents/index.html#voicemate.hots.intents.Intents.last">last (voicemate.hots.intents.Intents attribute)</a>
 </li>
         <li><a href="autoapi/app/index.html#app.ConversationPage.last_user">last_user (app.ConversationPage attribute)</a>
 </li>
@@ -1636,6 +1663,8 @@
 </li>
           <li><a href="autoapi/voicemate/hots/aliases/index.html#module-voicemate.hots.aliases">voicemate.hots.aliases</a>
 </li>
+          <li><a href="autoapi/voicemate/hots/commands/index.html#module-voicemate.hots.commands">voicemate.hots.commands</a>
+</li>
           <li><a href="autoapi/voicemate/hots/draft/index.html#module-voicemate.hots.draft">voicemate.hots.draft</a>
 </li>
           <li><a href="autoapi/voicemate/hots/intents/index.html#module-voicemate.hots.intents">voicemate.hots.intents</a>
@@ -1747,6 +1776,8 @@
           <li><a href="autoapi/voicemate/models/index.html#voicemate.models.PiperVoiceId.name">(voicemate.models.PiperVoiceId attribute)</a>
 </li>
         </ul></li>
+        <li><a href="autoapi/voicemate/hots/intents/index.html#voicemate.hots.intents.Intents.name">name() (voicemate.hots.intents.Intents method)</a>
+</li>
         <li><a href="autoapi/voicemate/pipeline/activation/index.html#voicemate.pipeline.activation.Activation.names">names (voicemate.pipeline.activation.Activation attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/activation/index.html#voicemate.pipeline.activation.Activation.needs_wake_word">needs_wake_word (voicemate.pipeline.activation.Activation property)</a>
@@ -1757,10 +1788,10 @@
 </li>
         <li><a href="autoapi/voicemate/hots/screen/macos/index.html#voicemate.hots.screen.macos.ImageFileReader.newest">newest (voicemate.hots.screen.macos.ImageFileReader attribute)</a>
 </li>
-        <li><a href="autoapi/voicemate/hots/screen/log/index.html#voicemate.hots.screen.log.ScreenLog.newest_screenshot">newest_screenshot() (voicemate.hots.screen.log.ScreenLog method)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/voicemate/hots/screen/log/index.html#voicemate.hots.screen.log.ScreenLog.newest_screenshot">newest_screenshot() (voicemate.hots.screen.log.ScreenLog method)</a>
+</li>
         <li><a href="autoapi/voicemate/agent/graph/index.html#voicemate.agent.graph.NO_MORE_TOOLS">NO_MORE_TOOLS (in module voicemate.agent.graph)</a>
 </li>
         <li><a href="autoapi/voicemate/runtime/index.html#voicemate.runtime.no_skills">no_skills() (in module voicemate.runtime)</a>
@@ -1819,10 +1850,10 @@
 </li>
         <li><a href="autoapi/voicemate/pipeline/reply/index.html#voicemate.pipeline.reply.Reply.on_tool_start">on_tool_start() (voicemate.pipeline.reply.Reply method)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.ListenerCallbacks.on_transcribing">on_transcribing (voicemate.pipeline.listener.ListenerCallbacks attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/pipeline/turn_taking/index.html#voicemate.pipeline.turn_taking.TurnTaking.on_typed">on_typed() (voicemate.pipeline.turn_taking.TurnTaking method)</a>
 </li>
         <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.ListenerCallbacks.on_utterance">on_utterance (voicemate.pipeline.listener.ListenerCallbacks attribute)</a>
@@ -1834,6 +1865,8 @@
         <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.Hots.open">open() (voicemate.hots.skill.Hots class method)</a>
 </li>
         <li><a href="autoapi/app/index.html#app.Server.open_session">open_session() (app.Server method)</a>
+</li>
+        <li><a href="autoapi/voicemate/hots/screen/watcher/index.html#voicemate.hots.screen.watcher.OVER">OVER (in module voicemate.hots.screen.watcher)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -1878,6 +1911,8 @@
         <li><a href="autoapi/voicemate/audio/protocol/index.html#voicemate.audio.protocol.parse">parse() (in module voicemate.audio.protocol)</a>
 
         <ul>
+          <li><a href="autoapi/voicemate/hots/commands/index.html#voicemate.hots.commands.parse">(in module voicemate.hots.commands)</a>
+</li>
           <li><a href="autoapi/voicemate/models/index.html#voicemate.models.PiperVoiceId.parse">(voicemate.models.PiperVoiceId class method)</a>
 </li>
         </ul></li>
@@ -1968,7 +2003,11 @@
         <li><a href="autoapi/voicemate/hots/screen/portraits/index.html#voicemate.hots.screen.portraits.Portraits">Portraits (class in voicemate.hots.screen.portraits)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/screen/watcher/index.html#voicemate.hots.screen.watcher.DraftWatcher.portraits">portraits (voicemate.hots.screen.watcher.DraftWatcher attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.ScreenKit.portraits">(voicemate.hots.skill.ScreenKit attribute)</a>
 </li>
+        </ul></li>
         <li><a href="autoapi/voicemate/pipeline/reminders/index.html#voicemate.pipeline.reminders.PREFIXES">PREFIXES (in module voicemate.pipeline.reminders)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.VADConfig.preroll_ms">preroll_ms (voicemate.config.VADConfig attribute)</a>
@@ -2071,7 +2110,11 @@
 </li>
         </ul></li>
         <li><a href="autoapi/voicemate/hots/screen/watcher/index.html#voicemate.hots.screen.watcher.DraftWatcher.reader">reader (voicemate.hots.screen.watcher.DraftWatcher attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.ScreenKit.reader">(voicemate.hots.skill.ScreenKit attribute)</a>
 </li>
+        </ul></li>
         <li><a href="autoapi/voicemate/pipeline/reminders/index.html#voicemate.pipeline.reminders.Reminders.ready">ready (voicemate.pipeline.reminders.Reminders attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/model_select/index.html#voicemate.agent.model_select.ModelChoice.reason">reason (voicemate.agent.model_select.ModelChoice attribute)</a>
@@ -2225,6 +2268,8 @@
         <li><a href="autoapi/voicemate/hots/screen/watcher/index.html#voicemate.hots.screen.watcher.DraftWatcher.run">run() (voicemate.hots.screen.watcher.DraftWatcher method)</a>
 
         <ul>
+          <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.HotsSkill.run">(voicemate.hots.skill.HotsSkill method)</a>
+</li>
           <li><a href="autoapi/voicemate/pipeline/skills/index.html#voicemate.pipeline.skills.Background.run">(voicemate.pipeline.skills.Background method)</a>
 </li>
         </ul></li>
@@ -2270,12 +2315,20 @@
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.Config.save_audio">save_audio (voicemate.config.Config attribute)</a>
 </li>
+        <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.HotsSkill.saved">saved (voicemate.hots.skill.HotsSkill attribute)</a>
+
+        <ul>
+          <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.ScreenKit.saved">(voicemate.hots.skill.ScreenKit attribute)</a>
+</li>
+        </ul></li>
         <li><a href="autoapi/voicemate/pipeline/conversation/index.html#voicemate.pipeline.conversation.Conversation.say">say() (voicemate.pipeline.conversation.Conversation method)</a>
 
         <ul>
           <li><a href="autoapi/voicemate/pipeline/reply/index.html#voicemate.pipeline.reply.Reply.say">(voicemate.pipeline.reply.Reply method)</a>
 </li>
         </ul></li>
+        <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.SAY_AGAIN">SAY_AGAIN (in module voicemate.hots.skill)</a>
+</li>
         <li><a href="autoapi/voicemate/bench/index.html#voicemate.bench.SAY_VOICES">SAY_VOICES (in module voicemate.bench)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/screen/portraits/index.html#voicemate.hots.screen.portraits.SCALES">SCALES (in module voicemate.hots.screen.portraits)</a>
@@ -2287,10 +2340,14 @@
         <ul>
           <li><a href="autoapi/voicemate/hots/screen/watcher/index.html#voicemate.hots.screen.watcher.DraftWatcher.screen">(voicemate.hots.screen.watcher.DraftWatcher attribute)</a>
 </li>
+          <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.Hots.screen">(voicemate.hots.skill.Hots attribute)</a>
+</li>
         </ul></li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.ScreenConfig">ScreenConfig (class in voicemate.config)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/screen/reader/index.html#voicemate.hots.screen.reader.ScreenError">ScreenError</a>
+</li>
+        <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.ScreenKit">ScreenKit (class in voicemate.hots.skill)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/screen/log/index.html#voicemate.hots.screen.log.ScreenLog">ScreenLog (class in voicemate.hots.screen.log)</a>
 </li>
@@ -2354,6 +2411,8 @@
 </li>
         <li><a href="autoapi/app/index.html#app.Server.sessions">sessions (app.Server attribute)</a>
 </li>
+        <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.ScreenKit.settings">settings (voicemate.hots.skill.ScreenKit attribute)</a>
+</li>
         <li><a href="autoapi/voicemate/pipeline/listener/index.html#voicemate.pipeline.listener.Listener.settled">settled() (voicemate.pipeline.listener.Listener method)</a>
 </li>
         <li><a href="autoapi/app/index.html#app.ConversationPage.show_history">show_history() (app.ConversationPage method)</a>
@@ -2380,12 +2439,12 @@
           <li><a href="autoapi/voicemate/runtime/index.html#voicemate.runtime.Runtime.skills">(voicemate.runtime.Runtime attribute)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/hots/screen/portraits/index.html#voicemate.hots.screen.portraits.SLOT_BOTTOM">SLOT_BOTTOM (in module voicemate.hots.screen.portraits)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/screen/portraits/index.html#voicemate.hots.screen.portraits.SLOT_CENTERS">SLOT_CENTERS (in module voicemate.hots.screen.portraits)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autoapi/voicemate/hots/screen/portraits/index.html#voicemate.hots.screen.portraits.SLOT_HALF_WIDTH">SLOT_HALF_WIDTH (in module voicemate.hots.screen.portraits)</a>
 </li>
         <li><a href="autoapi/voicemate/hots/screen/portraits/index.html#voicemate.hots.screen.portraits.SLOT_TOP">SLOT_TOP (in module voicemate.hots.screen.portraits)</a>
@@ -2541,6 +2600,8 @@
         <li><a href="autoapi/voicemate/agent/tools/files/index.html#voicemate.agent.tools.files.FileOperations.target">target() (voicemate.agent.tools.files.FileOperations method)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.LLMConfig.temperature">temperature (voicemate.config.LLMConfig attribute)</a>
+</li>
+        <li><a href="autoapi/voicemate/hots/intents/index.html#voicemate.hots.intents.Intents.terse">terse (voicemate.hots.intents.Intents attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.UIConfig.test_audio">test_audio (voicemate.config.UIConfig attribute)</a>
 </li>
@@ -3003,14 +3064,21 @@
 </li>
         </ul></li>
         <li>
+    voicemate.hots.commands
+
+        <ul>
+          <li><a href="autoapi/voicemate/hots/commands/index.html#module-voicemate.hots.commands">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
     voicemate.hots.draft
 
         <ul>
           <li><a href="autoapi/voicemate/hots/draft/index.html#module-voicemate.hots.draft">module</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     voicemate.hots.intents
 
@@ -3299,14 +3367,16 @@
 </li>
         <li><a href="autoapi/voicemate/pipeline/reminders/index.html#voicemate.pipeline.reminders.Reminders.watch">watch() (voicemate.pipeline.reminders.Reminders method)</a>
 </li>
+        <li><a href="autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.HotsSkill.watcher">watcher (voicemate.hots.skill.HotsSkill attribute)</a>
+</li>
         <li><a href="autoapi/voicemate/hots/pages/index.html#voicemate.hots.pages.HeroGuide.weaknesses">weaknesses (voicemate.hots.pages.HeroGuide attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.web">web() (voicemate.agent.tools.research.Research method)</a>
 </li>
-        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.web_backend">web_backend (voicemate.agent.tools.research.Research attribute)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/voicemate/agent/tools/research/index.html#voicemate.agent.tools.research.Research.web_backend">web_backend (voicemate.agent.tools.research.Research attribute)</a>
+</li>
         <li><a href="autoapi/voicemate/hots/screen/reader/index.html#voicemate.hots.screen.reader.TextBox.width">width (voicemate.hots.screen.reader.TextBox attribute)</a>
 </li>
         <li><a href="autoapi/voicemate/config/index.html#voicemate.config.ScreenConfig.window">window (voicemate.config.ScreenConfig attribute)</a>

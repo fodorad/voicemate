@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -377,16 +378,16 @@ is used and the user is told why.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.model_select.normalize_name" title="voicemate.agent.model_select.normalize_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_name</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.model_select.normalize_name" title="voicemate.agent.model_select.normalize_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_name</span></code></a>(model) → str</p></td>
 <td><p>Ollama tags without an explicit version mean <code class="docutils literal notranslate"><span class="pre">:latest</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.model_select.estimated_load_gb" title="voicemate.agent.model_select.estimated_load_gb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimated_load_gb</span></code></a>(→ float)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.model_select.estimated_load_gb" title="voicemate.agent.model_select.estimated_load_gb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimated_load_gb</span></code></a>(disk_gb) → float</p></td>
 <td><p>Estimated memory of a loaded model from its size on disk.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.model_select.choose_model" title="voicemate.agent.model_select.choose_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">choose_model</span></code></a>(→ ModelChoice)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.model_select.choose_model" title="voicemate.agent.model_select.choose_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">choose_model</span></code></a>(llm, installed, available_gb) → ModelChoice</p></td>
 <td><p>Pick the preferred profile, or the fallback when it is missing or does not fit.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.model_select.probe_and_choose" title="voicemate.agent.model_select.probe_and_choose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">probe_and_choose</span></code></a>(→ ModelChoice)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.model_select.probe_and_choose" title="voicemate.agent.model_select.probe_and_choose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">probe_and_choose</span></code></a>(llm) → ModelChoice</p></td>
 <td><p>Query Ollama and the OS, then <a class="reference internal" href="#voicemate.agent.model_select.choose_model" title="voicemate.agent.model_select.choose_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">choose_model()</span></code></a>.</p></td>
 </tr>
 </tbody>

@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -381,22 +382,22 @@ the LLM is pulled into Ollama’s own store.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.models.models_dir" title="voicemate.models.models_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">models_dir</span></code></a>(→ pathlib.Path)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.models.models_dir" title="voicemate.models.models_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">models_dir</span></code></a>(config) → pathlib.Path</p></td>
 <td><p>Directory for downloaded TTS weights.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.models.piper_voice_path" title="voicemate.models.piper_voice_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">piper_voice_path</span></code></a>(→ pathlib.Path)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.models.piper_voice_path" title="voicemate.models.piper_voice_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">piper_voice_path</span></code></a>(config, voice) → pathlib.Path</p></td>
 <td><p>Local path of a Piper voice model (its <code class="docutils literal notranslate"><span class="pre">.json</span></code> config sits next to it).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.models.kokoro_paths" title="voicemate.models.kokoro_paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kokoro_paths</span></code></a>(→ tuple[pathlib.Path, pathlib.Path])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.models.kokoro_paths" title="voicemate.models.kokoro_paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kokoro_paths</span></code></a>(config) → tuple[pathlib.Path, pathlib.Path]</p></td>
 <td><p>Local paths of the Kokoro model and voice-style files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.models.ensure_piper_voice" title="voicemate.models.ensure_piper_voice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_piper_voice</span></code></a>(→ pathlib.Path)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.models.ensure_piper_voice" title="voicemate.models.ensure_piper_voice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_piper_voice</span></code></a>(config, voice) → pathlib.Path</p></td>
 <td><p>Download a Piper voice (model + JSON config) if missing and return its path.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.models.ensure_kokoro" title="voicemate.models.ensure_kokoro"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_kokoro</span></code></a>(→ tuple[pathlib.Path, pathlib.Path])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.models.ensure_kokoro" title="voicemate.models.ensure_kokoro"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_kokoro</span></code></a>(config) → tuple[pathlib.Path, pathlib.Path]</p></td>
 <td><p>Download the Kokoro model and voices if missing and return their paths.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.models.ensure_all" title="voicemate.models.ensure_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_all</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.models.ensure_all" title="voicemate.models.ensure_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_all</span></code></a>(config) → None</p></td>
 <td><p>Fetch every model the configured pipeline needs (<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">models</span></code>).</p></td>
 </tr>
 </tbody>

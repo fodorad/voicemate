@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -383,19 +384,19 @@ are sent through the <code class="docutils literal notranslate"><span class="pre
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.graph.make_chat_model" title="voicemate.agent.graph.make_chat_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_chat_model</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.graph.make_chat_model" title="voicemate.agent.graph.make_chat_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_chat_model</span></code></a>(config[, model]) → langchain_core.language_models.BaseChatModel</p></td>
 <td><p>The Ollama chat model with thinking disabled (latency matters more for voice).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.graph.recent_history" title="voicemate.agent.graph.recent_history"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recent_history</span></code></a>(→ list)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.graph.recent_history" title="voicemate.agent.graph.recent_history"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recent_history</span></code></a>(messages[, limit]) → list</p></td>
 <td><p>The last <code class="docutils literal notranslate"><span class="pre">limit</span></code> messages, starting at a user message.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.graph.with_context" title="voicemate.agent.graph.with_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_context</span></code></a>(→ list[langchain_core.messages.AnyMessage])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.graph.with_context" title="voicemate.agent.graph.with_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_context</span></code></a>(messages, context) → list[langchain_core.messages.AnyMessage]</p></td>
 <td><p>Copy of <code class="docutils literal notranslate"><span class="pre">messages</span></code> whose newest user message is prefixed with <code class="docutils literal notranslate"><span class="pre">context</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.graph.warm_up" title="voicemate.agent.graph.warm_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">warm_up</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.graph.warm_up" title="voicemate.agent.graph.warm_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">warm_up</span></code></a>(llm, tools, config) → None</p></td>
 <td><p>Prefill the static prompt prefix so the first real turn hits Ollama's KV cache.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.graph.build_graph" title="voicemate.agent.graph.build_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_graph</span></code></a>(.astimezone) → Any)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.graph.build_graph" title="voicemate.agent.graph.build_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_graph</span></code></a>(llm, tools, config[, memory, ...]) → Any</p></td>
 <td><p>Compile the agent graph.</p></td>
 </tr>
 </tbody>

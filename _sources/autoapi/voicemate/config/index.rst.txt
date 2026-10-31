@@ -496,6 +496,7 @@ Module Contents
 
    :ivar enabled: Answer draft questions from the local knowledge base.
    :ivar pages_dir: Folder with the saved Icy Veins pages (filled by hand from the browser).
+   :ivar images_dir: Folder with the saved Icy Veins images (hero portraits read the ban slots).
    :ivar database: SQLite file of the knowledge base, inside the data directory.
    :ivar aliases_file: TOML file of hero-name spellings Ava learned from Adam.
    :ivar screen: Reading the draft from the screen.
@@ -511,6 +512,12 @@ Module Contents
    .. py:attribute:: pages_dir
       :type:  str
       :value: 'data/icyveins/raw'
+
+
+
+   .. py:attribute:: images_dir
+      :type:  str
+      :value: 'data/icyveins/images'
 
 
 
@@ -535,6 +542,13 @@ Module Contents
 
 
       Saved pages folder as an absolute path.
+
+
+   .. py:property:: images_path
+      :type: pathlib.Path
+
+
+      Saved images folder as an absolute path.
 
 
    .. py:property:: aliases_path

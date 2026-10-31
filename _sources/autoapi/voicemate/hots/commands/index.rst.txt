@@ -1,0 +1,56 @@
+voicemate.hots.commands
+=======================
+
+.. py:module:: voicemate.hots.commands
+
+.. autoapi-nested-parse::
+
+   Spoken commands about the screen and draft mode (everything else is a draft question).
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.commands.Command
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.hots.commands.parse
+
+
+Module Contents
+---------------
+
+.. py:class:: Command
+
+   A recognized screen or mode command.
+
+   :ivar kind: ``"read"`` (look at the screen), ``"last"`` (read the newest saved screenshot),
+               ``"on"`` or ``"off"`` (draft mode).
+   :ivar advice: What to advise after reading: ``"ban"``, ``"pick"`` or ``""`` (what fits the
+                 phase).
+
+
+
+   .. py:attribute:: kind
+      :type:  str
+
+
+   .. py:attribute:: advice
+      :type:  str
+      :value: ''
+
+
+
+.. py:function:: parse(said: str) -> Command | None
+
+   The command in ``said`` (already cleaned, see ``intents.clean``), or ``None``.
+
+

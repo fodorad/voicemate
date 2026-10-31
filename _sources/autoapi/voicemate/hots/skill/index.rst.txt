@@ -15,6 +15,8 @@ Attributes
 .. autoapisummary::
 
    voicemate.hots.skill.logger
+   voicemate.hots.skill.SAY_AGAIN
+   voicemate.hots.skill.BLIND
 
 
 Classes
@@ -22,6 +24,7 @@ Classes
 
 .. autoapisummary::
 
+   voicemate.hots.skill.ScreenKit
    voicemate.hots.skill.HotsSkill
    voicemate.hots.skill.Hots
 
@@ -31,14 +34,82 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:class:: HotsSkill(intents: voicemate.hots.intents.Intents)
+.. py:data:: SAY_AGAIN
+   :value: 'Say again.'
+
+
+.. py:data:: BLIND
+   :value: "I can't see the screen. Allow Screen Recording for this app."
+
+
+.. py:class:: ScreenKit
+
+   What reading the screen needs, shared by every session.
+
+   :ivar reader: Looks at the live screen.
+   :ivar portraits: Reads the ban slots (``None`` when no portraits were saved).
+   :ivar settings: The ``[hots.screen]`` configuration.
+   :ivar saved: Reads the newest saved screenshot instead (``read the last screenshot``).
+
+
+
+   .. py:attribute:: reader
+      :type:  voicemate.hots.screen.reader.ScreenReader
+
+
+   .. py:attribute:: portraits
+      :type:  voicemate.hots.screen.portraits.Portraits | None
+
+
+   .. py:attribute:: settings
+      :type:  voicemate.config.ScreenConfig
+
+
+   .. py:attribute:: saved
+      :type:  voicemate.hots.screen.reader.ScreenReader | None
+      :value: None
+
+
+
+.. py:class:: HotsSkill(intents: voicemate.hots.intents.Intents, watcher: voicemate.hots.screen.watcher.DraftWatcher | None = None, saved: voicemate.hots.screen.reader.ScreenReader | None = None)
 
    One session's draft commands (a :class:`~voicemate.pipeline.skills.Skill`).
 
+   While a draft is on screen (or after "draft mode on") the skill is in *draft mode*: answers
+   are as short as possible and speech that is not a draft command gets "Say again." instead
+   of going to the chat model.
+
    :param intents: The session's draft and command rules.
+   :param watcher: Follows the draft on screen (``None`` when the screen cannot be read).
+   :param saved: Reads the newest saved screenshot.
 
 
    .. py:attribute:: intents
+
+
+   .. py:attribute:: watcher
+      :value: None
+
+
+
+   .. py:attribute:: saved
+      :value: None
+
+
+
+   .. py:property:: draft_mode
+      :type: bool
+
+
+      Whether answers are terse and only draft speech is handled.
+
+
+   .. py:method:: run(say: collections.abc.Callable[[voicemate.pipeline.skills.SkillAnswer], collections.abc.Awaitable[None]]) -> None
+      :async:
+
+
+      Watch the screen for drafts while the session is open (a ``Background`` skill).
+
 
 
    .. py:method:: answer(text: str) -> voicemate.pipeline.skills.SkillAnswer | None
@@ -49,12 +120,14 @@ Module Contents
 
 
 
-.. py:class:: Hots(knowledge: voicemate.hots.knowledge.Knowledge, report: voicemate.hots.knowledge.RefreshReport, aliases: voicemate.hots.aliases.AliasStore | None = None)
+.. py:class:: Hots(knowledge: voicemate.hots.knowledge.Knowledge, report: voicemate.hots.knowledge.RefreshReport, aliases: voicemate.hots.aliases.AliasStore | None = None, screen: ScreenKit | None = None)
 
    The opened HotS knowledge, shared by all sessions.
 
    :param knowledge: The imported pages.
    :param report: What the startup refresh changed.
+   :param aliases: Spellings learned from Adam.
+   :param screen: Reading the screen (``None`` when it is off or not supported).
 
 
    .. py:attribute:: knowledge
@@ -64,6 +137,11 @@ Module Contents
 
 
    .. py:attribute:: aliases
+      :value: None
+
+
+
+   .. py:attribute:: screen
       :value: None
 
 

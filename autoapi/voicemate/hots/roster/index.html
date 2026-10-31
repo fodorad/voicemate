@@ -243,6 +243,7 @@
 <li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -387,13 +388,13 @@
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.roster.normalize" title="voicemate.hots.roster.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.roster.normalize" title="voicemate.hots.roster.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>(text) → str</p></td>
 <td><p>Lower-case <code class="docutils literal notranslate"><span class="pre">text</span></code> without accents, punctuation or spaces (<code class="docutils literal notranslate"><span class="pre">Zul'jin</span></code> → <code class="docutils literal notranslate"><span class="pre">zuljin</span></code>).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.roster.sound_key" title="voicemate.hots.roster.sound_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sound_key</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.roster.sound_key" title="voicemate.hots.roster.sound_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sound_key</span></code></a>(text) → str</p></td>
 <td><p>A rough sound-alike key: the consonant skeleton of how <code class="docutils literal notranslate"><span class="pre">text</span></code> is pronounced.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.roster.resolve_map" title="voicemate.hots.roster.resolve_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_map</span></code></a>(→ str | None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.roster.resolve_map" title="voicemate.hots.roster.resolve_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_map</span></code></a>(spoken, maps) → str | None</p></td>
 <td><p>The slug of the map <code class="docutils literal notranslate"><span class="pre">spoken</span></code> names (<code class="docutils literal notranslate"><span class="pre">maps</span></code> is <code class="docutils literal notranslate"><span class="pre">slug</span> <span class="pre">→</span> <span class="pre">name</span></code>), if exactly one fits.</p></td>
 </tr>
 </tbody>

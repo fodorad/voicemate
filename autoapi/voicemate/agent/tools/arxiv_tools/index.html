@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -357,22 +358,22 @@ research memory so later questions are answered without re-downloading.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.normalize_id" title="voicemate.agent.tools.arxiv_tools.normalize_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_id</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.normalize_id" title="voicemate.agent.tools.arxiv_tools.normalize_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_id</span></code></a>(text) → str</p></td>
 <td><p>Extract an arXiv id from free text or a URL.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.slugify" title="voicemate.agent.tools.arxiv_tools.slugify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slugify</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.slugify" title="voicemate.agent.tools.arxiv_tools.slugify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slugify</span></code></a>(title[, max_len]) → str</p></td>
 <td><p>File-name-safe slug of a title.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.paper_filename" title="voicemate.agent.tools.arxiv_tools.paper_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paper_filename</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.paper_filename" title="voicemate.agent.tools.arxiv_tools.paper_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paper_filename</span></code></a>(paper) → str</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&lt;id&gt;-&lt;slug&gt;.pdf</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.query_arxiv" title="voicemate.agent.tools.arxiv_tools.query_arxiv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_arxiv</span></code></a>(→ list[Paper])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.query_arxiv" title="voicemate.agent.tools.arxiv_tools.query_arxiv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_arxiv</span></code></a>(query, ids, max_results) → list[Paper]</p></td>
 <td><p>Ask the arXiv API (blocking) for papers by keywords or by id, most relevant first.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.format_papers" title="voicemate.agent.tools.arxiv_tools.format_papers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_papers</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.format_papers" title="voicemate.agent.tools.arxiv_tools.format_papers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_papers</span></code></a>(papers, header) → str</p></td>
 <td><p>Numbered paper list for the model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.build" title="voicemate.agent.tools.arxiv_tools.build"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build</span></code></a>(→ list[langchain_core.tools.BaseTool])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.arxiv_tools.build" title="voicemate.agent.tools.arxiv_tools.build"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build</span></code></a>(ctx) → list[langchain_core.tools.BaseTool]</p></td>
 <td><p>Create <code class="docutils literal notranslate"><span class="pre">arxiv_search</span></code> and <code class="docutils literal notranslate"><span class="pre">download_paper</span></code>.</p></td>
 </tr>
 </tbody>

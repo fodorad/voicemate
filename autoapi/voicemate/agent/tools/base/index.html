@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -382,16 +383,16 @@ can show whether data came from the web (left the machine), memory, or local sta
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.base.emitter" title="voicemate.agent.tools.base.emitter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">emitter</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.base.emitter" title="voicemate.agent.tools.base.emitter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">emitter</span></code></a>(config) → collections.abc.Callable[[voicemate.events.Event], None]</p></td>
 <td><p>The event callback stored in <code class="docutils literal notranslate"><span class="pre">config[&quot;configurable&quot;][&quot;emit&quot;]</span></code> (no-op if absent).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.base.report" title="voicemate.agent.tools.base.report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">report</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.base.report" title="voicemate.agent.tools.base.report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">report</span></code></a>(config, name, args, source[, summary]) → None</p></td>
 <td><p>Emit the <code class="docutils literal notranslate"><span class="pre">end</span></code> <code class="xref py py-class docutils literal notranslate"><span class="pre">ToolEvent</span></code> of a tool call with its data source.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.base.format_date" title="voicemate.agent.tools.base.format_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_date</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.base.format_date" title="voicemate.agent.tools.base.format_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_date</span></code></a>(timestamp) → str</p></td>
 <td><p>Unix timestamp → <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code> (local time).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.base.display_path" title="voicemate.agent.tools.base.display_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_path</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.base.display_path" title="voicemate.agent.tools.base.display_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_path</span></code></a>(path) → str</p></td>
 <td><p>Show paths under the home directory as <code class="docutils literal notranslate"><span class="pre">~/...</span></code> (keeps absolute paths out of replies).</p></td>
 </tr>
 </tbody>

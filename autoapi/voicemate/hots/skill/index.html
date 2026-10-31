@@ -243,6 +243,7 @@
 <li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -345,6 +346,12 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.skill.logger" title="voicemate.hots.skill.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.skill.SAY_AGAIN" title="voicemate.hots.skill.SAY_AGAIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SAY_AGAIN</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.skill.BLIND" title="voicemate.hots.skill.BLIND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BLIND</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -354,10 +361,13 @@
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.skill.HotsSkill" title="voicemate.hots.skill.HotsSkill"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HotsSkill</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.skill.ScreenKit" title="voicemate.hots.skill.ScreenKit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScreenKit</span></code></a></p></td>
+<td><p>What reading the screen needs, shared by every session.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.skill.HotsSkill" title="voicemate.hots.skill.HotsSkill"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HotsSkill</span></code></a></p></td>
 <td><p>One session's draft commands (a <a class="reference internal" href="../../pipeline/skills/index.html#voicemate.pipeline.skills.Skill" title="voicemate.pipeline.skills.Skill"><code class="xref py py-class docutils literal notranslate"><span class="pre">Skill</span></code></a>).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.skill.Hots" title="voicemate.hots.skill.Hots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Hots</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.skill.Hots" title="voicemate.hots.skill.Hots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Hots</span></code></a></p></td>
 <td><p>The opened HotS knowledge, shared by all sessions.</p></td>
 </tr>
 </tbody>
@@ -371,19 +381,94 @@
 <span class="sig-prename descclassname"><span class="pre">voicemate.hots.skill.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#voicemate.hots.skill.logger" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="voicemate.hots.skill.SAY_AGAIN">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.skill.</span></span><span class="sig-name descname"><span class="pre">SAY_AGAIN</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Say</span> <span class="pre">again.'</span></span><a class="headerlink" href="#voicemate.hots.skill.SAY_AGAIN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="voicemate.hots.skill.BLIND">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.skill.</span></span><span class="sig-name descname"><span class="pre">BLIND</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;I</span> <span class="pre">can't</span> <span class="pre">see</span> <span class="pre">the</span> <span class="pre">screen.</span> <span class="pre">Allow</span> <span class="pre">Screen</span> <span class="pre">Recording</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">app.&quot;</span></span><a class="headerlink" href="#voicemate.hots.skill.BLIND" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="voicemate.hots.skill.ScreenKit">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.hots.skill.</span></span><span class="sig-name descname"><span class="pre">ScreenKit</span></span><a class="reference internal" href="../../../../_modules/voicemate/hots/skill.html#ScreenKit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.skill.ScreenKit" title="Link to this definition">¶</a></dt>
+<dd><p>What reading the screen needs, shared by every session.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reader</strong> – Looks at the live screen.</p></li>
+<li><p><strong>portraits</strong> – Reads the ban slots (<code class="docutils literal notranslate"><span class="pre">None</span></code> when no portraits were saved).</p></li>
+<li><p><strong>settings</strong> – The <code class="docutils literal notranslate"><span class="pre">[hots.screen]</span></code> configuration.</p></li>
+<li><p><strong>saved</strong> – Reads the newest saved screenshot instead (<code class="docutils literal notranslate"><span class="pre">read</span> <span class="pre">the</span> <span class="pre">last</span> <span class="pre">screenshot</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.hots.skill.ScreenKit.reader">
+<span class="sig-name descname"><span class="pre">reader</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../screen/reader/index.html#voicemate.hots.screen.reader.ScreenReader" title="voicemate.hots.screen.reader.ScreenReader"><span class="pre">voicemate.hots.screen.reader.ScreenReader</span></a></span><a class="headerlink" href="#voicemate.hots.skill.ScreenKit.reader" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.hots.skill.ScreenKit.portraits">
+<span class="sig-name descname"><span class="pre">portraits</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../screen/portraits/index.html#voicemate.hots.screen.portraits.Portraits" title="voicemate.hots.screen.portraits.Portraits"><span class="pre">voicemate.hots.screen.portraits.Portraits</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.hots.skill.ScreenKit.portraits" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.hots.skill.ScreenKit.settings">
+<span class="sig-name descname"><span class="pre">settings</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../../config/index.html#voicemate.config.ScreenConfig" title="voicemate.config.ScreenConfig"><span class="pre">voicemate.config.ScreenConfig</span></a></span><a class="headerlink" href="#voicemate.hots.skill.ScreenKit.settings" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.hots.skill.ScreenKit.saved">
+<span class="sig-name descname"><span class="pre">saved</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../screen/reader/index.html#voicemate.hots.screen.reader.ScreenReader" title="voicemate.hots.screen.reader.ScreenReader"><span class="pre">voicemate.hots.screen.reader.ScreenReader</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.hots.skill.ScreenKit.saved" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="voicemate.hots.skill.HotsSkill">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.hots.skill.</span></span><span class="sig-name descname"><span class="pre">HotsSkill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../intents/index.html#voicemate.hots.intents.Intents" title="voicemate.hots.intents.Intents"><span class="pre">voicemate.hots.intents.Intents</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/voicemate/hots/skill.html#HotsSkill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.skill.HotsSkill" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.hots.skill.</span></span><span class="sig-name descname"><span class="pre">HotsSkill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../intents/index.html#voicemate.hots.intents.Intents" title="voicemate.hots.intents.Intents"><span class="pre">voicemate.hots.intents.Intents</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">watcher</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../screen/watcher/index.html#voicemate.hots.screen.watcher.DraftWatcher" title="voicemate.hots.screen.watcher.DraftWatcher"><span class="pre">voicemate.hots.screen.watcher.DraftWatcher</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../screen/reader/index.html#voicemate.hots.screen.reader.ScreenReader" title="voicemate.hots.screen.reader.ScreenReader"><span class="pre">voicemate.hots.screen.reader.ScreenReader</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/voicemate/hots/skill.html#HotsSkill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.skill.HotsSkill" title="Link to this definition">¶</a></dt>
 <dd><p>One session’s draft commands (a <a class="reference internal" href="../../pipeline/skills/index.html#voicemate.pipeline.skills.Skill" title="voicemate.pipeline.skills.Skill"><code class="xref py py-class docutils literal notranslate"><span class="pre">Skill</span></code></a>).</p>
+<p>While a draft is on screen (or after “draft mode on”) the skill is in <em>draft mode</em>: answers
+are as short as possible and speech that is not a draft command gets “Say again.” instead
+of going to the chat model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>intents</strong> – The session’s draft and command rules.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>intents</strong> – The session’s draft and command rules.</p></li>
+<li><p><strong>watcher</strong> – Follows the draft on screen (<code class="docutils literal notranslate"><span class="pre">None</span></code> when the screen cannot be read).</p></li>
+<li><p><strong>saved</strong> – Reads the newest saved screenshot.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.hots.skill.HotsSkill.intents">
 <span class="sig-name descname"><span class="pre">intents</span></span><a class="headerlink" href="#voicemate.hots.skill.HotsSkill.intents" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.hots.skill.HotsSkill.watcher">
+<span class="sig-name descname"><span class="pre">watcher</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.hots.skill.HotsSkill.watcher" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.hots.skill.HotsSkill.saved">
+<span class="sig-name descname"><span class="pre">saved</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.hots.skill.HotsSkill.saved" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="voicemate.hots.skill.HotsSkill.draft_mode">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">draft_mode</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#voicemate.hots.skill.HotsSkill.draft_mode" title="Link to this definition">¶</a></dt>
+<dd><p>Whether answers are terse and only draft speech is handled.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.hots.skill.HotsSkill.run">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">say</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../pipeline/skills/index.html#voicemate.pipeline.skills.SkillAnswer" title="voicemate.pipeline.skills.SkillAnswer"><span class="pre">voicemate.pipeline.skills.SkillAnswer</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Awaitable</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/hots/skill.html#HotsSkill.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.skill.HotsSkill.run" title="Link to this definition">¶</a></dt>
+<dd><p>Watch the screen for drafts while the session is open (a <code class="docutils literal notranslate"><span class="pre">Background</span></code> skill).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="voicemate.hots.skill.HotsSkill.answer">
@@ -395,13 +480,15 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="voicemate.hots.skill.Hots">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.hots.skill.</span></span><span class="sig-name descname"><span class="pre">Hots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">knowledge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../knowledge/index.html#voicemate.hots.knowledge.Knowledge" title="voicemate.hots.knowledge.Knowledge"><span class="pre">voicemate.hots.knowledge.Knowledge</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../knowledge/index.html#voicemate.hots.knowledge.RefreshReport" title="voicemate.hots.knowledge.RefreshReport"><span class="pre">voicemate.hots.knowledge.RefreshReport</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../aliases/index.html#voicemate.hots.aliases.AliasStore" title="voicemate.hots.aliases.AliasStore"><span class="pre">voicemate.hots.aliases.AliasStore</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/voicemate/hots/skill.html#Hots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.skill.Hots" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.hots.skill.</span></span><span class="sig-name descname"><span class="pre">Hots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">knowledge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../knowledge/index.html#voicemate.hots.knowledge.Knowledge" title="voicemate.hots.knowledge.Knowledge"><span class="pre">voicemate.hots.knowledge.Knowledge</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../knowledge/index.html#voicemate.hots.knowledge.RefreshReport" title="voicemate.hots.knowledge.RefreshReport"><span class="pre">voicemate.hots.knowledge.RefreshReport</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../aliases/index.html#voicemate.hots.aliases.AliasStore" title="voicemate.hots.aliases.AliasStore"><span class="pre">voicemate.hots.aliases.AliasStore</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#voicemate.hots.skill.ScreenKit" title="voicemate.hots.skill.ScreenKit"><span class="pre">ScreenKit</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/voicemate/hots/skill.html#Hots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.skill.Hots" title="Link to this definition">¶</a></dt>
 <dd><p>The opened HotS knowledge, shared by all sessions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>knowledge</strong> – The imported pages.</p></li>
 <li><p><strong>report</strong> – What the startup refresh changed.</p></li>
+<li><p><strong>aliases</strong> – Spellings learned from Adam.</p></li>
+<li><p><strong>screen</strong> – Reading the screen (<code class="docutils literal notranslate"><span class="pre">None</span></code> when it is off or not supported).</p></li>
 </ul>
 </dd>
 </dl>
@@ -418,6 +505,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.hots.skill.Hots.aliases">
 <span class="sig-name descname"><span class="pre">aliases</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.hots.skill.Hots.aliases" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.hots.skill.Hots.screen">
+<span class="sig-name descname"><span class="pre">screen</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.hots.skill.Hots.screen" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -519,8 +611,21 @@
 <li><a class="reference internal" href="#classes">Classes</a></li>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#voicemate.hots.skill.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.SAY_AGAIN"><code class="docutils literal notranslate"><span class="pre">SAY_AGAIN</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.BLIND"><code class="docutils literal notranslate"><span class="pre">BLIND</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.ScreenKit"><code class="docutils literal notranslate"><span class="pre">ScreenKit</span></code></a><ul>
+<li><a class="reference internal" href="#voicemate.hots.skill.ScreenKit.reader"><code class="docutils literal notranslate"><span class="pre">ScreenKit.reader</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.ScreenKit.portraits"><code class="docutils literal notranslate"><span class="pre">ScreenKit.portraits</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.ScreenKit.settings"><code class="docutils literal notranslate"><span class="pre">ScreenKit.settings</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.ScreenKit.saved"><code class="docutils literal notranslate"><span class="pre">ScreenKit.saved</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#voicemate.hots.skill.HotsSkill"><code class="docutils literal notranslate"><span class="pre">HotsSkill</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.hots.skill.HotsSkill.intents"><code class="docutils literal notranslate"><span class="pre">HotsSkill.intents</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.HotsSkill.watcher"><code class="docutils literal notranslate"><span class="pre">HotsSkill.watcher</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.HotsSkill.saved"><code class="docutils literal notranslate"><span class="pre">HotsSkill.saved</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.HotsSkill.draft_mode"><code class="docutils literal notranslate"><span class="pre">HotsSkill.draft_mode</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.HotsSkill.run"><code class="docutils literal notranslate"><span class="pre">HotsSkill.run()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.skill.HotsSkill.answer"><code class="docutils literal notranslate"><span class="pre">HotsSkill.answer()</span></code></a></li>
 </ul>
 </li>
@@ -528,6 +633,7 @@
 <li><a class="reference internal" href="#voicemate.hots.skill.Hots.knowledge"><code class="docutils literal notranslate"><span class="pre">Hots.knowledge</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.skill.Hots.report"><code class="docutils literal notranslate"><span class="pre">Hots.report</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.skill.Hots.aliases"><code class="docutils literal notranslate"><span class="pre">Hots.aliases</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.Hots.screen"><code class="docutils literal notranslate"><span class="pre">Hots.screen</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.skill.Hots.advisor"><code class="docutils literal notranslate"><span class="pre">Hots.advisor</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.skill.Hots.open"><code class="docutils literal notranslate"><span class="pre">Hots.open()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.skill.Hots.skill"><code class="docutils literal notranslate"><span class="pre">Hots.skill()</span></code></a></li>

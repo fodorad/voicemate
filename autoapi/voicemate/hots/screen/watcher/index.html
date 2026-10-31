@@ -243,6 +243,7 @@
 <li class="toctree-l3 current has-children"><a class="reference internal" href="../../index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../../advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -350,19 +351,28 @@ draft; the watcher then stays quiet until the next draft screen shows up.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.logger" title="voicemate.hots.screen.watcher.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.LOST_AFTER" title="voicemate.hots.screen.watcher.LOST_AFTER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOST_AFTER</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.IDLE" title="voicemate.hots.screen.watcher.IDLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IDLE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.SLOW_AFTER" title="voicemate.hots.screen.watcher.SLOW_AFTER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SLOW_AFTER</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.DRAFT" title="voicemate.hots.screen.watcher.DRAFT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DRAFT</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.SLOW_FACTOR" title="voicemate.hots.screen.watcher.SLOW_FACTOR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SLOW_FACTOR</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.OVER" title="voicemate.hots.screen.watcher.OVER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OVER</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.PROBLEM_RETRY_S" title="voicemate.hots.screen.watcher.PROBLEM_RETRY_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PROBLEM_RETRY_S</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.LOST_AFTER" title="voicemate.hots.screen.watcher.LOST_AFTER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOST_AFTER</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.FRESH_S" title="voicemate.hots.screen.watcher.FRESH_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FRESH_S</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.SLOW_AFTER" title="voicemate.hots.screen.watcher.SLOW_AFTER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SLOW_AFTER</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.SLOW_FACTOR" title="voicemate.hots.screen.watcher.SLOW_FACTOR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SLOW_FACTOR</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.PROBLEM_RETRY_S" title="voicemate.hots.screen.watcher.PROBLEM_RETRY_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PROBLEM_RETRY_S</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.watcher.FRESH_S" title="voicemate.hots.screen.watcher.FRESH_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FRESH_S</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -386,6 +396,21 @@ draft; the watcher then stays quiet until the next draft screen shows up.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="voicemate.hots.screen.watcher.logger">
 <span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.watcher.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#voicemate.hots.screen.watcher.logger" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="voicemate.hots.screen.watcher.IDLE">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.watcher.</span></span><span class="sig-name descname"><span class="pre">IDLE</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'idle'</span></span><a class="headerlink" href="#voicemate.hots.screen.watcher.IDLE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="voicemate.hots.screen.watcher.DRAFT">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.watcher.</span></span><span class="sig-name descname"><span class="pre">DRAFT</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'draft'</span></span><a class="headerlink" href="#voicemate.hots.screen.watcher.DRAFT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="voicemate.hots.screen.watcher.OVER">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.watcher.</span></span><span class="sig-name descname"><span class="pre">OVER</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'over'</span></span><a class="headerlink" href="#voicemate.hots.screen.watcher.OVER" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -501,12 +526,22 @@ draft; the watcher then stays quiet until the next draft screen shows up.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="voicemate.hots.screen.watcher.DraftWatcher.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/watcher.html#DraftWatcher.end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.watcher.DraftWatcher.end" title="Link to this definition">¶</a></dt>
+<dd><p>Stop following the draft (it is over); a later draft screen starts a new one.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="voicemate.hots.screen.watcher.DraftWatcher.look">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">look</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../interpreter/index.html#voicemate.hots.screen.interpreter.DraftScreen" title="voicemate.hots.screen.interpreter.DraftScreen"><span class="pre">voicemate.hots.screen.interpreter.DraftScreen</span></a></span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/watcher.html#DraftWatcher.look"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.watcher.DraftWatcher.look" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">look</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../reader/index.html#voicemate.hots.screen.reader.ScreenReader" title="voicemate.hots.screen.reader.ScreenReader"><span class="pre">voicemate.hots.screen.reader.ScreenReader</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../interpreter/index.html#voicemate.hots.screen.interpreter.DraftScreen" title="voicemate.hots.screen.interpreter.DraftScreen"><span class="pre">voicemate.hots.screen.interpreter.DraftScreen</span></a></span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/watcher.html#DraftWatcher.look"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.watcher.DraftWatcher.look" title="Link to this definition">¶</a></dt>
 <dd><p>A full read of the screen now (a recent one is reused); a draft screen joins the draft.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="../reader/index.html#voicemate.hots.screen.reader.ScreenError" title="voicemate.hots.screen.reader.ScreenError"><strong>ScreenError</strong></a> – If the screen cannot be read.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reader</strong> – Read this instead of the live screen (e.g. a saved screenshot); such a read
+is never reused.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../reader/index.html#voicemate.hots.screen.reader.ScreenError" title="voicemate.hots.screen.reader.ScreenError"><strong>ScreenError</strong></a> – If the screen cannot be read.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -576,6 +611,9 @@ draft; the watcher then stays quiet until the next draft screen shows up.</p>
 <li><a class="reference internal" href="#classes">Classes</a></li>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#voicemate.hots.screen.watcher.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.screen.watcher.IDLE"><code class="docutils literal notranslate"><span class="pre">IDLE</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.screen.watcher.DRAFT"><code class="docutils literal notranslate"><span class="pre">DRAFT</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.screen.watcher.OVER"><code class="docutils literal notranslate"><span class="pre">OVER</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.watcher.LOST_AFTER"><code class="docutils literal notranslate"><span class="pre">LOST_AFTER</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.watcher.SLOW_AFTER"><code class="docutils literal notranslate"><span class="pre">SLOW_AFTER</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.watcher.SLOW_FACTOR"><code class="docutils literal notranslate"><span class="pre">SLOW_FACTOR</span></code></a></li>
@@ -595,6 +633,7 @@ draft; the watcher then stays quiet until the next draft screen shows up.</p>
 <li><a class="reference internal" href="#voicemate.hots.screen.watcher.DraftWatcher.problem"><code class="docutils literal notranslate"><span class="pre">DraftWatcher.problem</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.watcher.DraftWatcher.run"><code class="docutils literal notranslate"><span class="pre">DraftWatcher.run()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.watcher.DraftWatcher.poll"><code class="docutils literal notranslate"><span class="pre">DraftWatcher.poll()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.screen.watcher.DraftWatcher.end"><code class="docutils literal notranslate"><span class="pre">DraftWatcher.end()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.watcher.DraftWatcher.look"><code class="docutils literal notranslate"><span class="pre">DraftWatcher.look()</span></code></a></li>
 </ul>
 </li>

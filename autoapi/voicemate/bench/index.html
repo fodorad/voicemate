@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -373,13 +374,13 @@
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.bench.normalize" title="voicemate.bench.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.bench.normalize" title="voicemate.bench.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>(text) → str</p></td>
 <td><p>Lower-case, strip punctuation and collapse whitespace (for WER).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.bench.corpus" title="voicemate.bench.corpus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corpus</span></code></a>(→ list[tuple[str, str]])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.bench.corpus" title="voicemate.bench.corpus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corpus</span></code></a>() → list[tuple[str, str]]</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">(lang,</span> <span class="pre">sentence)</span></code> pairs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.bench.make_clips" title="voicemate.bench.make_clips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_clips</span></code></a>(→ list[tuple[str, str, pathlib.Path]])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.bench.make_clips" title="voicemate.bench.make_clips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_clips</span></code></a>(folder) → list[tuple[str, str, pathlib.Path]]</p></td>
 <td><p>Render the corpus to 16 kHz WAV files with <code class="docutils literal notranslate"><span class="pre">say</span></code> (cached).</p></td>
 </tr>
 </tbody>

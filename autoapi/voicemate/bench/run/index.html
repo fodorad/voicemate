@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -360,13 +361,13 @@
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.bench.run.bench_asr" title="voicemate.bench.run.bench_asr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bench_asr</span></code></a>(→ dict)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.bench.run.bench_asr" title="voicemate.bench.run.bench_asr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bench_asr</span></code></a>(config) → dict</p></td>
 <td><p>WER and real-time factor of the configured ASR per language.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.bench.run.bench_tts" title="voicemate.bench.run.bench_tts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bench_tts</span></code></a>(→ dict)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.bench.run.bench_tts" title="voicemate.bench.run.bench_tts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bench_tts</span></code></a>(config) → dict</p></td>
 <td><p>Speed and round-trip intelligibility (TTS → ASR → WER) per voice, plus a listening page.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.bench.run.bench_llm" title="voicemate.bench.run.bench_llm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bench_llm</span></code></a>(→ dict)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.bench.run.bench_llm" title="voicemate.bench.run.bench_llm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bench_llm</span></code></a>(config) → dict</p></td>
 <td><p>Tool-choice accuracy and first-token latency of the configured Ollama model.</p></td>
 </tr>
 </tbody>

@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -362,10 +363,10 @@ again. (DNS rebinding between the check and the connection remains a residual ri
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.netguard.check_url" title="voicemate.agent.tools.netguard.check_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_url</span></code></a>() → None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.tools.netguard.check_url" title="voicemate.agent.tools.netguard.check_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_url</span></code></a>(url[, allowed_hosts]) → None</p></td>
 <td><p>Reject URLs that are not http(s) or that resolve to a non-public address.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.netguard.safe_get" title="voicemate.agent.tools.netguard.safe_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">safe_get</span></code></a>(, max_redirects, max_bytes)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.tools.netguard.safe_get" title="voicemate.agent.tools.netguard.safe_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">safe_get</span></code></a>(http, url[, allowed_hosts, max_redirects, ...]) → httpx.Response</p></td>
 <td><p>GET <code class="docutils literal notranslate"><span class="pre">url</span></code>, checking the target and every redirect hop with <a class="reference internal" href="#voicemate.agent.tools.netguard.check_url" title="voicemate.agent.tools.netguard.check_url"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_url()</span></code></a>.</p></td>
 </tr>
 </tbody>

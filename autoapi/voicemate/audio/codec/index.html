@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -357,16 +358,16 @@ carry their sample rate in a 4-byte little-endian header because the TTS voices 
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.audio.codec.pcm16_to_float32" title="voicemate.audio.codec.pcm16_to_float32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pcm16_to_float32</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.audio.codec.pcm16_to_float32" title="voicemate.audio.codec.pcm16_to_float32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pcm16_to_float32</span></code></a>(pcm) → numpy.ndarray</p></td>
 <td><p>Convert little-endian signed 16-bit PCM bytes to float32 samples in <code class="docutils literal notranslate"><span class="pre">[-1,</span> <span class="pre">1]</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.audio.codec.float32_to_pcm16" title="voicemate.audio.codec.float32_to_pcm16"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float32_to_pcm16</span></code></a>(→ bytes)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.audio.codec.float32_to_pcm16" title="voicemate.audio.codec.float32_to_pcm16"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float32_to_pcm16</span></code></a>(audio) → bytes</p></td>
 <td><p>Convert float samples to little-endian signed 16-bit PCM, clipping to <code class="docutils literal notranslate"><span class="pre">[-1,</span> <span class="pre">1]</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.audio.codec.resample" title="voicemate.audio.codec.resample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resample</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.audio.codec.resample" title="voicemate.audio.codec.resample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resample</span></code></a>(audio, rate_in, rate_out) → numpy.ndarray</p></td>
 <td><p>Resample mono audio with a high-quality polyphase resampler.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.audio.codec.pack_audio_frame" title="voicemate.audio.codec.pack_audio_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_audio_frame</span></code></a>(→ bytes)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.audio.codec.pack_audio_frame" title="voicemate.audio.codec.pack_audio_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_audio_frame</span></code></a>(pcm, sample_rate) → bytes</p></td>
 <td><p>Prefix PCM16 bytes with their sample rate for the browser player.</p></td>
 </tr>
 </tbody>

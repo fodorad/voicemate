@@ -242,6 +242,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -333,15 +334,50 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Awaitable</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ScreenConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.advisor</span><span class="w"> </span><span class="kn">import</span> <span class="n">Advisor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.aliases</span><span class="w"> </span><span class="kn">import</span> <span class="n">AliasStore</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.intents</span><span class="w"> </span><span class="kn">import</span> <span class="n">Intents</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">parse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.draft</span><span class="w"> </span><span class="kn">import</span> <span class="n">Draft</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.intents</span><span class="w"> </span><span class="kn">import</span> <span class="n">Intents</span><span class="p">,</span> <span class="n">clean</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.knowledge</span><span class="w"> </span><span class="kn">import</span> <span class="n">Knowledge</span><span class="p">,</span> <span class="n">RefreshReport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.interpreter</span><span class="w"> </span><span class="kn">import</span> <span class="n">DraftScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScreenLog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.portraits</span><span class="w"> </span><span class="kn">import</span> <span class="n">Portraits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScreenError</span><span class="p">,</span> <span class="n">ScreenReader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.watcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">DRAFT</span><span class="p">,</span> <span class="n">OVER</span><span class="p">,</span> <span class="n">DraftWatcher</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.skills</span><span class="w"> </span><span class="kn">import</span> <span class="n">Skill</span><span class="p">,</span> <span class="n">SkillAnswer</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: Said when draft mode did not understand (short, so Adam can repeat at once).</span>
+<span class="n">SAY_AGAIN</span> <span class="o">=</span> <span class="s2">"Say again."</span>
+<span class="c1">#: Said when the screen cannot be captured.</span>
+<span class="n">BLIND</span> <span class="o">=</span> <span class="s2">"I can't see the screen. Allow Screen Recording for this app."</span>
+
+
+<div class="viewcode-block" id="ScreenKit">
+<a class="viewcode-back" href="../../../autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.ScreenKit">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScreenKit</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What reading the screen needs, shared by every session.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        reader: Looks at the live screen.</span>
+<span class="sd">        portraits: Reads the ban slots (``None`` when no portraits were saved).</span>
+<span class="sd">        settings: The ``[hots.screen]`` configuration.</span>
+<span class="sd">        saved: Reads the newest saved screenshot instead (``read the last screenshot``).</span>
+<span class="sd">    """</span>
+
+    <span class="n">reader</span><span class="p">:</span> <span class="n">ScreenReader</span>
+    <span class="n">portraits</span><span class="p">:</span> <span class="n">Portraits</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">settings</span><span class="p">:</span> <span class="n">ScreenConfig</span>
+    <span class="n">saved</span><span class="p">:</span> <span class="n">ScreenReader</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
 
 
 <div class="viewcode-block" id="HotsSkill">
@@ -349,20 +385,109 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">HotsSkill</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""One session's draft commands (a :class:`~voicemate.pipeline.skills.Skill`).</span>
 
+<span class="sd">    While a draft is on screen (or after "draft mode on") the skill is in *draft mode*: answers</span>
+<span class="sd">    are as short as possible and speech that is not a draft command gets "Say again." instead</span>
+<span class="sd">    of going to the chat model.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        intents: The session's draft and command rules.</span>
+<span class="sd">        watcher: Follows the draft on screen (``None`` when the screen cannot be read).</span>
+<span class="sd">        saved: Reads the newest saved screenshot.</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intents</span><span class="p">:</span> <span class="n">Intents</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">intents</span><span class="p">:</span> <span class="n">Intents</span><span class="p">,</span>
+        <span class="n">watcher</span><span class="p">:</span> <span class="n">DraftWatcher</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">saved</span><span class="p">:</span> <span class="n">ScreenReader</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">intents</span> <span class="o">=</span> <span class="n">intents</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="o">=</span> <span class="n">watcher</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saved</span> <span class="o">=</span> <span class="n">saved</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manual</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">draft_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether answers are terse and only draft speech is handled."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">OVER</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_manual</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manual</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">DRAFT</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HotsSkill.run">
+<a class="viewcode-back" href="../../../autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.HotsSkill.run">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">say</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SkillAnswer</span><span class="p">],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Watch the screen for drafts while the session is open (a ``Background`` skill)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">say</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="HotsSkill.answer">
 <a class="viewcode-back" href="../../../autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.HotsSkill.answer">[docs]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SkillAnswer</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Answer a draft command in English, or ``None`` for anything else."""</span>
+        <span class="n">said</span> <span class="o">=</span> <span class="n">clean</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">said</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SkillAnswer</span><span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">(</span><span class="n">command</span><span class="p">),</span> <span class="s2">"en"</span><span class="p">)</span>
+        <span class="n">focused</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">draft_mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intents</span><span class="o">.</span><span class="n">terse</span> <span class="o">=</span> <span class="n">focused</span>
+        <span class="k">if</span> <span class="n">focused</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refresh</span><span class="p">()</span>
         <span class="n">answer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intents</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">answer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">focused</span> <span class="ow">and</span> <span class="n">said</span><span class="p">:</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="n">SAY_AGAIN</span>
         <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">answer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">SkillAnswer</span><span class="p">(</span><span class="n">answer</span><span class="p">,</span> <span class="s2">"en"</span><span class="p">)</span></div>
-</div>
+
+
+    <span class="c1"># ── commands ─────────────────────────────────────────────────────────────</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"on"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_manual</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="s2">"Draft mode on."</span>
+        <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"off"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_manual</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+            <span class="k">return</span> <span class="s2">"Draft mode off."</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"I can't read the screen here."</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"last"</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">screen</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">look</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ScreenError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Screen read failed: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"last"</span> <span class="k">else</span> <span class="n">BLIND</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intents</span><span class="o">.</span><span class="n">terse</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_readback</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">advice</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_readback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen</span><span class="p">:</span> <span class="n">DraftScreen</span><span class="p">,</span> <span class="n">wanted</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""What the screen shows, then the advice that fits the phase."""</span>
+        <span class="n">draft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intents</span><span class="o">.</span><span class="n">draft</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">screen</span><span class="o">.</span><span class="n">is_draft</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">draft</span><span class="o">.</span><span class="n">enemy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">draft</span><span class="o">.</span><span class="n">ally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"I see no draft."</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intents</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">draft</span><span class="o">.</span><span class="n">map_slug</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Map </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">intents</span><span class="o">.</span><span class="n">advisor</span><span class="o">.</span><span class="n">maps</span><span class="p">[</span><span class="n">draft</span><span class="o">.</span><span class="n">map_slug</span><span class="p">]</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">heroes</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"Team"</span><span class="p">,</span> <span class="n">draft</span><span class="o">.</span><span class="n">ally</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Enemy"</span><span class="p">,</span> <span class="n">draft</span><span class="o">.</span><span class="n">enemy</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Bans"</span><span class="p">,</span> <span class="n">draft</span><span class="o">.</span><span class="n">banned</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">heroes</span><span class="p">:</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">(</span><span class="n">h</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">heroes</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+        <span class="n">kind</span> <span class="o">=</span> <span class="n">wanted</span> <span class="ow">or</span> <span class="p">(</span><span class="n">screen</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">kind</span> <span class="k">if</span> <span class="n">screen</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">mine</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"ban"</span><span class="p">,</span> <span class="s2">"pick"</span><span class="p">):</span>
+            <span class="n">advice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intents</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">advice</span><span class="p">:</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">advice</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"I see no draft."</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Bring the draft up to date with the screen (a read this recent is reused)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">look</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">ScreenError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Screen read failed: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span></div>
 
 
 
@@ -374,14 +499,21 @@
 <span class="sd">    Args:</span>
 <span class="sd">        knowledge: The imported pages.</span>
 <span class="sd">        report: What the startup refresh changed.</span>
+<span class="sd">        aliases: Spellings learned from Adam.</span>
+<span class="sd">        screen: Reading the screen (``None`` when it is off or not supported).</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">knowledge</span><span class="p">:</span> <span class="n">Knowledge</span><span class="p">,</span> <span class="n">report</span><span class="p">:</span> <span class="n">RefreshReport</span><span class="p">,</span> <span class="n">aliases</span><span class="p">:</span> <span class="n">AliasStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">knowledge</span><span class="p">:</span> <span class="n">Knowledge</span><span class="p">,</span>
+        <span class="n">report</span><span class="p">:</span> <span class="n">RefreshReport</span><span class="p">,</span>
+        <span class="n">aliases</span><span class="p">:</span> <span class="n">AliasStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">screen</span><span class="p">:</span> <span class="n">ScreenKit</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">knowledge</span> <span class="o">=</span> <span class="n">knowledge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">=</span> <span class="n">report</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span> <span class="o">=</span> <span class="n">aliases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span> <span class="o">=</span> <span class="n">screen</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">advisor</span> <span class="o">=</span> <span class="n">Advisor</span><span class="p">(</span><span class="n">knowledge</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">spelling</span><span class="p">,</span> <span class="n">slug</span> <span class="ow">in</span> <span class="p">(</span><span class="n">aliases</span><span class="o">.</span><span class="n">load</span><span class="p">()</span> <span class="k">if</span> <span class="n">aliases</span> <span class="k">else</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">advisor</span><span class="o">.</span><span class="n">roster</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">spelling</span><span class="p">,</span> <span class="n">slug</span><span class="p">)</span>
@@ -399,7 +531,7 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">knowledge</span> <span class="o">=</span> <span class="n">Knowledge</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">hots_database_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">hots</span><span class="o">.</span><span class="n">pages_path</span><span class="p">)</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">knowledge</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
-        <span class="n">hots</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">knowledge</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">AliasStore</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">hots</span><span class="o">.</span><span class="n">aliases_path</span><span class="p">))</span>
+        <span class="n">hots</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">knowledge</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">AliasStore</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">hots</span><span class="o">.</span><span class="n">aliases_path</span><span class="p">),</span> <span class="n">_screen_kit</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">hots</span><span class="o">.</span><span class="n">advisor</span><span class="o">.</span><span class="n">roster</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No HotS pages in </span><span class="si">%s</span><span class="s2">; the draft skill is off"</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">hots</span><span class="o">.</span><span class="n">pages_path</span><span class="p">)</span>
             <span class="n">knowledge</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -412,7 +544,22 @@
 <a class="viewcode-back" href="../../../autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.Hots.skill">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">skill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HotsSkill</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""A skill with a fresh, empty draft for one session."""</span>
-        <span class="k">return</span> <span class="n">HotsSkill</span><span class="p">(</span><span class="n">Intents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">advisor</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aliases</span><span class="p">))</span></div>
+        <span class="n">draft</span> <span class="o">=</span> <span class="n">Draft</span><span class="p">()</span>
+        <span class="n">intents</span> <span class="o">=</span> <span class="n">Intents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">advisor</span><span class="p">,</span> <span class="n">draft</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aliases</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">screen</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">HotsSkill</span><span class="p">(</span><span class="n">intents</span><span class="p">)</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">settings</span>
+        <span class="n">watcher</span> <span class="o">=</span> <span class="n">DraftWatcher</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">reader</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">advisor</span><span class="o">.</span><span class="n">roster</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">advisor</span><span class="o">.</span><span class="n">maps</span><span class="p">,</span>
+            <span class="n">draft</span><span class="p">,</span>
+            <span class="n">portraits</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">portraits</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">=</span><span class="n">ScreenLog</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">log_path</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">keep</span><span class="p">),</span>
+            <span class="n">poll_s</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">poll_s</span><span class="p">,</span>
+            <span class="n">proactive</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">proactive</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">HotsSkill</span><span class="p">(</span><span class="n">intents</span><span class="p">,</span> <span class="n">watcher</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">saved</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Hots.session_skills">
@@ -429,6 +576,36 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">knowledge</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 </div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_screen_kit</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScreenKit</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The screen reading setup, or ``None`` when it is disabled or the platform cannot do it."""</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">hots</span><span class="o">.</span><span class="n">screen</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">enabled</span> <span class="ow">or</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">!=</span> <span class="s2">"darwin"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">_mac_kit</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>  <span class="c1"># pragma: no cover - needs macOS</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mac_kit</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScreenKit</span><span class="p">:</span>  <span class="c1"># pragma: no cover - needs macOS and a screen</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.macos</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageFileReader</span><span class="p">,</span> <span class="n">MacScreenReader</span>
+
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">hots</span><span class="o">.</span><span class="n">screen</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">hots</span><span class="o">.</span><span class="n">images_path</span>
+    <span class="n">portraits</span> <span class="o">=</span> <span class="n">Portraits</span><span class="o">.</span><span class="n">from_folder</span><span class="p">(</span><span class="n">images</span><span class="p">)</span> <span class="k">if</span> <span class="n">images</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">portraits</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">portraits</span><span class="o">.</span><span class="n">slugs</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No hero portraits in </span><span class="si">%s</span><span class="s2">: bans are read from the announcements only"</span><span class="p">,</span> <span class="n">images</span><span class="p">)</span>
+        <span class="n">portraits</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="n">ScreenLog</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">log_path</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">keep</span><span class="p">)</span>
+    <span class="n">calibration</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">"calibration"</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">newest</span><span class="p">():</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">newest_screenshot</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">found</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">calibration</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*.png"</span><span class="p">))</span> <span class="k">if</span> <span class="n">calibration</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">shots</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">shots</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">ScreenKit</span><span class="p">(</span><span class="n">MacScreenReader</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">window</span><span class="p">),</span> <span class="n">portraits</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">ImageFileReader</span><span class="p">(</span><span class="n">newest</span><span class="p">))</span>
 </pre></div>
         </article>
       </div>

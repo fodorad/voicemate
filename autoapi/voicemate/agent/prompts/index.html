@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -359,10 +360,10 @@ newest user message only.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.prompts.system_prompt" title="voicemate.agent.prompts.system_prompt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_prompt</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.agent.prompts.system_prompt" title="voicemate.agent.prompts.system_prompt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_prompt</span></code></a>(config) → str</p></td>
 <td><p>The static system prompt (identical for every turn, so its KV cache is reused).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.prompts.turn_context" title="voicemate.agent.prompts.turn_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">turn_context</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.agent.prompts.turn_context" title="voicemate.agent.prompts.turn_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">turn_context</span></code></a>(lang, now[, recall]) → str</p></td>
 <td><p>The per-turn context block prepended to the newest user message.</p></td>
 </tr>
 </tbody>

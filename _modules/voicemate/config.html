@@ -242,6 +242,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -630,6 +631,7 @@
 <span class="sd">    Attributes:</span>
 <span class="sd">        enabled: Answer draft questions from the local knowledge base.</span>
 <span class="sd">        pages_dir: Folder with the saved Icy Veins pages (filled by hand from the browser).</span>
+<span class="sd">        images_dir: Folder with the saved Icy Veins images (hero portraits read the ban slots).</span>
 <span class="sd">        database: SQLite file of the knowledge base, inside the data directory.</span>
 <span class="sd">        aliases_file: TOML file of hero-name spellings Ava learned from Adam.</span>
 <span class="sd">        screen: Reading the draft from the screen.</span>
@@ -637,6 +639,7 @@
 
     <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">pages_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"data/icyveins/raw"</span>
+    <span class="n">images_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"data/icyveins/images"</span>
     <span class="n">database</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hots.sqlite"</span>
     <span class="n">aliases_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"data/hots_aliases.toml"</span>
     <span class="n">screen</span><span class="p">:</span> <span class="n">ScreenConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ScreenConfig</span><span class="p">)</span>
@@ -645,6 +648,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">pages_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Saved pages folder as an absolute path."""</span>
         <span class="k">return</span> <span class="n">_resolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pages_dir</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">images_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Saved images folder as an absolute path."""</span>
+        <span class="k">return</span> <span class="n">_resolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images_dir</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">aliases_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>

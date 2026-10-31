@@ -21,6 +21,9 @@ Attributes
 .. autoapisummary::
 
    voicemate.hots.screen.watcher.logger
+   voicemate.hots.screen.watcher.IDLE
+   voicemate.hots.screen.watcher.DRAFT
+   voicemate.hots.screen.watcher.OVER
    voicemate.hots.screen.watcher.LOST_AFTER
    voicemate.hots.screen.watcher.SLOW_AFTER
    voicemate.hots.screen.watcher.SLOW_FACTOR
@@ -40,6 +43,21 @@ Module Contents
 ---------------
 
 .. py:data:: logger
+
+.. py:data:: IDLE
+   :type:  str
+   :value: 'idle'
+
+
+.. py:data:: DRAFT
+   :type:  str
+   :value: 'draft'
+
+
+.. py:data:: OVER
+   :type:  str
+   :value: 'over'
+
 
 .. py:data:: LOST_AFTER
    :type:  int
@@ -147,11 +165,20 @@ Module Contents
 
 
 
-   .. py:method:: look() -> voicemate.hots.screen.interpreter.DraftScreen
+   .. py:method:: end() -> None
+
+      Stop following the draft (it is over); a later draft screen starts a new one.
+
+
+
+   .. py:method:: look(reader: voicemate.hots.screen.reader.ScreenReader | None = None) -> voicemate.hots.screen.interpreter.DraftScreen
       :async:
 
 
       A full read of the screen now (a recent one is reused); a draft screen joins the draft.
+
+      :param reader: Read this instead of the live screen (e.g. a saved screenshot); such a read
+                     is never reused.
 
       :raises ScreenError: If the screen cannot be read.
 

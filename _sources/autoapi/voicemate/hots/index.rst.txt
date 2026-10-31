@@ -17,6 +17,7 @@ Submodules
 
    /autoapi/voicemate/hots/advisor/index
    /autoapi/voicemate/hots/aliases/index
+   /autoapi/voicemate/hots/commands/index
    /autoapi/voicemate/hots/draft/index
    /autoapi/voicemate/hots/intents/index
    /autoapi/voicemate/hots/knowledge/index

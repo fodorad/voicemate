@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../voicemate/hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../voicemate/hots/knowledge/index.html">voicemate.hots.knowledge</a></li>
@@ -388,19 +389,19 @@ travel over a plain WebSocket so the binary stream stays out of NiceGUI’s own 
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#app.asset_version" title="app.asset_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asset_version</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#app.asset_version" title="app.asset_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asset_version</span></code></a>() → str</p></td>
 <td><p>Cache-busting token that changes whenever any static asset changes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#app.handle_control_message" title="app.handle_control_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_control_message</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#app.handle_control_message" title="app.handle_control_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_control_message</span></code></a>(session, text) → None</p></td>
 <td><p>Apply a JSON control message from the browser; malformed messages are ignored.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#app.serve_audio" title="app.serve_audio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serve_audio</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#app.serve_audio" title="app.serve_audio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serve_audio</span></code></a>(websocket, session) → None</p></td>
 <td><p>Bridge one browser's audio WebSocket and its session until it disconnects.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#app.register" title="app.register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#app.register" title="app.register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register</span></code></a>(server) → None</p></td>
 <td><p>Attach middleware, routes, static files and the page to the NiceGUI app.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#app.serve" title="app.serve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serve</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#app.serve" title="app.serve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serve</span></code></a>(config[, open_browser]) → None</p></td>
 <td><p>Run the web UI (blocks until Ctrl+C).</p></td>
 </tr>
 </tbody>
