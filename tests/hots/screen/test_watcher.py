@@ -8,7 +8,9 @@ from pathlib import Path
 from tests.helpers import ScriptedScreen
 from tests.hots.screen.screens import boxes
 from tests.hots.screen.test_interpreter import HEROES, MAPS, screen_of
+from tests.hots.screen.test_layout import place
 from voicemate.hots.draft import Draft
+from voicemate.hots.screen.layout import Calibration, Layout
 from voicemate.hots.screen.log import ScreenLog
 from voicemate.hots.screen.reader import FULL, ScreenError, TextBox
 from voicemate.hots.screen.watcher import (
@@ -208,6 +210,16 @@ class TestProblems(WatcherCase):
         screen = await watcher.look()
         self.assertEqual(screen.phase.kind, "ban")
         self.assertEqual(len(list(self.folder.iterdir())), 2)  # it started a new draft log
+
+    async def test_a_window_somewhere_else_on_the_screen_is_read_the_same(self):
+        layout = Layout((1600, 940), 900 / 1080, 760.0, 40.0)
+        frames = [place(shown("our_pick"), layout), place(shown("our_pick"), layout)]
+        watcher = self.watch(*frames)
+        watcher.calibration = Calibration()
+        await watcher.poll()
+        self.assertEqual(self.draft.enemy, ["brightwing", "valla", "artanis"])
+        self.assertEqual(watcher.screen.phase.kind, "pick")
+        self.assertAlmostEqual(watcher.calibration.layout(frames[0], MAPS).scale, layout.scale, 2)
 
     async def test_the_loop_waits_between_looks_and_longer_after_a_problem(self):
         waits: list[float] = []

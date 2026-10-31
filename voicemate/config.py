@@ -243,6 +243,8 @@ class ScreenConfig:
         game_mode: Start every session in draft mode (otherwise "draft mode on" starts it, and
             the screen is read only when asked).
         proactive: Say "Your ban." / "Your pick." when it becomes your turn.
+        calibration_file: TOML file where the measured screen layout is kept, so other screen
+            sizes and window positions work without any setup.
         log_dir: Folder for the log of captured screens, one subfolder per draft.
         keep: How many draft subfolders to keep.
     """
@@ -252,8 +254,14 @@ class ScreenConfig:
     poll_s: float = 2.0
     game_mode: bool = False
     proactive: bool = False
+    calibration_file: str = "data/hots_calibration.toml"
     log_dir: str = "data/game_screens"
     keep: int = 20
+
+    @property
+    def calibration_path(self) -> Path:
+        """The calibration file as an absolute path."""
+        return _resolve(self.calibration_file)
 
     @property
     def log_path(self) -> Path:

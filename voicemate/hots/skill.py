@@ -15,6 +15,7 @@ from voicemate.hots.draft import Draft
 from voicemate.hots.intents import Intents, clean
 from voicemate.hots.knowledge import Knowledge, RefreshReport
 from voicemate.hots.screen.interpreter import DraftScreen
+from voicemate.hots.screen.layout import Calibration
 from voicemate.hots.screen.log import ScreenLog
 from voicemate.hots.screen.portraits import Portraits
 from voicemate.hots.screen.reader import ScreenError, ScreenReader
@@ -38,12 +39,14 @@ class ScreenKit:
         portraits: Reads the ban slots (``None`` when no portraits were saved).
         settings: The ``[hots.screen]`` configuration.
         saved: Reads the newest saved screenshot instead (``read the last screenshot``).
+        calibration: Finds where the draft screen sits in the captured picture.
     """
 
     reader: ScreenReader
     portraits: Portraits | None
     settings: ScreenConfig
     saved: ScreenReader | None = None
+    calibration: Calibration | None = None
 
 
 class HotsSkill:
@@ -208,6 +211,7 @@ class Hots:
             self.advisor.maps,
             draft,
             portraits=self.screen.portraits,
+            calibration=self.screen.calibration,
             log=ScreenLog(settings.log_path, settings.keep),
             poll_s=settings.poll_s,
             proactive=settings.proactive,
@@ -250,4 +254,10 @@ def _mac_kit(config: Config) -> ScreenKit:  # pragma: no cover - needs macOS and
         shots = sorted(calibration.glob("*.png")) if calibration.is_dir() else []
         return shots[-1] if shots else None
 
-    return ScreenKit(MacScreenReader(settings.window), portraits, settings, ImageFileReader(newest))
+    return ScreenKit(
+        MacScreenReader(settings.window),
+        portraits,
+        settings,
+        ImageFileReader(newest),
+        Calibration(settings.calibration_path),
+    )
