@@ -376,7 +376,7 @@
 <td><p>Round-trip WER 0.04; RTF 0.27 on CPU; ~0.7–0.9 s per full sentence, so the first chunk is kept short</p></td>
 </tr>
 <tr class="row-even"><td><p>LLM</p></td>
-<td><p><strong>One model per profile, thinking off, no router; default profile <code class="docutils literal notranslate"><span class="pre">fast</span></code> = gemma4:e4b, memory-checked at startup</strong> (§10, §11)</p></td>
+<td><p><strong>One model per profile, thinking off, no router; default profile <code class="docutils literal notranslate"><span class="pre">fast</span></code> = qwen3:4b (§16), memory-checked at startup</strong> (§10, §11)</p></td>
 <td><p>qwen3.6:35b-mlx is better (14/14 tools vs 12/14, cleaner Hungarian) but at 22 GB it gets paged out on a 32 GB Mac with normal apps open, and first replies then take 15–17 s. gemma (11 GB) never swapped in any run.</p></td>
 </tr>
 <tr class="row-odd"><td><p>Quality profile</p></td>
@@ -904,7 +904,7 @@ longer installed; measured on 2026-10-07 (thinking off, all 16 tools bound):</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>fast (default)</p></td>
+<tr class="row-even"><td><p>fast</p></td>
 <td><p>gemma4:e4b</p></td>
 <td><p>~11 GB</p></td>
 <td><p>0.86 s</p></td>
@@ -1217,9 +1217,14 @@ enters a <code class="docutils literal notranslate"><span class="pre">loading</s
 heaviest three notes from <code class="docutils literal notranslate"><span class="pre">hots/briefing.py</span></code> (team shape, matchups from the counter lists,
 map ratings, combos). “brief” asks for it any time. Not covered: free-text map tips (the map
 guide chunks are flattened lists that cannot be split reliably).</p></li>
-<li><p><strong>Not done yet:</strong> global push-to-talk hotkey (macOS permission), a smaller default chat model
-(needs the benchmark downloads), embedding map/text chunks for “why” follow-ups, free-text
-map tips on the loading screen.</p></li>
+<li><p><strong>Default model (2026-10-31):</strong> <code class="docutils literal notranslate"><span class="pre">fast</span></code> is now qwen3:4b, thinking off. Benchmark (tool choice,
+first token p50, decode, loaded with a 32k context): qwen3:4b 14/14, 0.55 s, 4.5 tok/s, 5.1 GB;
+gemma4:e4b 14/14, 2.57 s, 6.7 tok/s, 11 GB; gemma4:e2b-it-qat 9/14 (fails Hungarian and
+calculator cases), 1.06 s, 6.0 tok/s. The machine was swapping during the run, so decode speed
+is unreliable; tool choice and first-token order are not. A small model leaves memory and GPU
+to the game running beside Ava.</p></li>
+<li><p><strong>Not done yet:</strong> embedding map/text chunks for “why” follow-ups, free-text map tips on the
+loading screen.</p></li>
 </ul>
 </section>
 </section>
