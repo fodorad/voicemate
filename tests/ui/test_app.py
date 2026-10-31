@@ -33,6 +33,7 @@ from voicemate.events import (
     Lane,
     LaneState,
     MetricsEvent,
+    MicCommandEvent,
     NotesChangedEvent,
     ReminderEvent,
     StatusEvent,
@@ -92,11 +93,13 @@ class UITestCase(unittest.IsolatedAsyncioTestCase):
             model_choice=choice,
         )
 
-    def open_page(self, responses=(), choice=None, on_new_conversation=None) -> ConversationPage:
+    def open_page(
+        self, responses=(), choice=None, on_new_conversation=None, click_mic=None
+    ) -> ConversationPage:
         self.session = VoiceSession(self.runtime(responses, choice))
         self.client = Client(nicegui_page("/"))
         with self.client:
-            page = ConversationPage(self.session, self.ctx.config, on_new_conversation)
+            page = ConversationPage(self.session, self.ctx.config, on_new_conversation, click_mic)
         self.tasks.append(asyncio.create_task(page.pump()))
         return page
 
@@ -269,6 +272,70 @@ class TestConfirmation(UITestCase):
         self.assertTrue(page.dialog.value)
         self.apply(page, ConfirmEvent("", open=False))
         self.assertFalse(page.dialog.value)
+
+
+class TestHotkey(UITestCase):
+    def hotkey_page(self) -> ConversationPage:
+        self.clicks = 0
+
+        def click() -> None:
+            self.clicks += 1
+
+        return self.open_page(click_mic=click)
+
+    def browser_answers(self, page: ConversationPage, on: bool) -> None:
+        """The browser reports whether the microphone is on after the click."""
+        with page.root:
+            page._mic_toggled(SimpleNamespace(args=on))
+
+    async def test_holding_the_hotkey_turns_the_microphone_on_and_releasing_turns_it_off(self):
+        page = self.hotkey_page()
+        self.apply(page, MicCommandEvent(True))
+        self.assertEqual(self.clicks, 1)
+        self.browser_answers(page, True)
+        self.apply(page, MicCommandEvent(False))
+        self.assertEqual(self.clicks, 2)
+
+    async def test_a_microphone_the_user_started_is_left_alone(self):
+        page = self.hotkey_page()
+        self.browser_answers(page, True)
+        self.apply(page, MicCommandEvent(True))
+        self.apply(page, MicCommandEvent(False))
+        self.assertEqual(self.clicks, 0)
+
+    async def test_a_release_without_a_press_does_nothing(self):
+        page = self.hotkey_page()
+        self.apply(page, MicCommandEvent(False))
+        self.assertEqual(self.clicks, 0)
+
+    async def test_a_microphone_the_browser_refused_is_not_clicked_again(self):
+        page = self.hotkey_page()
+        self.apply(page, MicCommandEvent(True))
+        self.browser_answers(page, False)  # permission denied
+        self.apply(page, MicCommandEvent(False))
+        self.assertEqual(self.clicks, 1)
+
+    async def test_the_hotkey_presses_the_visible_button_by_default(self):
+        page = self.open_page()
+        self.apply(page, MicCommandEvent(True))  # runs the button's own click method
+        self.assertTrue(page._hotkey_started)
+
+    async def test_only_the_newest_open_page_hears_the_hotkey(self):
+        server = Server(self.ctx.config, self.runtime())
+        _, first = await server.open_session()
+        _, second = await server.open_session()
+        buses = [first.bus.subscribe(), second.bus.subscribe()]
+        server.press_to_talk(True)
+        server.press_to_talk(False)
+        heard = [[q.get_nowait() for _ in range(q.qsize())] for q in buses]
+        self.assertEqual(heard[0], [])
+        self.assertEqual([e.on for e in heard[1] if isinstance(e, MicCommandEvent)], [True, False])
+        await server.shutdown()
+
+    async def test_the_hotkey_with_no_page_open_is_ignored(self):
+        server = Server(self.ctx.config, self.runtime())
+        server.press_to_talk(True)
+        await server.shutdown()
 
 
 class TestServer(UITestCase):

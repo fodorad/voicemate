@@ -15,6 +15,7 @@ import json
 import logging
 import re
 import signal
+import sys
 import uuid
 from collections.abc import Callable
 from pathlib import Path
@@ -37,6 +38,7 @@ from voicemate.events import (
     Lane,
     LaneState,
     MetricsEvent,
+    MicCommandEvent,
     NotesChangedEvent,
     ReminderEvent,
     ReplyEvent,
@@ -45,6 +47,7 @@ from voicemate.events import (
     ToolEvent,
     TranscriptEvent,
 )
+from voicemate.hotkey import HotkeyError, HotkeyListener, parse_combo
 from voicemate.memory.notes import Note
 from voicemate.pipeline.conversation import ChatLine, ThreadStore
 from voicemate.pipeline.orchestrator import VoiceSession
@@ -142,6 +145,8 @@ class ConversationPage:
         session: The tab's voice session.
         config: Application configuration.
         on_new_conversation: Starts a fresh conversation thread (the page then reloads).
+        click_mic: Presses the microphone button (what the global hotkey does; the button
+            itself when omitted).
     """
 
     def __init__(
@@ -149,10 +154,13 @@ class ConversationPage:
         session: VoiceSession,
         config: Config,
         on_new_conversation: Callable[[], object] | None = None,
+        click_mic: Callable[[], object] | None = None,
     ) -> None:
         self.session = session
         self.config = config
         self.on_new_conversation = on_new_conversation
+        self._click_mic = click_mic or (lambda: self.mic.run_method("click"))
+        self._hotkey_started = False
         self.stations: dict[Lane, tuple[ui.element, ui.label, ui.label]] = {}
         self.rail = Rail(lane for lane, _, _ in RAIL)
         self.reply: ui.label | None = None
@@ -172,6 +180,7 @@ class ConversationPage:
             MetricsEvent: self._metrics,
             ConfirmEvent: self._confirm,
             HoldEvent: self._hold_changed,
+            MicCommandEvent: self._mic_command,
         }
         self._build()
 
@@ -288,6 +297,16 @@ class ConversationPage:
             self.mic.classes(remove="is-on")
         if wanted_on and not self.mic_on:
             ui.notify("The browser did not allow microphone access.", type="warning")
+
+    def _mic_command(self, event: MicCommandEvent) -> None:
+        """The global hotkey: hold to speak (only a microphone it turned on, it turns off)."""
+        if event.on and not self.mic_on:
+            self._hotkey_started = True
+            self._click_mic()
+        elif not event.on and self._hotkey_started:
+            self._hotkey_started = False
+            if self.mic_on:
+                self._click_mic()
 
     async def _toggle_hold(self) -> None:
         if self.session.holding:
@@ -458,6 +477,7 @@ class Server:
         self.sessions: dict[str, VoiceSession] = {}
         self.threads = ThreadStore(config.data_path / "conversation.json")
         self._watcher: asyncio.Task | None = None
+        self._hotkey: HotkeyListener | None = None
 
     def thread_id(self) -> str:
         """The current conversation; it survives page reloads and server restarts."""
@@ -498,6 +518,32 @@ class Server:
         if reminders is not None and self._watcher is None:
             self._watcher = background_tasks.create(reminders.watch(), name="reminders")
 
+    def press_to_talk(self, on: bool) -> None:
+        """The global hotkey went down or up: the newest open page starts or stops listening."""
+        newest = next(reversed(self.sessions.values()), None)
+        if newest is not None:
+            newest.bus.publish(MicCommandEvent(on))
+
+    def start_hotkey(self) -> None:  # pragma: no cover - needs macOS and its permission
+        """Listen for the global hold-to-talk key (off, with a log line, when that fails)."""
+        settings = self.config.hotkey
+        if not settings.enabled or sys.platform != "darwin":
+            return
+        from voicemate.hotkey_macos import MacHotkeyListener
+
+        loop = asyncio.get_running_loop()
+
+        def held(on: bool) -> None:
+            loop.call_soon_threadsafe(self.press_to_talk, on)
+
+        try:
+            listener = MacHotkeyListener(parse_combo(settings.combo))
+            listener.start(held)
+        except HotkeyError as exc:
+            logger.warning("The global hotkey is off: %s", exc)
+            return
+        self._hotkey = listener
+
     async def startup(self) -> None:  # pragma: no cover - loads every model
         """Load every model before the first page is served."""
         # Diagnostics: `kill -USR2 <pid>` logs the stack of every pending asyncio task.
@@ -505,6 +551,7 @@ class Server:
         if self.runtime is None:
             self.runtime = await Runtime.load(self.config)
         self.start_reminders()
+        self.start_hotkey()
 
     async def shutdown(self) -> None:
         """Stop the reminder watcher, close sessions and release the runtime."""
@@ -512,6 +559,8 @@ class Server:
             self._watcher.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await self._watcher
+        if self._hotkey is not None:
+            self._hotkey.stop()
         for session in list(self.sessions.values()):
             await session.close()
         if self.runtime is not None:

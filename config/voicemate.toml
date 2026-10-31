@@ -102,6 +102,13 @@ mode = "always"
 # Other spellings the recognizer produces for the name.
 variants = ["eva"]
 
+# Global hold-to-talk: hold the keys anywhere (even in the game), speak, release to be answered.
+# macOS: allow Input Monitoring for the app running Ava. Needs the page open and the microphone
+# allowed once; the keys still reach the focused app.
+[hotkey]
+enabled = true
+combo = "cmd+alt+a"
+
 [hots]
 # Heroes of the Storm draft advice from pages saved from icy-veins.com (never fetched by Ava).
 enabled = true

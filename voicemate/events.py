@@ -185,6 +185,17 @@ class HoldEvent:
 
 
 @dataclass
+class MicCommandEvent:
+    """The global hotkey was pressed or released: the page starts or stops its microphone.
+
+    Attributes:
+        on: ``True`` while the hotkey is held, ``False`` once it is released.
+    """
+
+    on: bool
+
+
+@dataclass
 class NotesChangedEvent:
     """The notes store changed; the UI should refresh its notes panel."""
 
@@ -213,6 +224,7 @@ Event = (
     | ReminderEvent
     | ConfirmEvent
     | HoldEvent
+    | MicCommandEvent
     | NotesChangedEvent
     | MetricsEvent
 )

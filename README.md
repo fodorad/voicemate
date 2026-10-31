@@ -99,6 +99,11 @@ also type.
 - **Ctrl+M** turns the microphone on and off. Turning it off means "I'm done": whatever it
   heard so far is answered. (Cmd+M can't be used: Chrome minimizes the window before the
   page sees it.)
+- **Cmd+Option+A, held anywhere** (even in a game) is push-to-talk: the microphone of the newest
+  open page is on while you hold it, and releasing is "I'm done". macOS: allow *Input Monitoring*
+  for the app that runs Ava (System Settings → Privacy & Security) and restart it; use the page
+  once first so the browser has allowed the microphone. Change or turn it off under `[hotkey]` in
+  `config/voicemate.toml`.
 - **Hold** (**Ctrl+H**) lets you think out loud: pauses no longer end your turn, and your
   words collect in one bubble. Press **I'm finished** (or turn the microphone off) and
   everything is answered at once. Pressing Hold also cuts off an answer in progress.
