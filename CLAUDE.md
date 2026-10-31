@@ -78,3 +78,7 @@ their slice of memory; tools never touch stored documents or the address guard d
   reads the HotS draft with Apple Vision (macOS only). It needs Screen Recording permission for the
   app that runs `make run`. Calibration screenshots live in `data/calibration` (gitignored) and
   back the opt-in tests; tests use recorded text boxes and synthetic pictures, never images.
+- **Global hotkey** (`hotkey.py`, `hotkey_macos.py`): a listen-only Quartz event tap needs Input
+  Monitoring for the launching app. The tap thread publishes `MicCommandEvent` to the newest
+  session; the page presses its own mic button (`run_method("click")`), so the button state stays
+  right. The click path in a real browser is not verified by tests.

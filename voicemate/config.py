@@ -331,6 +331,20 @@ class ActivationConfig:
 
 
 @dataclass
+class HotkeyConfig:
+    """The global hold-to-talk key (macOS; needs Input Monitoring for the app running Ava).
+
+    Attributes:
+        enabled: Listen for the key.
+        combo: Modifiers and one key, for example ``"cmd+alt+a"``: hold it to speak (the
+            microphone of the newest open page is on while it is held), release to be answered.
+    """
+
+    enabled: bool = True
+    combo: str = "cmd+alt+a"
+
+
+@dataclass
 class UIConfig:
     """Web UI server.
 
@@ -371,6 +385,7 @@ class Config:
     files: FilesConfig = field(default_factory=FilesConfig)
     hots: HotsConfig = field(default_factory=HotsConfig)
     activation: ActivationConfig = field(default_factory=ActivationConfig)
+    hotkey: HotkeyConfig = field(default_factory=HotkeyConfig)
     ui: UIConfig = field(default_factory=UIConfig)
 
     @property

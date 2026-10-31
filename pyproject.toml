@@ -131,6 +131,8 @@ omit = [
   "voicemate/bench/*",
   # Needs macOS, a screen and the Apple frameworks; checked by the opt-in integration tests.
   "voicemate/hots/screen/macos.py",
+  # The global hotkey's keyboard tap needs macOS and the Input Monitoring permission.
+  "voicemate/hotkey_macos.py",
 ]
 
 [tool.coverage.report]
@@ -151,4 +153,4 @@ python-version = "3.12"
 [tool.ty.src]
 # pyobjc resolves the Quartz names at runtime and the package is macOS-only, so there is
 # nothing for the type checker to read.
-exclude = ["voicemate/hots/screen/macos.py"]
+exclude = ["voicemate/hots/screen/macos.py", "voicemate/hotkey_macos.py"]
