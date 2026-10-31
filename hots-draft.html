@@ -352,9 +352,10 @@ that runs Ava (Terminal, iTerm or VS Code), then restart it.</p></li>
 </section>
 <section id="during-a-draft">
 <h2>During a draft<a class="headerlink" href="#during-a-draft" title="Link to this heading">¶</a></h2>
-<p>Ava notices the draft by herself (the map name and a ban or pick phase on screen) and goes into
-<strong>draft mode</strong>: answers are a few words, and speech that is not a draft command gets
-“Say again.” instead of going to the chat model. Say:</p>
+<p>Say “draft mode on” (or “game mode on”). Ava then watches the screen, notices a draft by herself
+(the map name and a ban or pick phase on screen) and answers in a few words; speech that is
+not a draft command gets “Say again.” instead of going to the chat model. Outside draft mode
+Ava never looks at the screen unless you ask her to read it. Say:</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -381,19 +382,19 @@ that runs Ava (Terminal, iTerm or VS Code), then restart it.</p></li>
 <tr class="row-odd"><td><p>“read the last screenshot”</p></td>
 <td><p>reads the newest saved screen instead of the live one</p></td>
 </tr>
-<tr class="row-even"><td><p>“draft mode on” / “end draft”</p></td>
-<td><p>switch the mode by hand</p></td>
+<tr class="row-even"><td><p>“draft mode on” / “draft mode off”</p></td>
+<td><p>switch the mode (<code class="docutils literal notranslate"><span class="pre">game_mode</span> <span class="pre">=</span> <span class="pre">true</span></code> starts every session in it)</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>When the match starts the draft ends and Ava stays quiet until the next draft screen.</p>
+<p>When the match starts Ava stays quiet until the next draft screen, and draft mode stays on.</p>
 </section>
 <section id="names-that-are-said-badly">
 <h2>Names that are said badly<a class="headerlink" href="#names-that-are-said-badly" title="Link to this heading">¶</a></h2>
 <p>Names are matched by sound as well as by spelling (“Kszalatat” finds Xal’atath), limited to
-heroes still available. When two heroes fit, Ava asks “Thrall or Tyrael?”; answer with the
-name, “first” or “second”. The spelling is remembered in <code class="docutils literal notranslate"><span class="pre">data/hots_aliases.toml</span></code>.</p>
+heroes still available. When two heroes fit, Ava asks “One Thrall or two Tyrael?”; answer with
+the number (or the name), so a name she misheard once is not needed again. The spelling is remembered in <code class="docutils literal notranslate"><span class="pre">data/hots_aliases.toml</span></code>.</p>
 </section>
 <section id="what-is-saved">
 <h2>What is saved<a class="headerlink" href="#what-is-saved" title="Link to this heading">¶</a></h2>
@@ -402,7 +403,7 @@ name, “first” or “second”. The spelling is remembered in <code class="do
 </section>
 <section id="settings">
 <h2>Settings<a class="headerlink" href="#settings" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">[hots.screen]</span></code> in <code class="docutils literal notranslate"><span class="pre">config/voicemate.toml</span></code>: <code class="docutils literal notranslate"><span class="pre">enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">window</span></code> (app name of the game), <code class="docutils literal notranslate"><span class="pre">poll_s</span></code>, <code class="docutils literal notranslate"><span class="pre">proactive</span></code> (say “Your ban.” when it is your turn), <code class="docutils literal notranslate"><span class="pre">log_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">keep</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">[hots.screen]</span></code> in <code class="docutils literal notranslate"><span class="pre">config/voicemate.toml</span></code>: <code class="docutils literal notranslate"><span class="pre">enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">window</span></code> (app name of the game), <code class="docutils literal notranslate"><span class="pre">poll_s</span></code>, <code class="docutils literal notranslate"><span class="pre">game_mode</span></code>, <code class="docutils literal notranslate"><span class="pre">proactive</span></code> (say “Your ban.” when it is your turn), <code class="docutils literal notranslate"><span class="pre">log_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">keep</span></code>.</p>
 </section>
 </section>
 

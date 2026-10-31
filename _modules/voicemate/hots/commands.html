@@ -345,10 +345,12 @@
     <span class="sa">r</span><span class="s2">"^(?:(?:read|scan|check|look at|watch)(?: the| my| this)? (?:draft|screen|picks|bans|game)\b|"</span>
     <span class="sa">r</span><span class="s2">"(?:read|scan)$|what do you see\b)"</span>
 <span class="p">)</span>
-<span class="n">_ON</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^(?:(?:start|enter|begin|turn on|switch to) )?draft mode(?: on)?$|^start draft$"</span><span class="p">)</span>
+<span class="n">_ON</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">"^(?:(?:start|enter|begin|turn on|switch to) )?(?:draft|game) mode(?: on)?$|^start draft$"</span>
+<span class="p">)</span>
 <span class="n">_OFF</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-    <span class="sa">r</span><span class="s2">"^(?:(?:end|stop|leave|exit|finish|cancel|turn off) (?:the )?draft(?: mode)?|"</span>
-    <span class="sa">r</span><span class="s2">"draft mode off|(?:the )?draft is over)$"</span>
+    <span class="sa">r</span><span class="s2">"^(?:(?:end|stop|leave|exit|finish|cancel|turn off) (?:the )?(?:draft|game)(?: mode)?|"</span>
+    <span class="sa">r</span><span class="s2">"(?:draft|game) mode off|(?:the )?draft is over)$"</span>
 <span class="p">)</span>
 
 

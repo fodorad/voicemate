@@ -830,7 +830,9 @@ next to it) the current working directory.</p>
 <li><p><strong>enabled</strong> – Read the game screen (macOS only; needs the Screen Recording permission).</p></li>
 <li><p><strong>window</strong> – Part of the game’s app name (not a window title); the whole display is read
 when that app has no window open.</p></li>
-<li><p><strong>poll_s</strong> – Seconds between light looks at the screen while watching for a draft.</p></li>
+<li><p><strong>poll_s</strong> – Seconds between light looks at the screen while draft mode is on.</p></li>
+<li><p><strong>game_mode</strong> – Start every session in draft mode (otherwise “draft mode on” starts it, and
+the screen is read only when asked).</p></li>
 <li><p><strong>proactive</strong> – Say “Your ban.” / “Your pick.” when it becomes your turn.</p></li>
 <li><p><strong>log_dir</strong> – Folder for the log of captured screens, one subfolder per draft.</p></li>
 <li><p><strong>keep</strong> – How many draft subfolders to keep.</p></li>
@@ -850,6 +852,11 @@ when that app has no window open.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.config.ScreenConfig.poll_s">
 <span class="sig-name descname"><span class="pre">poll_s</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2.0</span></span><a class="headerlink" href="#voicemate.config.ScreenConfig.poll_s" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.config.ScreenConfig.game_mode">
+<span class="sig-name descname"><span class="pre">game_mode</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#voicemate.config.ScreenConfig.game_mode" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1267,6 +1274,7 @@ defaults apply.</p></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.enabled"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.enabled</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.window"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.window</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.poll_s"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.poll_s</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.config.ScreenConfig.game_mode"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.game_mode</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.proactive"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.proactive</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.log_dir"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.log_dir</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.keep"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.keep</span></code></a></li>

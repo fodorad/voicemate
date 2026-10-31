@@ -71,17 +71,19 @@ Module Contents
 
 
 
-.. py:class:: HotsSkill(intents: voicemate.hots.intents.Intents, watcher: voicemate.hots.screen.watcher.DraftWatcher | None = None, saved: voicemate.hots.screen.reader.ScreenReader | None = None)
+.. py:class:: HotsSkill(intents: voicemate.hots.intents.Intents, watcher: voicemate.hots.screen.watcher.DraftWatcher | None = None, saved: voicemate.hots.screen.reader.ScreenReader | None = None, on: bool = False)
 
    One session's draft commands (a :class:`~voicemate.pipeline.skills.Skill`).
 
-   While a draft is on screen (or after "draft mode on") the skill is in *draft mode*: answers
-   are as short as possible and speech that is not a draft command gets "Say again." instead
-   of going to the chat model.
+   After "draft mode on" (or "game mode on") the skill is in *draft mode*: the screen is
+   watched, answers are as short as possible and speech that is not a draft command gets
+   "Say again." instead of going to the chat model. The match starting pauses the focus until
+   the next draft or loading screen. Outside draft mode the screen is read only on request.
 
    :param intents: The session's draft and command rules.
    :param watcher: Follows the draft on screen (``None`` when the screen cannot be read).
    :param saved: Reads the newest saved screenshot.
+   :param on: Start in draft mode.
 
 
    .. py:attribute:: intents

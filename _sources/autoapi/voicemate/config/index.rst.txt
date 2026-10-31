@@ -440,7 +440,9 @@ Module Contents
    :ivar enabled: Read the game screen (macOS only; needs the Screen Recording permission).
    :ivar window: Part of the game's app name (not a window title); the whole display is read
                  when that app has no window open.
-   :ivar poll_s: Seconds between light looks at the screen while watching for a draft.
+   :ivar poll_s: Seconds between light looks at the screen while draft mode is on.
+   :ivar game_mode: Start every session in draft mode (otherwise "draft mode on" starts it, and
+                    the screen is read only when asked).
    :ivar proactive: Say "Your ban." / "Your pick." when it becomes your turn.
    :ivar log_dir: Folder for the log of captured screens, one subfolder per draft.
    :ivar keep: How many draft subfolders to keep.
@@ -462,6 +464,12 @@ Module Contents
    .. py:attribute:: poll_s
       :type:  float
       :value: 2.0
+
+
+
+   .. py:attribute:: game_mode
+      :type:  bool
+      :value: False
 
 
 

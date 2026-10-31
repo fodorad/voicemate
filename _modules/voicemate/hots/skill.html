@@ -350,7 +350,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScreenLog</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.portraits</span><span class="w"> </span><span class="kn">import</span> <span class="n">Portraits</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScreenError</span><span class="p">,</span> <span class="n">ScreenReader</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.watcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">DRAFT</span><span class="p">,</span> <span class="n">OVER</span><span class="p">,</span> <span class="n">DraftWatcher</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.watcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">OVER</span><span class="p">,</span> <span class="n">DraftWatcher</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.pipeline.skills</span><span class="w"> </span><span class="kn">import</span> <span class="n">Skill</span><span class="p">,</span> <span class="n">SkillAnswer</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -386,14 +386,16 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">HotsSkill</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""One session's draft commands (a :class:`~voicemate.pipeline.skills.Skill`).</span>
 
-<span class="sd">    While a draft is on screen (or after "draft mode on") the skill is in *draft mode*: answers</span>
-<span class="sd">    are as short as possible and speech that is not a draft command gets "Say again." instead</span>
-<span class="sd">    of going to the chat model.</span>
+<span class="sd">    After "draft mode on" (or "game mode on") the skill is in *draft mode*: the screen is</span>
+<span class="sd">    watched, answers are as short as possible and speech that is not a draft command gets</span>
+<span class="sd">    "Say again." instead of going to the chat model. The match starting pauses the focus until</span>
+<span class="sd">    the next draft or loading screen. Outside draft mode the screen is read only on request.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        intents: The session's draft and command rules.</span>
 <span class="sd">        watcher: Follows the draft on screen (``None`` when the screen cannot be read).</span>
 <span class="sd">        saved: Reads the newest saved screenshot.</span>
+<span class="sd">        on: Start in draft mode.</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -401,18 +403,24 @@
         <span class="n">intents</span><span class="p">:</span> <span class="n">Intents</span><span class="p">,</span>
         <span class="n">watcher</span><span class="p">:</span> <span class="n">DraftWatcher</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">saved</span><span class="p">:</span> <span class="n">ScreenReader</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">intents</span> <span class="o">=</span> <span class="n">intents</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="o">=</span> <span class="n">watcher</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">saved</span> <span class="o">=</span> <span class="n">saved</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_manual</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">on</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_switch</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">draft_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Whether answers are terse and only draft speech is handled."""</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">OVER</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_manual</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manual</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">DRAFT</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="n">OVER</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on</span> <span class="o">=</span> <span class="n">on</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">if</span> <span class="n">on</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 
 <div class="viewcode-block" id="HotsSkill.run">
 <a class="viewcode-back" href="../../../autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.HotsSkill.run">[docs]</a>
@@ -443,14 +451,9 @@
     <span class="c1"># ── commands ─────────────────────────────────────────────────────────────</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"on"</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_manual</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">return</span> <span class="s2">"Draft mode on."</span>
-        <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"off"</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_manual</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
-            <span class="k">return</span> <span class="s2">"Draft mode off."</span>
+        <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"on"</span><span class="p">,</span> <span class="s2">"off"</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_switch</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"on"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">"Draft mode </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s2">."</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">"I can't read the screen here."</span>
         <span class="n">reader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"last"</span> <span class="k">else</span> <span class="kc">None</span>
@@ -560,7 +563,7 @@
             <span class="n">poll_s</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">poll_s</span><span class="p">,</span>
             <span class="n">proactive</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">proactive</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">HotsSkill</span><span class="p">(</span><span class="n">intents</span><span class="p">,</span> <span class="n">watcher</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">saved</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">HotsSkill</span><span class="p">(</span><span class="n">intents</span><span class="p">,</span> <span class="n">watcher</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">saved</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">game_mode</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Hots.session_skills">

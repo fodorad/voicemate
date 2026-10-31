@@ -7,11 +7,13 @@ voicemate.hots.screen.watcher
 
    Draft mode: watches the screen and keeps the draft up to date.
 
-   The watcher is idle while no draft is on screen (a quick, rough look every few seconds). When a
-   ban or pick screen appears it starts a draft: the draft state is reset, a screen log folder is
-   opened and from then on every look is a full read that adds what the screen shows (locked
-   heroes, bans, the map) to the :class:`~voicemate.hots.draft.Draft`. "MATCH STARTING" ends the
-   draft; the watcher then stays quiet until the next draft screen shows up.
+   The watcher looks at the screen only while Adam has switched game mode on (:meth:`start`); a
+   command that asks for a read is the only other time the screen is captured. While no draft is
+   on screen it takes a quick, rough look every few seconds. When a ban or pick screen appears it
+   starts a draft: the draft state is reset, a screen log folder is opened and from then on every
+   look is a full read that adds what the screen shows (locked heroes, bans, the map) to the
+   :class:`~voicemate.hots.draft.Draft`. "MATCH STARTING" ends the draft; the watcher then stays
+   quiet until the next draft screen shows up.
 
 
 
@@ -29,6 +31,7 @@ Attributes
    voicemate.hots.screen.watcher.SLOW_FACTOR
    voicemate.hots.screen.watcher.PROBLEM_RETRY_S
    voicemate.hots.screen.watcher.FRESH_S
+   voicemate.hots.screen.watcher.STALE_S
 
 
 Classes
@@ -82,6 +85,11 @@ Module Contents
 .. py:data:: FRESH_S
    :type:  float
    :value: 2.0
+
+
+.. py:data:: STALE_S
+   :type:  float
+   :value: 600.0
 
 
 .. py:class:: DraftWatcher(reader: voicemate.hots.screen.reader.ScreenReader, roster: voicemate.hots.roster.Roster, maps: collections.abc.Mapping[str, str], draft: voicemate.hots.draft.Draft, portraits: voicemate.hots.screen.interpreter.BanReader | None = None, log: voicemate.hots.screen.log.ScreenLog | None = None, poll_s: float = 2.0, proactive: bool = False, sleep: collections.abc.Callable[[float], collections.abc.Awaitable[None]] = asyncio.sleep, monotonic: collections.abc.Callable[[], float] = time.monotonic)
@@ -149,11 +157,28 @@ Module Contents
 
 
 
+   .. py:attribute:: watching
+      :value: False
+
+
+
    .. py:method:: run(say: collections.abc.Callable[[voicemate.pipeline.skills.SkillAnswer], collections.abc.Awaitable[None]]) -> None
       :async:
 
 
       Watch until cancelled; ``say`` is used for the optional proactive cues.
+
+
+
+   .. py:method:: start() -> None
+
+      Switch game mode on: look at the screen every few seconds.
+
+
+
+   .. py:method:: stop() -> None
+
+      Switch game mode off: the screen is read only when asked.
 
 
 

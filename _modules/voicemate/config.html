@@ -603,7 +603,9 @@
 <span class="sd">        enabled: Read the game screen (macOS only; needs the Screen Recording permission).</span>
 <span class="sd">        window: Part of the game's app name (not a window title); the whole display is read</span>
 <span class="sd">            when that app has no window open.</span>
-<span class="sd">        poll_s: Seconds between light looks at the screen while watching for a draft.</span>
+<span class="sd">        poll_s: Seconds between light looks at the screen while draft mode is on.</span>
+<span class="sd">        game_mode: Start every session in draft mode (otherwise "draft mode on" starts it, and</span>
+<span class="sd">            the screen is read only when asked).</span>
 <span class="sd">        proactive: Say "Your ban." / "Your pick." when it becomes your turn.</span>
 <span class="sd">        log_dir: Folder for the log of captured screens, one subfolder per draft.</span>
 <span class="sd">        keep: How many draft subfolders to keep.</span>
@@ -612,6 +614,7 @@
     <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Heroes"</span>
     <span class="n">poll_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>
+    <span class="n">game_mode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">proactive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">log_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"data/game_screens"</span>
     <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
