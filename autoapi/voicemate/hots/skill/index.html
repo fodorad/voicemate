@@ -251,6 +251,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../roster/index.html">voicemate.hots.roster</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../screen/index.html">voicemate.hots.screen</a><input aria-label="Toggle navigation of voicemate.hots.screen" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../screen/faces/index.html">voicemate.hots.screen.faces</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../screen/interpreter/index.html">voicemate.hots.screen.interpreter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../screen/layout/index.html">voicemate.hots.screen.layout</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../screen/log/index.html">voicemate.hots.screen.log</a></li>
@@ -405,6 +406,7 @@
 <li><p><strong>settings</strong> – The <code class="docutils literal notranslate"><span class="pre">[hots.screen]</span></code> configuration.</p></li>
 <li><p><strong>saved</strong> – Reads the newest saved screenshot instead (<code class="docutils literal notranslate"><span class="pre">read</span> <span class="pre">the</span> <span class="pre">last</span> <span class="pre">screenshot</span></code>).</p></li>
 <li><p><strong>calibration</strong> – Finds where the draft screen sits in the captured picture.</p></li>
+<li><p><strong>faces</strong> – The learned pick portraits that cross-check the hero labels.</p></li>
 </ul>
 </dd>
 </dl>
@@ -431,6 +433,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.hots.skill.ScreenKit.calibration">
 <span class="sig-name descname"><span class="pre">calibration</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../screen/layout/index.html#voicemate.hots.screen.layout.Calibration" title="voicemate.hots.screen.layout.Calibration"><span class="pre">voicemate.hots.screen.layout.Calibration</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.hots.skill.ScreenKit.calibration" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.hots.skill.ScreenKit.faces">
+<span class="sig-name descname"><span class="pre">faces</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../screen/faces/index.html#voicemate.hots.screen.faces.Faces" title="voicemate.hots.screen.faces.Faces"><span class="pre">voicemate.hots.screen.faces.Faces</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.hots.skill.ScreenKit.faces" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -629,6 +636,7 @@ the next draft or loading screen. Outside draft mode the screen is read only on 
 <li><a class="reference internal" href="#voicemate.hots.skill.ScreenKit.settings"><code class="docutils literal notranslate"><span class="pre">ScreenKit.settings</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.skill.ScreenKit.saved"><code class="docutils literal notranslate"><span class="pre">ScreenKit.saved</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.skill.ScreenKit.calibration"><code class="docutils literal notranslate"><span class="pre">ScreenKit.calibration</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.skill.ScreenKit.faces"><code class="docutils literal notranslate"><span class="pre">ScreenKit.faces</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.hots.skill.HotsSkill"><code class="docutils literal notranslate"><span class="pre">HotsSkill</span></code></a><ul>

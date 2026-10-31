@@ -51,6 +51,7 @@ Module Contents
    :ivar settings: The ``[hots.screen]`` configuration.
    :ivar saved: Reads the newest saved screenshot instead (``read the last screenshot``).
    :ivar calibration: Finds where the draft screen sits in the captured picture.
+   :ivar faces: The learned pick portraits that cross-check the hero labels.
 
 
 
@@ -74,6 +75,12 @@ Module Contents
 
    .. py:attribute:: calibration
       :type:  voicemate.hots.screen.layout.Calibration | None
+      :value: None
+
+
+
+   .. py:attribute:: faces
+      :type:  voicemate.hots.screen.faces.Faces | None
       :value: None
 
 

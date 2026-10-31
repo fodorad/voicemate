@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../../../../genindex.html"><link rel="search" title="Search" href="../../../../../search.html"><link rel="next" title="voicemate.hots.screen.layout" href="../layout/index.html"><link rel="prev" title="voicemate.hots.screen" href="../index.html">
+<link rel="index" title="Index" href="../../../../../genindex.html"><link rel="search" title="Search" href="../../../../../search.html"><link rel="next" title="voicemate.hots.screen.layout" href="../layout/index.html"><link rel="prev" title="voicemate.hots.screen.faces" href="../faces/index.html">
         <link rel="canonical" href="https://fodorad.github.io/voicemate/autoapi/voicemate/hots/screen/interpreter/index.html">
 
     <!-- Generated with Sphinx 9.2.0 and Furo 2025.12.19 -->
@@ -251,6 +251,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../roster/index.html">voicemate.hots.roster</a></li>
 <li class="toctree-l4 current has-children"><a class="reference internal" href="../index.html">voicemate.hots.screen</a><input aria-label="Toggle navigation of voicemate.hots.screen" checked="" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="../faces/index.html">voicemate.hots.screen.faces</a></li>
 <li class="toctree-l5 current current-page"><a class="current reference internal" href="#">voicemate.hots.screen.interpreter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../layout/index.html">voicemate.hots.screen.layout</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../log/index.html">voicemate.hots.screen.log</a></li>
@@ -355,25 +356,28 @@ recognized. Player names are ignored.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.LOCKED_BRIGHTNESS" title="voicemate.hots.screen.interpreter.LOCKED_BRIGHTNESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOCKED_BRIGHTNESS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.MIN_TIMER_CONFIDENCE" title="voicemate.hots.screen.interpreter.MIN_TIMER_CONFIDENCE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MIN_TIMER_CONFIDENCE</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.CERTAIN_CONFIDENCE" title="voicemate.hots.screen.interpreter.CERTAIN_CONFIDENCE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CERTAIN_CONFIDENCE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.ALLY_EDGE" title="voicemate.hots.screen.interpreter.ALLY_EDGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALLY_EDGE</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.MIN_TIMER_CONFIDENCE" title="voicemate.hots.screen.interpreter.MIN_TIMER_CONFIDENCE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MIN_TIMER_CONFIDENCE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.ENEMY_EDGE" title="voicemate.hots.screen.interpreter.ENEMY_EDGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENEMY_EDGE</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.ALLY_EDGE" title="voicemate.hots.screen.interpreter.ALLY_EDGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALLY_EDGE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.MIDDLE" title="voicemate.hots.screen.interpreter.MIDDLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MIDDLE</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.ENEMY_EDGE" title="voicemate.hots.screen.interpreter.ENEMY_EDGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENEMY_EDGE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.MAP_STRIP_BOTTOM" title="voicemate.hots.screen.interpreter.MAP_STRIP_BOTTOM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAP_STRIP_BOTTOM</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.MIDDLE" title="voicemate.hots.screen.interpreter.MIDDLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MIDDLE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.TIMER_BAND" title="voicemate.hots.screen.interpreter.TIMER_BAND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMER_BAND</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.MAP_STRIP_BOTTOM" title="voicemate.hots.screen.interpreter.MAP_STRIP_BOTTOM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAP_STRIP_BOTTOM</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.BANNED_NAME_GAP" title="voicemate.hots.screen.interpreter.BANNED_NAME_GAP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BANNED_NAME_GAP</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.TIMER_BAND" title="voicemate.hots.screen.interpreter.TIMER_BAND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMER_BAND</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.BANNED_NAME_GAP" title="voicemate.hots.screen.interpreter.BANNED_NAME_GAP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BANNED_NAME_GAP</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -394,6 +398,9 @@ recognized. Player names are ignored.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.BanReader" title="voicemate.hots.screen.interpreter.BanReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BanReader</span></code></a></p></td>
 <td><p>Recognizes the heroes in the ban slots from the picture.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.FaceReader" title="voicemate.hots.screen.interpreter.FaceReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FaceReader</span></code></a></p></td>
+<td><p>Identifies a locked pick by its portrait when its label's text is in doubt.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -403,7 +410,7 @@ recognized. Player names are ignored.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.interpret" title="voicemate.hots.screen.interpreter.interpret"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpret</span></code></a>(frame, roster, maps[, portraits]) → DraftScreen</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.interpret" title="voicemate.hots.screen.interpreter.interpret"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpret</span></code></a>(frame, roster, maps[, portraits, faces]) → DraftScreen</p></td>
 <td><p>Read the draft off one screen.</p></td>
 </tr>
 </tbody>
@@ -420,6 +427,11 @@ recognized. Player names are ignored.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.LOCKED_BRIGHTNESS">
 <span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">LOCKED_BRIGHTNESS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">110.0</span></span><a class="headerlink" href="#voicemate.hots.screen.interpreter.LOCKED_BRIGHTNESS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.CERTAIN_CONFIDENCE">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">CERTAIN_CONFIDENCE</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.9</span></span><a class="headerlink" href="#voicemate.hots.screen.interpreter.CERTAIN_CONFIDENCE" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -561,9 +573,22 @@ recognized. Player names are ignored.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.FaceReader">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">FaceReader</span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/interpreter.html#FaceReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.interpreter.FaceReader" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Identifies a locked pick by its portrait when its label’s text is in doubt.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.FaceReader.check">
+<span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hero</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">certain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/interpreter.html#FaceReader.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.interpreter.FaceReader.check" title="Link to this definition">¶</a></dt>
+<dd><p>The hero of the label at height <code class="docutils literal notranslate"><span class="pre">y</span></code> on <code class="docutils literal notranslate"><span class="pre">side</span></code> (<code class="docutils literal notranslate"><span class="pre">hero</span></code> is the text’s guess).</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.interpret">
-<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">interpret</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../reader/index.html#voicemate.hots.screen.reader.Frame" title="voicemate.hots.screen.reader.Frame"><span class="pre">voicemate.hots.screen.reader.Frame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">roster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../roster/index.html#voicemate.hots.roster.Roster" title="voicemate.hots.roster.Roster"><span class="pre">voicemate.hots.roster.Roster</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">portraits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#voicemate.hots.screen.interpreter.BanReader" title="voicemate.hots.screen.interpreter.BanReader"><span class="pre">BanReader</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen" title="voicemate.hots.screen.interpreter.DraftScreen"><span class="pre">DraftScreen</span></a></span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/interpreter.html#interpret"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.interpreter.interpret" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">interpret</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../reader/index.html#voicemate.hots.screen.reader.Frame" title="voicemate.hots.screen.reader.Frame"><span class="pre">voicemate.hots.screen.reader.Frame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">roster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../roster/index.html#voicemate.hots.roster.Roster" title="voicemate.hots.roster.Roster"><span class="pre">voicemate.hots.roster.Roster</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">portraits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#voicemate.hots.screen.interpreter.BanReader" title="voicemate.hots.screen.interpreter.BanReader"><span class="pre">BanReader</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faces</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#voicemate.hots.screen.interpreter.FaceReader" title="voicemate.hots.screen.interpreter.FaceReader"><span class="pre">FaceReader</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen" title="voicemate.hots.screen.interpreter.DraftScreen"><span class="pre">DraftScreen</span></a></span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/interpreter.html#interpret"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.interpreter.interpret" title="Link to this definition">¶</a></dt>
 <dd><p>Read the draft off one screen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -572,6 +597,8 @@ recognized. Player names are ignored.</p>
 <li><p><strong>roster</strong> – Resolves hero names (the big capital labels).</p></li>
 <li><p><strong>maps</strong> – <code class="docutils literal notranslate"><span class="pre">slug</span> <span class="pre">→</span> <span class="pre">name</span></code> of the maps.</p></li>
 <li><p><strong>portraits</strong> – Reads the ban slots; without it only announced bans are known.</p></li>
+<li><p><strong>faces</strong> – Cross-checks the hero labels against the heroes’ portraits (and learns the
+portraits of the labels that are certain); without it the text alone counts.</p></li>
 </ul>
 </dd>
 </dl>
@@ -594,14 +621,14 @@ recognized. Player names are ignored.</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../index.html">
+          <a class="prev-page" href="../faces/index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">voicemate.hots.screen</div>
+                <div class="title">voicemate.hots.screen.faces</div>
                 
               </div>
             </a>
@@ -642,6 +669,7 @@ recognized. Player names are ignored.</p>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.MIN_CONFIDENCE"><code class="docutils literal notranslate"><span class="pre">MIN_CONFIDENCE</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.LOCKED_BRIGHTNESS"><code class="docutils literal notranslate"><span class="pre">LOCKED_BRIGHTNESS</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.screen.interpreter.CERTAIN_CONFIDENCE"><code class="docutils literal notranslate"><span class="pre">CERTAIN_CONFIDENCE</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.MIN_TIMER_CONFIDENCE"><code class="docutils literal notranslate"><span class="pre">MIN_TIMER_CONFIDENCE</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.ALLY_EDGE"><code class="docutils literal notranslate"><span class="pre">ALLY_EDGE</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.ENEMY_EDGE"><code class="docutils literal notranslate"><span class="pre">ENEMY_EDGE</span></code></a></li>
@@ -668,6 +696,10 @@ recognized. Player names are ignored.</p>
 </li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.BanReader"><code class="docutils literal notranslate"><span class="pre">BanReader</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.BanReader.bans"><code class="docutils literal notranslate"><span class="pre">BanReader.bans()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#voicemate.hots.screen.interpreter.FaceReader"><code class="docutils literal notranslate"><span class="pre">FaceReader</span></code></a><ul>
+<li><a class="reference internal" href="#voicemate.hots.screen.interpreter.FaceReader.check"><code class="docutils literal notranslate"><span class="pre">FaceReader.check()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.interpret"><code class="docutils literal notranslate"><span class="pre">interpret()</span></code></a></li>

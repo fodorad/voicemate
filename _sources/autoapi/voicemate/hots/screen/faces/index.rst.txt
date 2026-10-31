@@ -1,0 +1,125 @@
+voicemate.hots.screen.faces
+===========================
+
+.. py:module:: voicemate.hots.screen.faces
+
+.. autoapi-nested-parse::
+
+   Telling heroes apart by their pick portraits, learned from labels that were read with certainty.
+
+   The big hexagon portraits of a pick are another painting than the small Icy Veins portraits
+   (measured: no correlation), so they cannot be looked up. What the game draws for a hero is the
+   same every time, though, so each label read without doubt (an exact name, clear text, a locked
+   pick) teaches this gallery the hero's face. A label that is later misread (a clipped letter on
+   rotated text, a low resolution) is then identified by its face instead. The gallery is kept in
+   a folder, one small picture per hero, so it fills up over a few drafts and survives restarts.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.faces.logger
+   voicemate.hots.screen.faces.LABEL_ROW
+   voicemate.hots.screen.faces.ROW_STEP
+   voicemate.hots.screen.faces.PORTRAIT_Y
+   voicemate.hots.screen.faces.PORTRAIT_X
+   voicemate.hots.screen.faces.FACE
+   voicemate.hots.screen.faces.SIZE
+   voicemate.hots.screen.faces.MIN_SCORE
+   voicemate.hots.screen.faces.MIN_MARGIN
+   voicemate.hots.screen.faces.CANVAS
+   voicemate.hots.screen.faces.FILE_SUFFIX
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.screen.faces.Faces
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: LABEL_ROW
+   :type:  float
+   :value: 184.0
+
+
+.. py:data:: ROW_STEP
+   :type:  float
+   :value: 170.0
+
+
+.. py:data:: PORTRAIT_Y
+   :type:  float
+   :value: 150.0
+
+
+.. py:data:: PORTRAIT_X
+   :type:  dict[str, tuple[float, float]]
+
+.. py:data:: FACE
+   :type:  tuple[float, float, float, float]
+   :value: (50.0, 70.0, 50.0, 10.0)
+
+
+.. py:data:: SIZE
+   :type:  tuple[int, int]
+   :value: (50, 40)
+
+
+.. py:data:: MIN_SCORE
+   :type:  float
+   :value: 0.8
+
+
+.. py:data:: MIN_MARGIN
+   :type:  float
+   :value: 0.2
+
+
+.. py:data:: CANVAS
+   :type:  tuple[int, int]
+   :value: (1920, 1080)
+
+
+.. py:data:: FILE_SUFFIX
+   :type:  str
+   :value: '.png'
+
+
+.. py:class:: Faces(folder: pathlib.Path | None = None)
+
+   The gallery of hero faces.
+
+   :param folder: Where the faces are kept between runs (memory only when omitted).
+
+
+   .. py:attribute:: folder
+      :value: None
+
+
+
+   .. py:method:: check(image: numpy.ndarray, side: str, y: float, hero: str | None, certain: bool) -> str | None
+
+      The hero a locked pick label stands for, by its face when the text is in doubt.
+
+      A label read with certainty teaches its face and is returned as it is; any other label
+      is identified by the face when the gallery knows it clearly, otherwise the text's
+      guess (``hero``, possibly ``None``) stays.
+
+      :param image: The draft screen on the reference canvas (any resolution).
+      :param side: ``"ally"`` or ``"enemy"``.
+      :param y: The label's vertical centre, fraction of the picture height.
+      :param hero: The hero the label's text resolved to, if any.
+      :param certain: Whether the text can be trusted without the face.
+
+
+

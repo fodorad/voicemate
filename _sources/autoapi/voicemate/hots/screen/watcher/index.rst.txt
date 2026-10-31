@@ -92,7 +92,7 @@ Module Contents
    :value: 600.0
 
 
-.. py:class:: DraftWatcher(reader: voicemate.hots.screen.reader.ScreenReader, roster: voicemate.hots.roster.Roster, maps: collections.abc.Mapping[str, str], draft: voicemate.hots.draft.Draft, portraits: voicemate.hots.screen.interpreter.BanReader | None = None, calibration: voicemate.hots.screen.layout.Calibration | None = None, log: voicemate.hots.screen.log.ScreenLog | None = None, poll_s: float = 2.0, proactive: bool = False, sleep: collections.abc.Callable[[float], collections.abc.Awaitable[None]] = asyncio.sleep, monotonic: collections.abc.Callable[[], float] = time.monotonic)
+.. py:class:: DraftWatcher(reader: voicemate.hots.screen.reader.ScreenReader, roster: voicemate.hots.roster.Roster, maps: collections.abc.Mapping[str, str], draft: voicemate.hots.draft.Draft, portraits: voicemate.hots.screen.interpreter.BanReader | None = None, faces: voicemate.hots.screen.interpreter.FaceReader | None = None, calibration: voicemate.hots.screen.layout.Calibration | None = None, log: voicemate.hots.screen.log.ScreenLog | None = None, poll_s: float = 2.0, proactive: bool = False, sleep: collections.abc.Callable[[float], collections.abc.Awaitable[None]] = asyncio.sleep, monotonic: collections.abc.Callable[[], float] = time.monotonic)
 
    Follows the draft on screen (a :class:`~voicemate.pipeline.skills.Background` worker).
 
@@ -101,6 +101,7 @@ Module Contents
    :param maps: ``slug → name`` of the maps.
    :param draft: The session's draft, kept current while a draft is on screen.
    :param portraits: Reads the ban slots.
+   :param faces: Cross-checks hero labels against the heroes' portraits.
    :param calibration: Maps each capture onto the reference draft screen, whatever the machine's
                        screen size or window position (the capture is read as it is when omitted).
    :param log: Where captured screens are saved (not saved when omitted).
@@ -123,6 +124,11 @@ Module Contents
 
 
    .. py:attribute:: portraits
+      :value: None
+
+
+
+   .. py:attribute:: faces
       :value: None
 
 

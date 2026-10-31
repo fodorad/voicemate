@@ -251,6 +251,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#">voicemate.hots.roster</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../screen/index.html">voicemate.hots.screen</a><input aria-label="Toggle navigation of voicemate.hots.screen" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../screen/faces/index.html">voicemate.hots.screen.faces</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../screen/interpreter/index.html">voicemate.hots.screen.interpreter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../screen/layout/index.html">voicemate.hots.screen.layout</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../screen/log/index.html">voicemate.hots.screen.log</a></li>
@@ -488,6 +489,7 @@ lands next to the right hero.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hero</strong> – The hero when the name is unambiguous, otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 <li><p><strong>candidates</strong> – Closest heroes when the name is ambiguous or unknown (best first).</p></li>
+<li><p><strong>exact</strong> – The hero was found by its exact name, slug or alias, not by a guess.</p></li>
 </ul>
 </dd>
 </dl>
@@ -499,6 +501,11 @@ lands next to the right hero.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.hots.roster.Resolved.candidates">
 <span class="sig-name descname"><span class="pre">candidates</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.hots.roster.Hero" title="voicemate.hots.roster.Hero"><span class="pre">Hero</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></span><a class="headerlink" href="#voicemate.hots.roster.Resolved.candidates" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.hots.roster.Resolved.exact">
+<span class="sig-name descname"><span class="pre">exact</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#voicemate.hots.roster.Resolved.exact" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -635,6 +642,7 @@ a close spelling counts when it is clearly the best.</p>
 <li><a class="reference internal" href="#voicemate.hots.roster.Resolved"><code class="docutils literal notranslate"><span class="pre">Resolved</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.hots.roster.Resolved.hero"><code class="docutils literal notranslate"><span class="pre">Resolved.hero</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.roster.Resolved.candidates"><code class="docutils literal notranslate"><span class="pre">Resolved.candidates</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.roster.Resolved.exact"><code class="docutils literal notranslate"><span class="pre">Resolved.exact</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.hots.roster.Roster"><code class="docutils literal notranslate"><span class="pre">Roster</span></code></a><ul>

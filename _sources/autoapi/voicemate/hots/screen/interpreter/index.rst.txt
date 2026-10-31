@@ -21,6 +21,7 @@ Attributes
 
    voicemate.hots.screen.interpreter.MIN_CONFIDENCE
    voicemate.hots.screen.interpreter.LOCKED_BRIGHTNESS
+   voicemate.hots.screen.interpreter.CERTAIN_CONFIDENCE
    voicemate.hots.screen.interpreter.MIN_TIMER_CONFIDENCE
    voicemate.hots.screen.interpreter.ALLY_EDGE
    voicemate.hots.screen.interpreter.ENEMY_EDGE
@@ -38,6 +39,7 @@ Classes
    voicemate.hots.screen.interpreter.Phase
    voicemate.hots.screen.interpreter.DraftScreen
    voicemate.hots.screen.interpreter.BanReader
+   voicemate.hots.screen.interpreter.FaceReader
 
 
 Functions
@@ -59,6 +61,11 @@ Module Contents
 .. py:data:: LOCKED_BRIGHTNESS
    :type:  float
    :value: 110.0
+
+
+.. py:data:: CERTAIN_CONFIDENCE
+   :type:  float
+   :value: 0.9
 
 
 .. py:data:: MIN_TIMER_CONFIDENCE
@@ -200,7 +207,21 @@ Module Contents
 
 
 
-.. py:function:: interpret(frame: voicemate.hots.screen.reader.Frame, roster: voicemate.hots.roster.Roster, maps: collections.abc.Mapping[str, str], portraits: BanReader | None = None) -> DraftScreen
+.. py:class:: FaceReader
+
+   Bases: :py:obj:`Protocol`
+
+
+   Identifies a locked pick by its portrait when its label's text is in doubt.
+
+
+   .. py:method:: check(image: numpy.ndarray, side: str, y: float, hero: str | None, certain: bool) -> str | None
+
+      The hero of the label at height ``y`` on ``side`` (``hero`` is the text's guess).
+
+
+
+.. py:function:: interpret(frame: voicemate.hots.screen.reader.Frame, roster: voicemate.hots.roster.Roster, maps: collections.abc.Mapping[str, str], portraits: BanReader | None = None, faces: FaceReader | None = None) -> DraftScreen
 
    Read the draft off one screen.
 
@@ -208,5 +229,7 @@ Module Contents
    :param roster: Resolves hero names (the big capital labels).
    :param maps: ``slug → name`` of the maps.
    :param portraits: Reads the ban slots; without it only announced bans are known.
+   :param faces: Cross-checks the hero labels against the heroes' portraits (and learns the
+                 portraits of the labels that are certain); without it the text alone counts.
 
 

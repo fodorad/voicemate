@@ -251,6 +251,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/voicemate/hots/pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/voicemate/hots/roster/index.html">voicemate.hots.roster</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/voicemate/hots/screen/index.html">voicemate.hots.screen</a><input aria-label="Toggle navigation of voicemate.hots.screen" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/voicemate/hots/screen/faces/index.html">voicemate.hots.screen.faces</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../autoapi/voicemate/hots/screen/interpreter/index.html">voicemate.hots.screen.interpreter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../autoapi/voicemate/hots/screen/layout/index.html">voicemate.hots.screen.layout</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../autoapi/voicemate/hots/screen/log/index.html">voicemate.hots.screen.log</a></li>
@@ -1195,9 +1196,21 @@ heroes still available; two close candidates produce “A or B?” and the settl
 stored in <code class="docutils literal notranslate"><span class="pre">data/hots_aliases.toml</span></code>. Measured on 24 real calibration screens: every hero label,
 the map, the phase and all six bans read correctly; replaying them through the watcher ends
 with the right teams. Needs the Screen Recording permission for the app that runs Ava.</p></li>
+<li><p><strong>Other screens, windows and misread labels (2026-10-31):</strong> the screen is read only in
+<em>draft mode</em> (or on request); a name that fits several heroes is asked as “One A or two B?”
+and answered with the number. Positions are fractions of a 1920×1080 reference canvas; a
+<code class="docutils literal notranslate"><span class="pre">Layout</span></code> (scale, middle line, top) is measured from the map name and “Browse All Heroes” (the
+only two texts every ban and pick screen shows), stored per capture size and used to cut each
+capture to the canvas. Measured on 6 real screens: 720p, 540p, a 900p window under a title
+bar, 16:10 with bars and ultrawide read the same as full screen (before: the last three 1/6).
+The Icy Veins portraits do <strong>not</strong> match the big pick portraits (0 of 25 labels ranked
+right), so labels are cross-checked against <em>learned faces</em>: every label read with
+certainty (exact name, confidence ≥ 0.9, locked) stores its hexagon face in
+<code class="docutils literal notranslate"><span class="pre">data/hots_faces</span></code>, and a label whose text is misread (a clipped letter at 1440p) is identified
+by the face (same hero ≥ 0.88 correlation, different heroes ≤ 0.50 on the real screens).</p></li>
 <li><p><strong>Not done yet:</strong> global push-to-talk hotkey (macOS permission), a smaller default chat model
 (needs the benchmark downloads), embedding map/text chunks for “why” follow-ups, advice during
-the loading screen, cross-checking uncertain hero labels with the portraits.</p></li>
+the loading screen.</p></li>
 </ul>
 </section>
 </section>

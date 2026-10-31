@@ -251,6 +251,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../hots/pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/roster/index.html">voicemate.hots.roster</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../hots/screen/index.html">voicemate.hots.screen</a><input aria-label="Toggle navigation of voicemate.hots.screen" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../hots/screen/faces/index.html">voicemate.hots.screen.faces</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../hots/screen/interpreter/index.html">voicemate.hots.screen.interpreter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../hots/screen/layout/index.html">voicemate.hots.screen.layout</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../hots/screen/log/index.html">voicemate.hots.screen.log</a></li>
@@ -837,6 +838,8 @@ the screen is read only when asked).</p></li>
 <li><p><strong>proactive</strong> – Say “Your ban.” / “Your pick.” when it becomes your turn.</p></li>
 <li><p><strong>calibration_file</strong> – TOML file where the measured screen layout is kept, so other screen
 sizes and window positions work without any setup.</p></li>
+<li><p><strong>faces_dir</strong> – Folder of the hero portraits Ava learned from labels she read with certainty;
+they identify a label whose text was misread.</p></li>
 <li><p><strong>log_dir</strong> – Folder for the log of captured screens, one subfolder per draft.</p></li>
 <li><p><strong>keep</strong> – How many draft subfolders to keep.</p></li>
 </ul>
@@ -873,6 +876,11 @@ sizes and window positions work without any setup.</p></li>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.config.ScreenConfig.faces_dir">
+<span class="sig-name descname"><span class="pre">faces_dir</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'data/hots_faces'</span></span><a class="headerlink" href="#voicemate.config.ScreenConfig.faces_dir" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.config.ScreenConfig.log_dir">
 <span class="sig-name descname"><span class="pre">log_dir</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'data/game_screens'</span></span><a class="headerlink" href="#voicemate.config.ScreenConfig.log_dir" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -886,6 +894,12 @@ sizes and window positions work without any setup.</p></li>
 <dt class="sig sig-object py" id="voicemate.config.ScreenConfig.calibration_path">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">calibration_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span><a class="headerlink" href="#voicemate.config.ScreenConfig.calibration_path" title="Link to this definition">¶</a></dt>
 <dd><p>The calibration file as an absolute path.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="voicemate.config.ScreenConfig.faces_path">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">faces_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span><a class="headerlink" href="#voicemate.config.ScreenConfig.faces_path" title="Link to this definition">¶</a></dt>
+<dd><p>The learned faces folder as an absolute path.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -1291,9 +1305,11 @@ defaults apply.</p></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.game_mode"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.game_mode</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.proactive"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.proactive</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.calibration_file"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.calibration_file</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.config.ScreenConfig.faces_dir"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.faces_dir</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.log_dir"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.log_dir</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.keep"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.keep</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.calibration_path"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.calibration_path</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.config.ScreenConfig.faces_path"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.faces_path</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.log_path"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.log_path</span></code></a></li>
 </ul>
 </li>

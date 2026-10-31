@@ -250,6 +250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/roster/index.html">voicemate.hots.roster</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/voicemate/hots/screen/index.html">voicemate.hots.screen</a><input aria-label="Toggle navigation of voicemate.hots.screen" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/hots/screen/faces/index.html">voicemate.hots.screen.faces</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/hots/screen/interpreter/index.html">voicemate.hots.screen.interpreter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/hots/screen/layout/index.html">voicemate.hots.screen.layout</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../autoapi/voicemate/hots/screen/log/index.html">voicemate.hots.screen.log</a></li>
@@ -347,6 +348,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.draft</span><span class="w"> </span><span class="kn">import</span> <span class="n">Draft</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.intents</span><span class="w"> </span><span class="kn">import</span> <span class="n">Intents</span><span class="p">,</span> <span class="n">clean</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.knowledge</span><span class="w"> </span><span class="kn">import</span> <span class="n">Knowledge</span><span class="p">,</span> <span class="n">RefreshReport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.faces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Faces</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.interpreter</span><span class="w"> </span><span class="kn">import</span> <span class="n">DraftScreen</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">Calibration</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">voicemate.hots.screen.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScreenLog</span>
@@ -375,13 +377,15 @@
 <span class="sd">        settings: The ``[hots.screen]`` configuration.</span>
 <span class="sd">        saved: Reads the newest saved screenshot instead (``read the last screenshot``).</span>
 <span class="sd">        calibration: Finds where the draft screen sits in the captured picture.</span>
+<span class="sd">        faces: The learned pick portraits that cross-check the hero labels.</span>
 <span class="sd">    """</span>
 
     <span class="n">reader</span><span class="p">:</span> <span class="n">ScreenReader</span>
     <span class="n">portraits</span><span class="p">:</span> <span class="n">Portraits</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">settings</span><span class="p">:</span> <span class="n">ScreenConfig</span>
     <span class="n">saved</span><span class="p">:</span> <span class="n">ScreenReader</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">calibration</span><span class="p">:</span> <span class="n">Calibration</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">calibration</span><span class="p">:</span> <span class="n">Calibration</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">faces</span><span class="p">:</span> <span class="n">Faces</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 
@@ -563,6 +567,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">advisor</span><span class="o">.</span><span class="n">maps</span><span class="p">,</span>
             <span class="n">draft</span><span class="p">,</span>
             <span class="n">portraits</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">portraits</span><span class="p">,</span>
+            <span class="n">faces</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span>
             <span class="n">calibration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">calibration</span><span class="p">,</span>
             <span class="n">log</span><span class="o">=</span><span class="n">ScreenLog</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">log_path</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">keep</span><span class="p">),</span>
             <span class="n">poll_s</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">poll_s</span><span class="p">,</span>
@@ -620,6 +625,7 @@
         <span class="n">settings</span><span class="p">,</span>
         <span class="n">ImageFileReader</span><span class="p">(</span><span class="n">newest</span><span class="p">),</span>
         <span class="n">Calibration</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">calibration_path</span><span class="p">),</span>
+        <span class="n">Faces</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">faces_path</span><span class="p">),</span>
     <span class="p">)</span>
 </pre></div>
         </article>

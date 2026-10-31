@@ -116,6 +116,7 @@ Module Contents
 
    :ivar hero: The hero when the name is unambiguous, otherwise ``None``.
    :ivar candidates: Closest heroes when the name is ambiguous or unknown (best first).
+   :ivar exact: The hero was found by its exact name, slug or alias, not by a guess.
 
 
 
@@ -126,6 +127,12 @@ Module Contents
    .. py:attribute:: candidates
       :type:  tuple[Hero, ...]
       :value: ()
+
+
+
+   .. py:attribute:: exact
+      :type:  bool
+      :value: False
 
 
 

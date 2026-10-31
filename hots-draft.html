@@ -251,6 +251,7 @@
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/pages/index.html">voicemate.hots.pages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/roster/index.html">voicemate.hots.roster</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="autoapi/voicemate/hots/screen/index.html">voicemate.hots.screen</a><input aria-label="Toggle navigation of voicemate.hots.screen" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="autoapi/voicemate/hots/screen/faces/index.html">voicemate.hots.screen.faces</a></li>
 <li class="toctree-l5"><a class="reference internal" href="autoapi/voicemate/hots/screen/interpreter/index.html">voicemate.hots.screen.interpreter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="autoapi/voicemate/hots/screen/layout/index.html">voicemate.hots.screen.layout</a></li>
 <li class="toctree-l5"><a class="reference internal" href="autoapi/voicemate/hots/screen/log/index.html">voicemate.hots.screen.log</a></li>
@@ -406,6 +407,14 @@ a title bar or a window moved on the desktop all read like full screen. The meas
 per capture size in <code class="docutils literal notranslate"><span class="pre">data/hots_calibration.toml</span></code> (so the loading screen, which lacks those two
 texts, is mapped too) and is redone when it changes. Delete the file to start over.</p>
 </section>
+<section id="misread-labels">
+<h2>Misread labels<a class="headerlink" href="#misread-labels" title="Link to this heading">¶</a></h2>
+<p>Every hero label read with certainty (exact name, clear text, locked in) teaches Ava the hero’s
+face; the faces are kept in <code class="docutils literal notranslate"><span class="pre">data/hots_faces</span></code>. When a label is later misread (a letter cut off
+on the slanted text, a low resolution) the face names the hero instead. It starts empty and fills
+up over a few drafts; the small Icy Veins portraits only read the ban slots, because the big
+pick portraits are another painting.</p>
+</section>
 <section id="what-is-saved">
 <h2>What is saved<a class="headerlink" href="#what-is-saved" title="Link to this heading">¶</a></h2>
 <p>Every screen where the draft changed is saved to <code class="docutils literal notranslate"><span class="pre">data/game_screens/&lt;date_time&gt;/NN.png</span></code> with a
@@ -413,7 +422,7 @@ texts, is mapped too) and is redone when it changes. Delete the file to start ov
 </section>
 <section id="settings">
 <h2>Settings<a class="headerlink" href="#settings" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">[hots.screen]</span></code> in <code class="docutils literal notranslate"><span class="pre">config/voicemate.toml</span></code>: <code class="docutils literal notranslate"><span class="pre">enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">window</span></code> (app name of the game), <code class="docutils literal notranslate"><span class="pre">poll_s</span></code>, <code class="docutils literal notranslate"><span class="pre">game_mode</span></code>, <code class="docutils literal notranslate"><span class="pre">proactive</span></code> (say “Your ban.” when it is your turn), <code class="docutils literal notranslate"><span class="pre">calibration_file</span></code>, <code class="docutils literal notranslate"><span class="pre">log_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">keep</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">[hots.screen]</span></code> in <code class="docutils literal notranslate"><span class="pre">config/voicemate.toml</span></code>: <code class="docutils literal notranslate"><span class="pre">enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">window</span></code> (app name of the game), <code class="docutils literal notranslate"><span class="pre">poll_s</span></code>, <code class="docutils literal notranslate"><span class="pre">game_mode</span></code>, <code class="docutils literal notranslate"><span class="pre">proactive</span></code> (say “Your ban.” when it is your turn), <code class="docutils literal notranslate"><span class="pre">calibration_file</span></code>, <code class="docutils literal notranslate"><span class="pre">faces_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">log_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">keep</span></code>.</p>
 </section>
 </section>
 
@@ -477,6 +486,7 @@ texts, is mapped too) and is redone when it changes. Delete the file to start ov
 <li><a class="reference internal" href="#during-a-draft">During a draft</a></li>
 <li><a class="reference internal" href="#names-that-are-said-badly">Names that are said badly</a></li>
 <li><a class="reference internal" href="#other-screens-and-windows">Other screens and windows</a></li>
+<li><a class="reference internal" href="#misread-labels">Misread labels</a></li>
 <li><a class="reference internal" href="#what-is-saved">What is saved</a></li>
 <li><a class="reference internal" href="#settings">Settings</a></li>
 </ul>

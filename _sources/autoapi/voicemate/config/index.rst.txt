@@ -446,6 +446,8 @@ Module Contents
    :ivar proactive: Say "Your ban." / "Your pick." when it becomes your turn.
    :ivar calibration_file: TOML file where the measured screen layout is kept, so other screen
                            sizes and window positions work without any setup.
+   :ivar faces_dir: Folder of the hero portraits Ava learned from labels she read with certainty;
+                    they identify a label whose text was misread.
    :ivar log_dir: Folder for the log of captured screens, one subfolder per draft.
    :ivar keep: How many draft subfolders to keep.
 
@@ -487,6 +489,12 @@ Module Contents
 
 
 
+   .. py:attribute:: faces_dir
+      :type:  str
+      :value: 'data/hots_faces'
+
+
+
    .. py:attribute:: log_dir
       :type:  str
       :value: 'data/game_screens'
@@ -504,6 +512,13 @@ Module Contents
 
 
       The calibration file as an absolute path.
+
+
+   .. py:property:: faces_path
+      :type: pathlib.Path
+
+
+      The learned faces folder as an absolute path.
 
 
    .. py:property:: log_path
