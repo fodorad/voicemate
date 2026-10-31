@@ -46,6 +46,7 @@ _ADD = re.compile(
 _BAN_ASK = re.compile(r"\bban(?:s|ning)?\b")
 _SUGGEST = re.compile(r"^(?:suggest|suggestions?|recommend|recommendations?|advice)$")
 _PICK_ASK = re.compile(r"\b(?:pick|picks|choose)\b")
+_WHY = re.compile(r"^why(?: (?:that|this|him|her|it|is that|so))?$")
 _COUNTER_WORDS = re.compile(r"\b(?:against|versus|vs|counters?|counterpicks?|beats?)\b")
 _FILLER = re.compile(r"^(?:(?:hey|ok|okay) )?(?:ava )?(?:please )?")
 _NOISE = re.compile(r"\b(?:a|an|the|also|then|and then|please)\b")
@@ -61,7 +62,8 @@ _ORDINALS = {
 ANSWER_HEROES: int = 3
 
 
-def _clean(text: str) -> str:
+def clean(text: str) -> str:
+    """``text`` as the rules see it: lower case, plain letters, no filler like "Ava, please"."""
     lowered = text.lower().replace("’", "'")
     lowered = re.sub(r"[^a-z0-9', &-]", " ", lowered)
     lowered = re.sub(r"\s+", " ", lowered).strip(" ,")
@@ -100,12 +102,16 @@ class Intents:
         self.advisor = advisor
         self.draft = draft if draft is not None else Draft()
         self.aliases = aliases
+        #: Answer in the shortest form (no reasons); draft mode switches it on.
+        self.terse = False
+        #: The suggestions of the last advice, for "why".
+        self.last: list[Suggestion] = []
         self._said = ""
         self._question: _Question | None = None
 
     def handle(self, text: str) -> str | None:
         """Answer ``text`` when it is a draft command, otherwise return ``None``."""
-        said = _clean(text)
+        said = clean(text)
         if not said:
             return None
         answered = self._answer_question(said)
@@ -113,7 +119,7 @@ class Intents:
             return answered
         self._said = said
         for rule in (
-            self._reset, self._map, self._banned, self._remove, self._add,
+            self._reset, self._map, self._banned, self._remove, self._add, self._why,
             self._ban_advice, self._suggest, self._pick_advice, self._counter_advice,
         ):  # fmt: skip
             answer = rule(said)
@@ -191,10 +197,18 @@ class Intents:
         if problems and not heroes:
             return problems[0]
         label = {"enemy": "Enemy team", "ally": "Your team", "banned": "Banned"}[side]
-        names = ", ".join(self._name(s) for s in self.draft.side(side)) or "nobody"
+        names = ", ".join(self.name(s) for s in self.draft.side(side)) or "nobody"
         return f"{label}: {names}." + (f" {problems[0]}" if problems else "")
 
     # ── advice ───────────────────────────────────────────────────────────────
+
+    def _why(self, said: str) -> str | None:
+        if not _WHY.match(said):
+            return None
+        if not self.last:
+            return "No advice yet."
+        first = self.last[0]
+        return f"{first.hero.name}: {' and '.join(first.reasons[:2]) or 'no listed reason'}."
 
     def _ban_advice(self, said: str) -> str | None:
         if not _BAN_ASK.search(said):
@@ -237,7 +251,7 @@ class Intents:
             hero = heroes[0]
             suggestions = self.advisor.counters(hero.slug, self.draft.map_slug, ANSWER_HEROES)
             return self._sentence(
-                f"To counter {hero.name}",
+                f"Counter {hero.name}" if self.terse else f"To counter {hero.name}",
                 suggestions,
                 f"I have no counters listed for {hero.name}.",
             )
@@ -280,15 +294,18 @@ class Intents:
                     self._question = _Question(self._said, name, resolved.candidates)
         return heroes, problems
 
-    def _name(self, slug: str) -> str:
+    def name(self, slug: str) -> str:
+        """The display name of a hero."""
         hero = self.advisor.roster.get(slug)
         return hero.name if hero else slug
 
-    @staticmethod
-    def _sentence(lead: str, suggestions: list[Suggestion], empty: str) -> str:
+    def _sentence(self, lead: str, suggestions: list[Suggestion], empty: str) -> str:
+        self.last = suggestions
         if not suggestions:
             return empty
         names = ", ".join(s.hero.name for s in suggestions)
         first = suggestions[0]
         why = " and ".join(first.reasons[:2])
-        return f"{lead}: {names}. {first.hero.name}: {why}." if why else f"{lead}: {names}."
+        if self.terse or not why:
+            return f"{lead}: {names}."
+        return f"{lead}: {names}. {first.hero.name}: {why}."

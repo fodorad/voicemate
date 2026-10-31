@@ -24,8 +24,12 @@ from voicemate.pipeline.skills import SkillAnswer
 
 logger = logging.getLogger(__name__)
 
-#: Watcher modes.
-IDLE, DRAFT, OVER = "idle", "draft", "over"
+#: No draft seen yet (or it was abandoned): the watcher takes quick looks.
+IDLE: str = "idle"
+#: A draft is on screen: the watcher follows it.
+DRAFT: str = "draft"
+#: The match started: the watcher is quiet until the next draft screen.
+OVER: str = "over"
 #: A draft screen missing for this many looks in a row means the draft was abandoned.
 LOST_AFTER: int = 5
 #: After this many idle looks the watcher slows down (the game is probably not even open).
@@ -127,20 +131,30 @@ class DraftWatcher:
                 screen = interpret(frame, self.roster, self.maps, self.portraits)
             await self._update(frame, screen)
 
-    async def look(self) -> DraftScreen:
+    def end(self) -> None:
+        """Stop following the draft (it is over); a later draft screen starts a new one."""
+        self.mode = OVER
+        self._idle_looks = 0
+
+    async def look(self, reader: ScreenReader | None = None) -> DraftScreen:
         """A full read of the screen now (a recent one is reused); a draft screen joins the draft.
+
+        Args:
+            reader: Read this instead of the live screen (e.g. a saved screenshot); such a read
+                is never reused.
 
         Raises:
             ScreenError: If the screen cannot be read.
         """
         async with self._lock:
             if (
-                self.screen is not None
+                reader is None
+                and self.screen is not None
                 and self.mode == DRAFT
                 and self._monotonic() - self._read_at < FRESH_S
             ):
                 return self.screen
-            frame = await self._capture(fast=False)
+            frame = await self._capture(fast=False, reader=reader)
             screen = interpret(frame, self.roster, self.maps, self.portraits)
             if self.mode != DRAFT and screen.is_draft:
                 self._begin()
@@ -150,8 +164,8 @@ class DraftWatcher:
 
     # ── internals ────────────────────────────────────────────────────────────
 
-    async def _capture(self, fast: bool) -> Frame:
-        return await asyncio.to_thread(self.reader.read, FULL, fast)
+    async def _capture(self, fast: bool, reader: ScreenReader | None = None) -> Frame:
+        return await asyncio.to_thread((reader or self.reader).read, FULL, fast)
 
     def _fail(self, message: str) -> None:
         if message != self.problem:

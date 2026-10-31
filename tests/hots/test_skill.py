@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from tests.hots.builders import guide_html, write_pages
-from voicemate.config import Config, HotsConfig
+from voicemate.config import Config, HotsConfig, ScreenConfig
 from voicemate.hots.aliases import AliasStore
 from voicemate.hots.skill import Hots
 from voicemate.pipeline.skills import SkillAnswer
@@ -16,7 +16,10 @@ PAGES = {
 
 class TestHots(unittest.IsolatedAsyncioTestCase):
     def config(self, tmp: str, **hots) -> Config:
-        return Config(data_dir=f"{tmp}/data", hots=HotsConfig(pages_dir=f"{tmp}/pages", **hots))
+        return Config(
+            data_dir=f"{tmp}/data",
+            hots=HotsConfig(pages_dir=f"{tmp}/pages", screen=ScreenConfig(enabled=False), **hots),
+        )
 
     async def test_pages_become_a_skill_that_answers_in_english(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -38,6 +41,14 @@ class TestHots(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(
                 (await hots.skill().answer("enemy has tichus")).text, "Enemy team: Tychus."
             )
+            hots.close()
+
+    async def test_without_screen_reading_a_session_has_no_watcher(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            write_pages(Path(tmp) / "pages", PAGES)
+            hots = Hots.open(self.config(tmp))
+            self.assertIsNone(hots.screen)
+            self.assertIsNone(hots.skill().watcher)
             hots.close()
 
     async def test_every_session_gets_its_own_draft(self):
