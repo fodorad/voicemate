@@ -243,6 +243,8 @@ class ScreenConfig:
         game_mode: Start every session in draft mode (otherwise "draft mode on" starts it, and
             the screen is read only when asked).
         proactive: Say "Your ban." / "Your pick." when it becomes your turn.
+        loading_briefing: In draft mode, say what the two teams mean for the match when the
+            loading screen shows them.
         calibration_file: TOML file where the measured screen layout is kept, so other screen
             sizes and window positions work without any setup.
         faces_dir: Folder of the hero portraits Ava learned from labels she read with certainty;
@@ -256,6 +258,7 @@ class ScreenConfig:
     poll_s: float = 2.0
     game_mode: bool = False
     proactive: bool = False
+    loading_briefing: bool = True
     calibration_file: str = "data/hots_calibration.toml"
     faces_dir: str = "data/hots_faces"
     log_dir: str = "data/game_screens"

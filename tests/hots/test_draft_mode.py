@@ -28,10 +28,9 @@ HEROES = {
     "cassia": ("Cassia", "Ranged Assassins"),
     "dehaka": ("Dehaka", "Melee Assassins"),
 }
+COUNTERS = {"johanna": ("tychus",), "dehaka": ("jaina",)}
 PAGES = {
-    f"{slug}-build-guide": guide_html(
-        slug, name, role, counters=("tychus",) if slug == "johanna" else ()
-    )
+    f"{slug}-build-guide": guide_html(slug, name, role, counters=COUNTERS.get(slug, ()))
     for slug, (name, role) in HEROES.items()
 }
 PAGES["sky-temple-map-guide"] = "<html><head><title>Sky Temple Map Guide - x</title></head></html>"
@@ -49,6 +48,10 @@ class TestParse(unittest.TestCase):
             ("what do you see", Command("read")),
             ("read the draft and ban", Command("read", "ban")),
             ("read the last screenshot", Command("last")),
+            ("brief", Command("brief")),
+            ("what's the plan", Command("brief")),
+            ("how do we look", Command("brief")),
+            ("analyze the teams", Command("brief")),
             ("draft mode", Command("on")),
             ("start draft mode", Command("on")),
             ("draft mode off", Command("off")),
@@ -149,6 +152,45 @@ class TestDraftMode(DraftModeCase):
         skill = self.hots.skill()
         self.assertTrue(skill.draft_mode)
         self.assertTrue(skill.watcher.watching)
+
+
+class TestBriefing(DraftModeCase):
+    async def test_reading_the_loading_screen_adds_the_briefing(self):
+        self.skill(shown("match_loading"))
+        said = await self.ask("read the draft")
+        self.assertTrue(said.startswith("Map Sky Temple. Team Thrall, Auriel, Tychus"), said)
+        self.assertIn("Enemy Brightwing, Cassia, Dehaka, Valla, Artanis.", said)
+        self.assertTrue(said.endswith("Jaina counters Dehaka. Enemy is squishy: dive them."), said)
+
+    async def test_the_brief_command_reads_the_screen_and_says_the_plan(self):
+        self.skill(shown("match_loading"))
+        self.assertEqual(
+            await self.ask("brief"), "Jaina counters Dehaka. Enemy is squishy: dive them."
+        )
+        self.assertEqual(self.skill_.watcher.mode, "loading")
+
+    async def test_the_brief_command_uses_the_draft_when_the_screen_cannot_be_read(self):
+        self.skill(ScreenError("blocked"))
+        self.assertEqual(await self.ask("brief"), "I know no teams yet.")
+        self.skill_.intents.draft.add("ally", ["jaina"])
+        self.skill_.intents.draft.add("enemy", ["dehaka"])
+        self.assertIn("Jaina counters Dehaka.", await self.ask("brief"))
+
+    async def test_the_watcher_briefs_by_voice_unless_it_is_switched_off(self):
+        self.skill(shown("match_loading"))
+        watcher = self.skill_.watcher
+        self.skill_.intents.draft.add("ally", ["jaina"])
+        self.skill_.intents.draft.add("enemy", ["dehaka"])
+        self.assertIn("Jaina counters Dehaka.", watcher.briefing())
+        self.hots.screen.settings.loading_briefing = False
+        self.assertIsNone(self.hots.skill().watcher.briefing)
+
+    async def test_without_screen_reading_the_brief_still_works_on_the_draft(self):
+        self.hots.screen = None
+        self.skill_ = self.hots.skill()
+        self.skill_.intents.draft.add("ally", ["jaina"])
+        self.skill_.intents.draft.add("enemy", ["dehaka"])
+        self.assertIn("Jaina counters Dehaka.", await self.ask("brief"))
 
 
 class TestReadCommands(DraftModeCase):

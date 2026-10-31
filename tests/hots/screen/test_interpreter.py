@@ -89,6 +89,21 @@ class TestPhase(unittest.TestCase):
 
 
 class TestMapAndTimer(unittest.TestCase):
+    def test_the_loading_screen_shows_both_teams_row_by_row(self):
+        screen = read("match_loading")
+        self.assertEqual(screen.phase, Phase("loading"))
+        self.assertTrue(screen.is_loading)
+        self.assertFalse(screen.is_draft)
+        self.assertEqual(screen.map_slug, "sky-temple")
+        self.assertEqual(screen.ally, ("thrall", "auriel", "tychus", "jaina", "johanna"))
+        self.assertEqual(screen.enemy, ("brightwing", "cassia", "dehaka", "valla", "artanis"))
+        self.assertEqual((screen.pending, screen.banned, screen.invalid), ((), (), ()))
+
+    def test_a_row_without_a_readable_hero_is_skipped(self):
+        rows = tuple(b for b in boxes("match_loading") if b.text != "Jaina")
+        screen = interpret(screen_of(*rows), HEROES, MAPS)
+        self.assertEqual(screen.ally, ("thrall", "auriel", "tychus", "johanna"))
+
     def test_map_name_comes_from_the_top_strip(self):
         self.assertEqual(read("ban_mine").map_slug, "sky-temple")
         self.assertIsNone(read("starting").map_slug)
