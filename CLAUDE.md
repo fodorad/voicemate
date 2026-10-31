@@ -35,7 +35,7 @@ addresses, page and paper access), `memory/store.py` (one database; `facts`, `ep
 `research` views), `ui/rail.py` (lane rules, no UI framework) and `audio/protocol.py` (browser
 messages), `pipeline/skills.py` (skills answer known questions without the LLM),
 `pipeline/activation.py` (always, or only after the name) and `hots/` (Heroes of the Storm draft
-advisor over pages saved from Icy Veins). `VoiceSession` is wiring only and imports no LangGraph/LangChain; callers use only
+advisor over pages saved from Icy Veins; `hots/screen/` reads the draft screen). `VoiceSession` is wiring only and imports no LangGraph/LangChain; callers use only
 their slice of memory; tools never touch stored documents or the address guard directly.
 
 ## Lessons that cost time (keep them)
@@ -74,3 +74,7 @@ their slice of memory; tools never touch stored documents or the address guard d
 - Every session task goes through `VoiceSession._spawn` (the loop keeps only weak refs).
 - Diagnostics: `kill -USR1 <pid>` dumps thread stacks, `kill -USR2 <pid>` dumps asyncio
   tasks (server only).
+- **The draft screen is read, not heard:** Adam's accent breaks hero names, so `hots/screen`
+  reads the HotS draft with Apple Vision (macOS only). It needs Screen Recording permission for the
+  app that runs `make run`. Calibration screenshots live in `data/calibration` (gitignored) and
+  back the opt-in tests; tests use recorded text boxes and synthetic pictures, never images.

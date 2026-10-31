@@ -50,6 +50,7 @@ settings.
 :maxdepth: 1
 
 architecture
+hots-draft
 sdlc/intent
 sdlc/spec
 ```

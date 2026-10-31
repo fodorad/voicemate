@@ -504,7 +504,25 @@ the memory and the CPU. The skill answers from a local knowledge base, not from 
   assistant's name; other speech is dropped before it is shown, logged, stored or saved.
 - **Voice output:** `phonon` (Ollama, 24 kHz, English only; female voice Zoey) is the default English voice; Kokoro
   stays selectable. Hungarian stays on Piper.
-- **Not done yet:** global push-to-talk hotkey (macOS permission), reading the draft from a
-  screenshot (needs sample screenshots and Screen Recording permission), a smaller default chat
-  model (needs the benchmark downloads), embedding map/text chunks for "why" follow-ups.
+- **Reading the draft from the screen (2026-10-30):** Adam's accent made speech recognition miss
+  hero names, so Ava reads the draft screen. `hots/screen` has a `ScreenReader` seam (macOS:
+  Quartz capture of the game window with a display fallback, Apple Vision text recognition; a
+  saved screenshot reader for tests), a pure `interpret` (phase, map, countdown, hero names
+  by screen side, "BANNED" announcements), lock detection by label colour (hovered picks stay
+  `pending`), ban slots matched to the saved portraits (normalized correlation, cached) and a
+  `DraftWatcher`. A rough look takes ~0.16 s, a full read ~0.5 s, a ban-slot match ~0.5 s once
+  per new slot. The watcher polls every `poll_s` seconds (slower when no draft ever shows),
+  starts a draft when a ban/pick screen appears (the old draft is forgotten), follows it with
+  full reads, logs changed screens to `data/game_screens/<date_time>/NN.png` + `draft.json`
+  (last 20 drafts) and stops at "MATCH STARTING". In *draft mode* answers are terse ("Ban: X,
+  Y."), speech that is not a draft command gets "Say again." and never reaches the chat model;
+  "read the draft", "read the last screenshot", "draft mode on/off" and "why" are commands.
+  Spoken names resolve by a sound-alike key plus spelling (Kszalatat → Xal'atath), limited to
+  heroes still available; two close candidates produce "A or B?" and the settled spelling is
+  stored in `data/hots_aliases.toml`. Measured on 24 real calibration screens: every hero label,
+  the map, the phase and all six bans read correctly; replaying them through the watcher ends
+  with the right teams. Needs the Screen Recording permission for the app that runs Ava.
+- **Not done yet:** global push-to-talk hotkey (macOS permission), a smaller default chat model
+  (needs the benchmark downloads), embedding map/text chunks for "why" follow-ups, advice during
+  the loading screen, cross-checking uncertain hero labels with the portraits.
 
