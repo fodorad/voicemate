@@ -12,7 +12,7 @@
 | Language ID | Text-based: Hungarian function words and diacritics, with lingua as the tie-breaker, plus per-session stickiness for short utterances | Parakeet emits no language tag. Plain lingua labelled "Keress rá a transformer architecture-ökre" as English. |
 | TTS HU | Piper `hu_HU-anna-medium` **[REVIEW: listen to the samples]** | Best HU round-trip WER (0.22) of the candidates; ~70 ms per sentence; RTF 0.03 |
 | TTS EN | Kokoro-82M (`kokoro-onnx`, voice `af_heart`), with phonemes from Piper's bundled espeak-ng | Round-trip WER 0.04; RTF 0.27 on CPU; ~0.7–0.9 s per full sentence, so the first chunk is kept short |
-| LLM | **One model per profile, thinking off, no router; default profile `fast` = gemma4:e4b, memory-checked at startup** (§10, §11) | qwen3.6:35b-mlx is better (14/14 tools vs 12/14, cleaner Hungarian) but at 22 GB it gets paged out on a 32 GB Mac with normal apps open, and first replies then take 15–17 s. gemma (11 GB) never swapped in any run. |
+| LLM | **One model per profile, thinking off, no router; default profile `fast` = qwen3:4b (§16), memory-checked at startup** (§10, §11) | qwen3.6:35b-mlx is better (14/14 tools vs 12/14, cleaner Hungarian) but at 22 GB it gets paged out on a 32 GB Mac with normal apps open, and first replies then take 15–17 s. gemma (11 GB) never swapped in any run. |
 | Quality profile | `qwen3.6:35b-mlx`, one line in config | Use when memory allows; first audio 0.9 s when resident |
 | Embeddings | `BAAI/bge-m3` in-process on the **CPU** (revised in §10) | 5/5 cross-lingual top-1, best margin among the long-context models, ~50 ms per query on CPU, 8k context. **Not through Ollama:** loading `embeddinggemma` in Ollama evicted qwen, and the reload costs 12 s. |
 | Vector DB | LanceDB (embedded, file-based) under `data/memory/` | Serverless, cosine search with prefiltered freshness (`where`) verified |
@@ -281,7 +281,7 @@ longer installed; measured on 2026-10-07 (thinking off, all 16 tools bound):
 
 | Profile | Model | Loaded | First token | Decode | Tool choice |
 |---|---|---|---|---|---|
-| fast (default) | gemma4:e4b | ~11 GB | 0.86 s | 16 tok/s | 14/14 |
+| fast | gemma4:e4b | ~11 GB | 0.86 s | 16 tok/s | 14/14 |
 | gemma | gemma4:26b-mlx (MoE) | 24 GB | 0.97 s | 31 tok/s | 14/14 |
 | qwen | qwen3.8:27b-mlx (dense) | 27 GB | 2.9 s | 11 tok/s | 13/14 (one mental-math answer) |
 
@@ -540,7 +540,12 @@ the memory and the CPU. The skill answers from a local knowledge base, not from 
   heaviest three notes from `hots/briefing.py` (team shape, matchups from the counter lists,
   map ratings, combos). "brief" asks for it any time. Not covered: free-text map tips (the map
   guide chunks are flattened lists that cannot be split reliably).
-- **Not done yet:** global push-to-talk hotkey (macOS permission), a smaller default chat model
-  (needs the benchmark downloads), embedding map/text chunks for "why" follow-ups, free-text
-  map tips on the loading screen.
+- **Default model (2026-10-31):** `fast` is now qwen3:4b, thinking off. Benchmark (tool choice,
+  first token p50, decode, loaded with a 32k context): qwen3:4b 14/14, 0.55 s, 4.5 tok/s, 5.1 GB;
+  gemma4:e4b 14/14, 2.57 s, 6.7 tok/s, 11 GB; gemma4:e2b-it-qat 9/14 (fails Hungarian and
+  calculator cases), 1.06 s, 6.0 tok/s. The machine was swapping during the run, so decode speed
+  is unreliable; tool choice and first-token order are not. A small model leaves memory and GPU
+  to the game running beside Ava.
+- **Not done yet:** embedding map/text chunks for "why" follow-ups, free-text map tips on the
+  loading screen.
 

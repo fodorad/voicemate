@@ -94,7 +94,7 @@ class LLMConfig:
     profile: str = "fast"
     profiles: dict[str, str] = field(
         default_factory=lambda: {
-            "fast": "gemma4:e4b",
+            "fast": "qwen3:4b",
             "gemma": "gemma4:26b-mlx",
             "qwen": "qwen3.8:27b-mlx",
         }
