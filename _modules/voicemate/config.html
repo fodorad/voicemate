@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/briefing/index.html">voicemate.hots.briefing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
@@ -609,6 +610,8 @@
 <span class="sd">        game_mode: Start every session in draft mode (otherwise "draft mode on" starts it, and</span>
 <span class="sd">            the screen is read only when asked).</span>
 <span class="sd">        proactive: Say "Your ban." / "Your pick." when it becomes your turn.</span>
+<span class="sd">        loading_briefing: In draft mode, say what the two teams mean for the match when the</span>
+<span class="sd">            loading screen shows them.</span>
 <span class="sd">        calibration_file: TOML file where the measured screen layout is kept, so other screen</span>
 <span class="sd">            sizes and window positions work without any setup.</span>
 <span class="sd">        faces_dir: Folder of the hero portraits Ava learned from labels she read with certainty;</span>
@@ -622,6 +625,7 @@
     <span class="n">poll_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>
     <span class="n">game_mode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">proactive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">loading_briefing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">calibration_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"data/hots_calibration.toml"</span>
     <span class="n">faces_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"data/hots_faces"</span>
     <span class="n">log_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"data/game_screens"</span>

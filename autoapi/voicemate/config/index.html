@@ -244,6 +244,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../hots/briefing/index.html">voicemate.hots.briefing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/intents/index.html">voicemate.hots.intents</a></li>
@@ -836,6 +837,8 @@ when that app has no window open.</p></li>
 <li><p><strong>game_mode</strong> – Start every session in draft mode (otherwise “draft mode on” starts it, and
 the screen is read only when asked).</p></li>
 <li><p><strong>proactive</strong> – Say “Your ban.” / “Your pick.” when it becomes your turn.</p></li>
+<li><p><strong>loading_briefing</strong> – In draft mode, say what the two teams mean for the match when the
+loading screen shows them.</p></li>
 <li><p><strong>calibration_file</strong> – TOML file where the measured screen layout is kept, so other screen
 sizes and window positions work without any setup.</p></li>
 <li><p><strong>faces_dir</strong> – Folder of the hero portraits Ava learned from labels she read with certainty;
@@ -868,6 +871,11 @@ they identify a label whose text was misread.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.config.ScreenConfig.proactive">
 <span class="sig-name descname"><span class="pre">proactive</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#voicemate.config.ScreenConfig.proactive" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.config.ScreenConfig.loading_briefing">
+<span class="sig-name descname"><span class="pre">loading_briefing</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#voicemate.config.ScreenConfig.loading_briefing" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1304,6 +1312,7 @@ defaults apply.</p></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.poll_s"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.poll_s</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.game_mode"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.game_mode</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.proactive"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.proactive</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.config.ScreenConfig.loading_briefing"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.loading_briefing</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.calibration_file"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.calibration_file</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.faces_dir"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.faces_dir</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.ScreenConfig.log_dir"><code class="docutils literal notranslate"><span class="pre">ScreenConfig.log_dir</span></code></a></li>

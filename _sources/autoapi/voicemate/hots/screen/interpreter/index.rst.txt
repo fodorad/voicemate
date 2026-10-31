@@ -10,7 +10,8 @@ voicemate.hots.screen.interpreter
    A pure function over a :class:`~voicemate.hots.screen.reader.Frame`: it knows where the game
    puts things (hero names in big capitals at the left edge for Adam's team and the right edge for
    the enemy, the map name at the top, the phase in the middle) and nothing about how the text was
-   recognized. Player names are ignored.
+   recognized. Player names are ignored. It also reads the loading screen that follows the draft:
+   "WELCOME TO <map>" on top and both full teams in rows at the screen's edges.
 
 
 
@@ -28,6 +29,10 @@ Attributes
    voicemate.hots.screen.interpreter.MIDDLE
    voicemate.hots.screen.interpreter.MAP_STRIP_BOTTOM
    voicemate.hots.screen.interpreter.TIMER_BAND
+   voicemate.hots.screen.interpreter.LOADING_EDGE
+   voicemate.hots.screen.interpreter.LOADING_ROWS
+   voicemate.hots.screen.interpreter.ROW_GAP
+   voicemate.hots.screen.interpreter.LOADING_CONFIDENCE
    voicemate.hots.screen.interpreter.BANNED_NAME_GAP
 
 
@@ -98,6 +103,26 @@ Module Contents
    :value: (0.03, 0.15)
 
 
+.. py:data:: LOADING_EDGE
+   :type:  float
+   :value: 0.2
+
+
+.. py:data:: LOADING_ROWS
+   :type:  tuple[float, float]
+   :value: (0.18, 0.8)
+
+
+.. py:data:: ROW_GAP
+   :type:  float
+   :value: 0.04
+
+
+.. py:data:: LOADING_CONFIDENCE
+   :type:  float
+   :value: 0.3
+
+
 .. py:data:: BANNED_NAME_GAP
    :type:  float
    :value: 0.08
@@ -108,7 +133,7 @@ Module Contents
    Where the draft is.
 
    :ivar kind: ``"ban"`` or ``"pick"`` during the draft, ``"starting"`` once it is over,
-               ``"none"`` when this is not a draft screen.
+               ``"loading"`` on the loading screen, ``"none"`` for any other screen.
    :ivar mine: It is Adam's turn to ban or pick.
 
 
@@ -191,6 +216,13 @@ Module Contents
 
 
       Whether this is a banning or picking screen.
+
+
+   .. py:property:: is_loading
+      :type: bool
+
+
+      Whether this is the loading screen (both teams, no draft).
 
 
 .. py:class:: BanReader

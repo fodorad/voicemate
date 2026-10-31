@@ -244,6 +244,7 @@
 <li class="toctree-l3 current has-children"><a class="reference internal" href="../../index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../../advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../briefing/index.html">voicemate.hots.briefing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../intents/index.html">voicemate.hots.intents</a></li>
@@ -344,7 +345,8 @@
 <p>A pure function over a <a class="reference internal" href="../reader/index.html#voicemate.hots.screen.reader.Frame" title="voicemate.hots.screen.reader.Frame"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frame</span></code></a>: it knows where the game
 puts things (hero names in big capitals at the left edge for Adam’s team and the right edge for
 the enemy, the map name at the top, the phase in the middle) and nothing about how the text was
-recognized. Player names are ignored.</p>
+recognized. Player names are ignored. It also reads the loading screen that follows the draft:
+“WELCOME TO &lt;map&gt;” on top and both full teams in rows at the screen’s edges.</p>
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper autosummary longtable docutils container">
@@ -375,6 +377,18 @@ recognized. Player names are ignored.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.TIMER_BAND" title="voicemate.hots.screen.interpreter.TIMER_BAND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMER_BAND</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.LOADING_EDGE" title="voicemate.hots.screen.interpreter.LOADING_EDGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOADING_EDGE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.LOADING_ROWS" title="voicemate.hots.screen.interpreter.LOADING_ROWS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOADING_ROWS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.ROW_GAP" title="voicemate.hots.screen.interpreter.ROW_GAP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROW_GAP</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.LOADING_CONFIDENCE" title="voicemate.hots.screen.interpreter.LOADING_CONFIDENCE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOADING_CONFIDENCE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.interpreter.BANNED_NAME_GAP" title="voicemate.hots.screen.interpreter.BANNED_NAME_GAP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BANNED_NAME_GAP</span></code></a></p></td>
@@ -465,6 +479,26 @@ recognized. Player names are ignored.</p>
 <dd></dd></dl>
 
 <dl class="py data">
+<dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.LOADING_EDGE">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">LOADING_EDGE</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></span><a class="headerlink" href="#voicemate.hots.screen.interpreter.LOADING_EDGE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.LOADING_ROWS">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">LOADING_ROWS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0.18,</span> <span class="pre">0.8)</span></span><a class="headerlink" href="#voicemate.hots.screen.interpreter.LOADING_ROWS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.ROW_GAP">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">ROW_GAP</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.04</span></span><a class="headerlink" href="#voicemate.hots.screen.interpreter.ROW_GAP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.LOADING_CONFIDENCE">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">LOADING_CONFIDENCE</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.3</span></span><a class="headerlink" href="#voicemate.hots.screen.interpreter.LOADING_CONFIDENCE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
 <dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.BANNED_NAME_GAP">
 <span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.interpreter.</span></span><span class="sig-name descname"><span class="pre">BANNED_NAME_GAP</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.08</span></span><a class="headerlink" href="#voicemate.hots.screen.interpreter.BANNED_NAME_GAP" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -477,7 +511,7 @@ recognized. Player names are ignored.</p>
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>kind</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;ban&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;pick&quot;</span></code> during the draft, <code class="docutils literal notranslate"><span class="pre">&quot;starting&quot;</span></code> once it is over,
-<code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code> when this is not a draft screen.</p></li>
+<code class="docutils literal notranslate"><span class="pre">&quot;loading&quot;</span></code> on the loading screen, <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code> for any other screen.</p></li>
 <li><p><strong>mine</strong> – It is Adam’s turn to ban or pick.</p></li>
 </ul>
 </dd>
@@ -556,6 +590,12 @@ recognized. Player names are ignored.</p>
 <dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.DraftScreen.is_draft">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_draft</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#voicemate.hots.screen.interpreter.DraftScreen.is_draft" title="Link to this definition">¶</a></dt>
 <dd><p>Whether this is a banning or picking screen.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="voicemate.hots.screen.interpreter.DraftScreen.is_loading">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_loading</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#voicemate.hots.screen.interpreter.DraftScreen.is_loading" title="Link to this definition">¶</a></dt>
+<dd><p>Whether this is the loading screen (both teams, no draft).</p>
 </dd></dl>
 
 </dd></dl>
@@ -676,6 +716,10 @@ portraits of the labels that are certain); without it the text alone counts.</p>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.MIDDLE"><code class="docutils literal notranslate"><span class="pre">MIDDLE</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.MAP_STRIP_BOTTOM"><code class="docutils literal notranslate"><span class="pre">MAP_STRIP_BOTTOM</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.TIMER_BAND"><code class="docutils literal notranslate"><span class="pre">TIMER_BAND</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.screen.interpreter.LOADING_EDGE"><code class="docutils literal notranslate"><span class="pre">LOADING_EDGE</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.screen.interpreter.LOADING_ROWS"><code class="docutils literal notranslate"><span class="pre">LOADING_ROWS</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.screen.interpreter.ROW_GAP"><code class="docutils literal notranslate"><span class="pre">ROW_GAP</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.screen.interpreter.LOADING_CONFIDENCE"><code class="docutils literal notranslate"><span class="pre">LOADING_CONFIDENCE</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.BANNED_NAME_GAP"><code class="docutils literal notranslate"><span class="pre">BANNED_NAME_GAP</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.Phase"><code class="docutils literal notranslate"><span class="pre">Phase</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.Phase.kind"><code class="docutils literal notranslate"><span class="pre">Phase.kind</span></code></a></li>
@@ -692,6 +736,7 @@ portraits of the labels that are certain); without it the text alone counts.</p>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen.banned"><code class="docutils literal notranslate"><span class="pre">DraftScreen.banned</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen.invalid"><code class="docutils literal notranslate"><span class="pre">DraftScreen.invalid</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen.is_draft"><code class="docutils literal notranslate"><span class="pre">DraftScreen.is_draft</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.screen.interpreter.DraftScreen.is_loading"><code class="docutils literal notranslate"><span class="pre">DraftScreen.is_loading</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.hots.screen.interpreter.BanReader"><code class="docutils literal notranslate"><span class="pre">BanReader</span></code></a><ul>

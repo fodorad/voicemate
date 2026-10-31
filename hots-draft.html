@@ -244,6 +244,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/briefing/index.html">voicemate.hots.briefing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
@@ -384,13 +385,32 @@ Ava never looks at the screen unless you ask her to read it. Say:</p>
 <tr class="row-odd"><td><p>“read the last screenshot”</p></td>
 <td><p>reads the newest saved screen instead of the live one</p></td>
 </tr>
-<tr class="row-even"><td><p>“draft mode on” / “draft mode off”</p></td>
+<tr class="row-even"><td><p>“brief”, “what’s the plan”</p></td>
+<td><p>what the two teams mean for the match (see below)</p></td>
+</tr>
+<tr class="row-odd"><td><p>“draft mode on” / “draft mode off”</p></td>
 <td><p>switch the mode (<code class="docutils literal notranslate"><span class="pre">game_mode</span> <span class="pre">=</span> <span class="pre">true</span></code> starts every session in it)</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>When the match starts Ava stays quiet until the next draft screen, and draft mode stays on.</p>
+</section>
+<section id="the-loading-screen">
+<h2>The loading screen<a class="headerlink" href="#the-loading-screen" title="Link to this heading">¶</a></h2>
+<p>The loading screen shows both full teams. In draft mode Ava reads them and says the three most
+important things about the lineups, each as one short sentence (<code class="docutils literal notranslate"><span class="pre">loading_briefing</span> <span class="pre">=</span> <span class="pre">false</span></code> turns
+the voice off; say “brief”, “what’s the plan” or “how do we look” any time to hear it):</p>
+<ul class="simple">
+<li><p><strong>Shape of the teams:</strong> “No healer: don’t overextend.”, “No frontline: don’t fight in the
+open.”, “Squishy team: stay grouped.” and the same for the enemy (“No enemy healer: keep
+trading.”, “Two enemy healers: kill one first.”, “Enemy is squishy: dive them.”).</p></li>
+<li><p><strong>Matchups:</strong> “Johanna counters Brightwing and Cassia.” (focus them), “Valla counters Tychus:
+protect.” (from the counter lists of the hero pages).</p></li>
+<li><p><strong>The map:</strong> “Weak on Sky Temple: Tychus.”, “Enemy strong on Sky Temple: Dehaka.”</p></li>
+<li><p><strong>Combos:</strong> “Jaina and Johanna combo well.”</p></li>
+</ul>
+<p>The heaviest notes win: missing healer, then missing frontline, then matchups, then the rest.</p>
 </section>
 <section id="names-that-are-said-badly">
 <h2>Names that are said badly<a class="headerlink" href="#names-that-are-said-badly" title="Link to this heading">¶</a></h2>
@@ -422,7 +442,7 @@ pick portraits are another painting.</p>
 </section>
 <section id="settings">
 <h2>Settings<a class="headerlink" href="#settings" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">[hots.screen]</span></code> in <code class="docutils literal notranslate"><span class="pre">config/voicemate.toml</span></code>: <code class="docutils literal notranslate"><span class="pre">enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">window</span></code> (app name of the game), <code class="docutils literal notranslate"><span class="pre">poll_s</span></code>, <code class="docutils literal notranslate"><span class="pre">game_mode</span></code>, <code class="docutils literal notranslate"><span class="pre">proactive</span></code> (say “Your ban.” when it is your turn), <code class="docutils literal notranslate"><span class="pre">calibration_file</span></code>, <code class="docutils literal notranslate"><span class="pre">faces_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">log_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">keep</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">[hots.screen]</span></code> in <code class="docutils literal notranslate"><span class="pre">config/voicemate.toml</span></code>: <code class="docutils literal notranslate"><span class="pre">enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">window</span></code> (app name of the game), <code class="docutils literal notranslate"><span class="pre">poll_s</span></code>, <code class="docutils literal notranslate"><span class="pre">game_mode</span></code>, <code class="docutils literal notranslate"><span class="pre">proactive</span></code> (say “Your ban.” when it is your turn), <code class="docutils literal notranslate"><span class="pre">loading_briefing</span></code>, <code class="docutils literal notranslate"><span class="pre">calibration_file</span></code>, <code class="docutils literal notranslate"><span class="pre">faces_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">log_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">keep</span></code>.</p>
 </section>
 </section>
 
@@ -484,6 +504,7 @@ pick portraits are another painting.</p>
 <li><a class="reference internal" href="#">Heroes of the Storm draft help</a><ul>
 <li><a class="reference internal" href="#one-time-setup-macos">One-time setup (macOS)</a></li>
 <li><a class="reference internal" href="#during-a-draft">During a draft</a></li>
+<li><a class="reference internal" href="#the-loading-screen">The loading screen</a></li>
 <li><a class="reference internal" href="#names-that-are-said-badly">Names that are said badly</a></li>
 <li><a class="reference internal" href="#other-screens-and-windows">Other screens and windows</a></li>
 <li><a class="reference internal" href="#misread-labels">Misread labels</a></li>

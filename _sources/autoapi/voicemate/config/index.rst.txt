@@ -444,6 +444,8 @@ Module Contents
    :ivar game_mode: Start every session in draft mode (otherwise "draft mode on" starts it, and
                     the screen is read only when asked).
    :ivar proactive: Say "Your ban." / "Your pick." when it becomes your turn.
+   :ivar loading_briefing: In draft mode, say what the two teams mean for the match when the
+                           loading screen shows them.
    :ivar calibration_file: TOML file where the measured screen layout is kept, so other screen
                            sizes and window positions work without any setup.
    :ivar faces_dir: Folder of the hero portraits Ava learned from labels she read with certainty;
@@ -480,6 +482,12 @@ Module Contents
    .. py:attribute:: proactive
       :type:  bool
       :value: False
+
+
+
+   .. py:attribute:: loading_briefing
+      :type:  bool
+      :value: True
 
 
 

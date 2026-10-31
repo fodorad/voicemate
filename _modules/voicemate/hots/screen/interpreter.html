@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/briefing/index.html">voicemate.hots.briefing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
@@ -337,7 +338,8 @@
 <span class="sd">A pure function over a :class:`~voicemate.hots.screen.reader.Frame`: it knows where the game</span>
 <span class="sd">puts things (hero names in big capitals at the left edge for Adam's team and the right edge for</span>
 <span class="sd">the enemy, the map name at the top, the phase in the middle) and nothing about how the text was</span>
-<span class="sd">recognized. Player names are ignored.</span>
+<span class="sd">recognized. Player names are ignored. It also reads the loading screen that follows the draft:</span>
+<span class="sd">"WELCOME TO &lt;map&gt;" on top and both full teams in rows at the screen's edges.</span>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -372,6 +374,14 @@
 <span class="n">MAP_STRIP_BOTTOM</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span>
 <span class="c1">#: The countdown sits just under the map name.</span>
 <span class="n">TIMER_BAND</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">)</span>
+<span class="c1">#: On the loading screen each hero's name stands in a column at the screen's edge, with the</span>
+<span class="c1">#: player's name right under it: columns left of / right of these, between these heights.</span>
+<span class="n">LOADING_EDGE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">LOADING_ROWS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)</span>
+<span class="c1">#: Boxes closer than this (fraction of the height) are one row; the hero is its top box.</span>
+<span class="n">ROW_GAP</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.04</span>
+<span class="c1">#: Loading-screen text is read at this confidence (the names sit on busy art).</span>
+<span class="n">LOADING_CONFIDENCE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.3</span>
 <span class="c1">#: How far above "BANNED" the banned hero's name stands (fraction of the screen height).</span>
 <span class="n">BANNED_NAME_GAP</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.08</span>
 
@@ -382,6 +392,7 @@
 <span class="p">)</span>
 <span class="n">_MINE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"your ban|ban hero|lock in"</span><span class="p">)</span>
 <span class="n">_STARTING</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"match starting"</span><span class="p">)</span>
+<span class="n">_LOADING</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^welcome to$"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Phase">
@@ -392,7 +403,7 @@
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        kind: ``"ban"`` or ``"pick"`` during the draft, ``"starting"`` once it is over,</span>
-<span class="sd">            ``"none"`` when this is not a draft screen.</span>
+<span class="sd">            ``"loading"`` on the loading screen, ``"none"`` for any other screen.</span>
 <span class="sd">        mine: It is Adam's turn to ban or pick.</span>
 <span class="sd">    """</span>
 
@@ -430,7 +441,12 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_draft</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Whether this is a banning or picking screen."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"ban"</span><span class="p">,</span> <span class="s2">"pick"</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"ban"</span><span class="p">,</span> <span class="s2">"pick"</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_loading</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether this is the loading screen (both teams, no draft)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"loading"</span></div>
 
 
 
@@ -484,15 +500,23 @@
 <span class="sd">            portraits of the labels that are certain); without it the text alone counts.</span>
 <span class="sd">    """</span>
     <span class="n">boxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">boxes</span> <span class="k">if</span> <span class="n">box</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="n">_phase</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">phase</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"loading"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DraftScreen</span><span class="p">(</span>
+            <span class="n">phase</span><span class="p">,</span>
+            <span class="n">_map</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">maps</span><span class="p">),</span>
+            <span class="n">ally</span><span class="o">=</span><span class="n">_rows</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">roster</span><span class="p">,</span> <span class="s2">"ally"</span><span class="p">),</span>
+            <span class="n">enemy</span><span class="o">=</span><span class="n">_rows</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">roster</span><span class="p">,</span> <span class="s2">"enemy"</span><span class="p">),</span>
+        <span class="p">)</span>
     <span class="n">ally</span><span class="p">,</span> <span class="n">ally_pending</span> <span class="o">=</span> <span class="n">_team</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">boxes</span><span class="p">,</span> <span class="n">roster</span><span class="p">,</span> <span class="s2">"ally"</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>
     <span class="n">enemy</span><span class="p">,</span> <span class="n">enemy_pending</span> <span class="o">=</span> <span class="n">_team</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">boxes</span><span class="p">,</span> <span class="n">roster</span><span class="p">,</span> <span class="s2">"enemy"</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>
     <span class="n">banned</span> <span class="o">=</span> <span class="n">_banned</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">roster</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">portraits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_phase</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"ban"</span><span class="p">,</span> <span class="s2">"pick"</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">portraits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">phase</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"ban"</span><span class="p">,</span> <span class="s2">"pick"</span><span class="p">):</span>
         <span class="n">banned</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">((</span><span class="o">*</span><span class="n">banned</span><span class="p">,</span> <span class="o">*</span><span class="n">portraits</span><span class="o">.</span><span class="n">bans</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">image</span><span class="p">))))</span>
     <span class="n">taken</span> <span class="o">=</span> <span class="p">{</span><span class="o">*</span><span class="n">enemy</span><span class="p">,</span> <span class="o">*</span><span class="n">banned</span><span class="p">}</span>
     <span class="n">shown</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">ally</span><span class="p">,</span> <span class="o">*</span><span class="n">ally_pending</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">DraftScreen</span><span class="p">(</span>
-        <span class="n">phase</span><span class="o">=</span><span class="n">_phase</span><span class="p">(</span><span class="n">boxes</span><span class="p">),</span>
+        <span class="n">phase</span><span class="o">=</span><span class="n">phase</span><span class="p">,</span>
         <span class="n">map_slug</span><span class="o">=</span><span class="n">_map</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">maps</span><span class="p">),</span>
         <span class="n">seconds</span><span class="o">=</span><span class="n">_seconds</span><span class="p">(</span><span class="n">boxes</span><span class="p">),</span>
         <span class="n">ally</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">ally</span> <span class="k">if</span> <span class="n">h</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">taken</span><span class="p">),</span>
@@ -510,6 +534,9 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_phase</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TextBox</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Phase</span><span class="p">:</span>
     <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="n">_text</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span> <span class="k">if</span> <span class="n">MIDDLE</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="o">.</span><span class="n">cx</span> <span class="o">&lt;</span> <span class="n">MIDDLE</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="p">(</span><span class="n">_text</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span> <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">cy</span> <span class="o">&lt;</span> <span class="n">MAP_STRIP_BOTTOM</span> <span class="ow">and</span> <span class="n">MIDDLE</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="o">.</span><span class="n">cx</span> <span class="o">&lt;</span> <span class="n">MIDDLE</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">_LOADING</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">top</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Phase</span><span class="p">(</span><span class="s2">"loading"</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">_STARTING</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">_text</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Phase</span><span class="p">(</span><span class="s2">"starting"</span><span class="p">)</span>
     <span class="n">mine</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">_MINE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">)</span>
@@ -583,6 +610,31 @@
             <span class="k">if</span> <span class="n">slug</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">slug</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">locked</span> <span class="o">+</span> <span class="n">pending</span><span class="p">:</span>
                 <span class="p">(</span><span class="n">locked</span> <span class="k">if</span> <span class="n">is_locked</span> <span class="k">else</span> <span class="n">pending</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slug</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">locked</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pending</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rows</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TextBox</span><span class="p">],</span> <span class="n">roster</span><span class="p">:</span> <span class="n">Roster</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The heroes of one team on the loading screen, top row first."""</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">LOADING_ROWS</span>
+    <span class="n">column</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="n">b</span>
+            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">cx</span> <span class="o">&lt;</span> <span class="n">LOADING_EDGE</span> <span class="k">if</span> <span class="n">side</span> <span class="o">==</span> <span class="s2">"ally"</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">cx</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">LOADING_EDGE</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">low</span> <span class="o">&lt;</span> <span class="n">b</span><span class="o">.</span><span class="n">cy</span> <span class="o">&lt;</span> <span class="n">high</span>
+            <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">confidence</span> <span class="o">&gt;=</span> <span class="n">LOADING_CONFIDENCE</span>
+        <span class="p">),</span>
+        <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">b</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">cy</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tops</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TextBox</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">column</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tops</span> <span class="ow">or</span> <span class="n">box</span><span class="o">.</span><span class="n">cy</span> <span class="o">-</span> <span class="n">tops</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cy</span> <span class="o">&gt;=</span> <span class="n">ROW_GAP</span><span class="p">:</span>
+            <span class="n">tops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+    <span class="n">heroes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">tops</span><span class="p">:</span>
+        <span class="n">hero</span> <span class="o">=</span> <span class="n">roster</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">hero</span>
+        <span class="k">if</span> <span class="n">hero</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">hero</span><span class="o">.</span><span class="n">slug</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">heroes</span><span class="p">:</span>
+            <span class="n">heroes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hero</span><span class="o">.</span><span class="n">slug</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">heroes</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_banned</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TextBox</span><span class="p">],</span> <span class="n">roster</span><span class="p">:</span> <span class="n">Roster</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>

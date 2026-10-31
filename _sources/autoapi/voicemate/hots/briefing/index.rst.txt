@@ -1,0 +1,161 @@
+voicemate.hots.briefing
+=======================
+
+.. py:module:: voicemate.hots.briefing
+
+.. autoapi-nested-parse::
+
+   The team briefing: what the two full teams mean for the match, in a few short sentences.
+
+   Where the :class:`~voicemate.hots.advisor.Advisor` ranks heroes to pick, the briefing reads a
+   finished lineup (the loading screen shows both teams) and says what to do with it. It weighs
+   four kinds of facts, each worth a note with a weight, and says the heaviest few:
+
+   * **Shape of the teams:** no healer, no frontline, a squishy lineup, and the same for the enemy.
+   * **Matchups:** which of your heroes counter an enemy hero (focus it) and which enemy heroes
+     counter one of yours (protect it), from the counter lists of the hero pages.
+   * **The map:** heroes that are stronger or weaker on this map than elsewhere.
+   * **Combos:** two of your heroes that the pages list as working well together.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hots.briefing.NOTES
+   voicemate.hots.briefing.NO_HEALER
+   voicemate.hots.briefing.NO_FRONTLINE
+   voicemate.hots.briefing.COUNTERED
+   voicemate.hots.briefing.COUNTERS
+   voicemate.hots.briefing.SQUISHY
+   voicemate.hots.briefing.ENEMY_SHAPE
+   voicemate.hots.briefing.MAP_NOTE
+   voicemate.hots.briefing.COMBO
+   voicemate.hots.briefing.SQUISHY_ASSASSINS
+   voicemate.hots.briefing.NAMES
+   voicemate.hots.briefing.EVEN
+   voicemate.hots.briefing.NO_TEAMS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hots.briefing.Note
+   voicemate.hots.briefing.Briefing
+
+
+Module Contents
+---------------
+
+.. py:data:: NOTES
+   :type:  int
+   :value: 3
+
+
+.. py:data:: NO_HEALER
+   :type:  float
+   :value: 9.0
+
+
+.. py:data:: NO_FRONTLINE
+   :type:  float
+   :value: 8.0
+
+
+.. py:data:: COUNTERED
+   :type:  float
+   :value: 7.0
+
+
+.. py:data:: COUNTERS
+   :type:  float
+   :value: 6.0
+
+
+.. py:data:: SQUISHY
+   :type:  float
+   :value: 6.0
+
+
+.. py:data:: ENEMY_SHAPE
+   :type:  float
+   :value: 5.0
+
+
+.. py:data:: MAP_NOTE
+   :type:  float
+   :value: 4.0
+
+
+.. py:data:: COMBO
+   :type:  float
+   :value: 3.0
+
+
+.. py:data:: SQUISHY_ASSASSINS
+   :type:  int
+   :value: 4
+
+
+.. py:data:: NAMES
+   :type:  int
+   :value: 2
+
+
+.. py:data:: EVEN
+   :type:  str
+   :value: 'No clear edge either way.'
+
+
+.. py:data:: NO_TEAMS
+   :type:  str
+   :value: 'I know no teams yet.'
+
+
+.. py:class:: Note
+
+   One thing worth saying.
+
+   :ivar weight: How important it is (higher is said first).
+   :ivar text: The short sentence(s).
+
+
+
+   .. py:attribute:: weight
+      :type:  float
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+.. py:class:: Briefing(advisor: voicemate.hots.advisor.Advisor)
+
+   Says what a lineup means.
+
+   :param advisor: Knows the heroes, their counters, synergies and map ratings.
+
+
+   .. py:attribute:: advisor
+
+
+   .. py:method:: say(ally: collections.abc.Sequence[str], enemy: collections.abc.Sequence[str], map_slug: str | None = None) -> str
+
+      The briefing for a lineup: the most important notes, as short sentences.
+
+      :param ally: Slugs of your team.
+      :param enemy: Slugs of the enemy team.
+      :param map_slug: The map, when known.
+
+
+
+   .. py:method:: notes(ally: collections.abc.Sequence[str], enemy: collections.abc.Sequence[str], map_slug: str | None) -> list[Note]
+
+      Every note for a lineup, unsorted.
+
+
+

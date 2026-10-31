@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/briefing/index.html">voicemate.hots.briefing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
@@ -365,6 +366,8 @@
 <span class="n">IDLE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"idle"</span>
 <span class="c1">#: A draft is on screen: the watcher follows it.</span>
 <span class="n">DRAFT</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"draft"</span>
+<span class="c1">#: The loading screen shows both teams: the watcher noted them (and briefed Adam) and waits.</span>
+<span class="n">LOADING</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"loading"</span>
 <span class="c1">#: The match started: the watcher is quiet until the next draft screen.</span>
 <span class="n">OVER</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"over"</span>
 <span class="c1">#: A draft screen missing for this many looks in a row means the draft was abandoned.</span>
@@ -392,6 +395,9 @@
 <span class="sd">        draft: The session's draft, kept current while a draft is on screen.</span>
 <span class="sd">        portraits: Reads the ban slots.</span>
 <span class="sd">        faces: Cross-checks hero labels against the heroes' portraits.</span>
+<span class="sd">        briefing: Says what the two teams mean for the match; called once when the loading</span>
+<span class="sd">            screen shows them, and what it returns is said (nothing is said when it returns</span>
+<span class="sd">            ``None``).</span>
 <span class="sd">        calibration: Maps each capture onto the reference draft screen, whatever the machine's</span>
 <span class="sd">            screen size or window position (the capture is read as it is when omitted).</span>
 <span class="sd">        log: Where captured screens are saved (not saved when omitted).</span>
@@ -409,6 +415,7 @@
         <span class="n">draft</span><span class="p">:</span> <span class="n">Draft</span><span class="p">,</span>
         <span class="n">portraits</span><span class="p">:</span> <span class="n">BanReader</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">faces</span><span class="p">:</span> <span class="n">FaceReader</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">briefing</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">calibration</span><span class="p">:</span> <span class="n">Calibration</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">log</span><span class="p">:</span> <span class="n">ScreenLog</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">poll_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
@@ -422,6 +429,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">draft</span> <span class="o">=</span> <span class="n">draft</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">portraits</span> <span class="o">=</span> <span class="n">portraits</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">faces</span> <span class="o">=</span> <span class="n">faces</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">briefing</span> <span class="o">=</span> <span class="n">briefing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">calibration</span> <span class="o">=</span> <span class="n">calibration</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">log</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">poll_s</span> <span class="o">=</span> <span class="n">poll_s</span>
@@ -496,6 +504,15 @@
                 <span class="k">return</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">problem</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">screen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_see</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">screen</span><span class="o">.</span><span class="n">is_loading</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loading</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">screen</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">LOADING</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">screen</span><span class="o">.</span><span class="n">is_draft</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_missed</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_missed</span> <span class="o">&gt;=</span> <span class="n">LOST_AFTER</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loading screen gone: the match is on"</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+                <span class="k">return</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="n">DRAFT</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">screen</span><span class="o">.</span><span class="n">is_draft</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_idle_looks</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -539,6 +556,8 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">IDLE</span>
             <span class="n">frame</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_capture</span><span class="p">(</span><span class="n">fast</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reader</span><span class="o">=</span><span class="n">reader</span><span class="p">)</span>
             <span class="n">screen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_see</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">screen</span><span class="o">.</span><span class="n">is_loading</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_enter_loading</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">screen</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="n">DRAFT</span> <span class="ow">and</span> <span class="n">screen</span><span class="o">.</span><span class="n">is_draft</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_begin</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">DRAFT</span><span class="p">:</span>
@@ -561,6 +580,42 @@
         <span class="k">if</span> <span class="n">message</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Cannot read the screen: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">problem</span> <span class="o">=</span> <span class="n">message</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_loading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">screen</span><span class="p">:</span> <span class="n">DraftScreen</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The loading screen: note the teams and brief Adam once (it is read in full first)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="n">LOADING</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_capture</span><span class="p">(</span><span class="n">fast</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">ScreenError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_fail</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+                <span class="k">return</span>
+            <span class="n">screen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_see</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">screen</span><span class="o">.</span><span class="n">is_loading</span><span class="p">:</span>
+                <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enter_loading</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">screen</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_brief</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_enter_loading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">screen</span><span class="p">:</span> <span class="n">DraftScreen</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Take the teams of a loading screen into the draft; ``True`` when it just appeared."""</span>
+        <span class="n">fresh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="n">LOADING</span>
+        <span class="k">if</span> <span class="n">fresh</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loading screen: the match is about to start"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">IDLE</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">draft</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>  <span class="c1"># no draft was seen: these teams are all there is</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">LOADING</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_missed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apply</span><span class="p">(</span><span class="n">screen</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span> <span class="o">=</span> <span class="n">screen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_read_at</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monotonic</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fresh</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">(</span><span class="n">screen</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">fresh</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_brief</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Say what the teams mean for the match (when there is a briefing to give)."""</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">briefing</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">briefing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">text</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_say</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_say</span><span class="p">(</span><span class="n">SkillAnswer</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">"en"</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""A draft screen appeared: forget the old draft and open a new log folder."""</span>
@@ -604,9 +659,10 @@
         <span class="n">draft</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"ally"</span><span class="p">,</span> <span class="p">[</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">screen</span><span class="o">.</span><span class="n">ally</span> <span class="k">if</span> <span class="n">h</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">draft</span><span class="o">.</span><span class="n">enemy</span> <span class="o">+</span> <span class="n">draft</span><span class="o">.</span><span class="n">banned</span><span class="p">])</span>
         <span class="n">draft</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">"ally"</span><span class="p">,</span> <span class="p">[</span><span class="o">*</span><span class="n">draft</span><span class="o">.</span><span class="n">enemy</span><span class="p">,</span> <span class="o">*</span><span class="n">draft</span><span class="o">.</span><span class="n">banned</span><span class="p">])</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">screen</span><span class="p">:</span> <span class="n">DraftScreen</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Save the screen to the log when what it shows changed."""</span>
-        <span class="n">state</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_state</span><span class="p">(</span><span class="n">screen</span><span class="p">:</span> <span class="n">DraftScreen</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""What was read from a screen, as stored in the screen log."""</span>
+        <span class="k">return</span> <span class="p">{</span>
             <span class="s2">"phase"</span><span class="p">:</span> <span class="n">screen</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
             <span class="s2">"mine"</span><span class="p">:</span> <span class="n">screen</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">mine</span><span class="p">,</span>
             <span class="s2">"map"</span><span class="p">:</span> <span class="n">screen</span><span class="o">.</span><span class="n">map_slug</span><span class="p">,</span>
@@ -615,6 +671,10 @@
             <span class="s2">"enemy"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">screen</span><span class="o">.</span><span class="n">enemy</span><span class="p">),</span>
             <span class="s2">"banned"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">screen</span><span class="o">.</span><span class="n">banned</span><span class="p">),</span>
         <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">screen</span><span class="p">:</span> <span class="n">DraftScreen</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Save the screen to the log when what it shows changed."""</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">(</span><span class="n">screen</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">state</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logged</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="p">{</span><span class="o">**</span><span class="n">state</span><span class="p">,</span> <span class="s2">"seconds"</span><span class="p">:</span> <span class="n">screen</span><span class="o">.</span><span class="n">seconds</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logged</span> <span class="o">=</span> <span class="n">state</span>

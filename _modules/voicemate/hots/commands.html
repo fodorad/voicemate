@@ -243,6 +243,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/briefing/index.html">voicemate.hots.briefing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
@@ -356,6 +357,13 @@
 <span class="p">)</span>
 
 
+<span class="n">_BRIEF</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">"^(?:(?:give me |what is |what's |whats )?(?:a |the |our )?(?:team |game )?"</span>
+    <span class="sa">r</span><span class="s2">"(?:brief|briefing|plan)|(?:analy[sz]e|rate|check|review) (?:the |our |both )?"</span>
+    <span class="sa">r</span><span class="s2">"(?:teams?|lineups?|comps?|compositions?)|how (?:do|does) (?:we|our team|the teams?|it) look)$"</span>
+<span class="p">)</span>
+
+
 <div class="viewcode-block" id="Command">
 <a class="viewcode-back" href="../../../autoapi/voicemate/hots/commands/index.html#voicemate.hots.commands.Command">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -364,7 +372,8 @@
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        kind: ``"read"`` (look at the screen), ``"last"`` (read the newest saved screenshot),</span>
-<span class="sd">            ``"on"`` or ``"off"`` (draft mode).</span>
+<span class="sd">            ``"brief"`` (what the two teams mean for the match), ``"on"`` or ``"off"`` (draft</span>
+<span class="sd">            mode).</span>
 <span class="sd">        advice: What to advise after reading: ``"ban"``, ``"pick"`` or ``""`` (what fits the</span>
 <span class="sd">            phase).</span>
 <span class="sd">    """</span>
@@ -383,6 +392,8 @@
         <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">_ON</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">said</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="s2">"on"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_BRIEF</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">said</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="s2">"brief"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">_LAST</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">said</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="s2">"last"</span><span class="p">,</span> <span class="n">advice</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">_READ</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">said</span><span class="p">):</span>

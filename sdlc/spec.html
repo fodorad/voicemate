@@ -244,6 +244,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/voicemate/hots/briefing/index.html">voicemate.hots.briefing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/voicemate/hots/commands/index.html">voicemate.hots.commands</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/voicemate/hots/draft/index.html">voicemate.hots.draft</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/voicemate/hots/intents/index.html">voicemate.hots.intents</a></li>
@@ -1208,9 +1209,15 @@ right), so labels are cross-checked against <em>learned faces</em>: every label 
 certainty (exact name, confidence ≥ 0.9, locked) stores its hexagon face in
 <code class="docutils literal notranslate"><span class="pre">data/hots_faces</span></code>, and a label whose text is misread (a clipped letter at 1440p) is identified
 by the face (same hero ≥ 0.88 correlation, different heroes ≤ 0.50 on the real screens).</p></li>
+<li><p><strong>Loading screen briefing (2026-10-31):</strong> “WELCOME TO <map>” marks the loading screen (both
+teams stand in rows at the screen’s edges, the hero name above the player’s). The watcher
+enters a <code class="docutils literal notranslate"><span class="pre">loading</span></code> mode, merges the teams into the draft and says a <em>briefing</em> once: the
+heaviest three notes from <code class="docutils literal notranslate"><span class="pre">hots/briefing.py</span></code> (team shape, matchups from the counter lists,
+map ratings, combos). “brief” asks for it any time. Not covered: free-text map tips (the map
+guide chunks are flattened lists that cannot be split reliably).</p></li>
 <li><p><strong>Not done yet:</strong> global push-to-talk hotkey (macOS permission), a smaller default chat model
-(needs the benchmark downloads), embedding map/text chunks for “why” follow-ups, advice during
-the loading screen.</p></li>
+(needs the benchmark downloads), embedding map/text chunks for “why” follow-ups, free-text
+map tips on the loading screen.</p></li>
 </ul>
 </section>
 </section>
