@@ -522,7 +522,19 @@ the memory and the CPU. The skill answers from a local knowledge base, not from 
   stored in `data/hots_aliases.toml`. Measured on 24 real calibration screens: every hero label,
   the map, the phase and all six bans read correctly; replaying them through the watcher ends
   with the right teams. Needs the Screen Recording permission for the app that runs Ava.
+- **Other screens, windows and misread labels (2026-10-31):** the screen is read only in
+  *draft mode* (or on request); a name that fits several heroes is asked as "One A or two B?"
+  and answered with the number. Positions are fractions of a 1920×1080 reference canvas; a
+  `Layout` (scale, middle line, top) is measured from the map name and "Browse All Heroes" (the
+  only two texts every ban and pick screen shows), stored per capture size and used to cut each
+  capture to the canvas. Measured on 6 real screens: 720p, 540p, a 900p window under a title
+  bar, 16:10 with bars and ultrawide read the same as full screen (before: the last three 1/6).
+  The Icy Veins portraits do **not** match the big pick portraits (0 of 25 labels ranked
+  right), so labels are cross-checked against *learned faces*: every label read with
+  certainty (exact name, confidence ≥ 0.9, locked) stores its hexagon face in
+  `data/hots_faces`, and a label whose text is misread (a clipped letter at 1440p) is identified
+  by the face (same hero ≥ 0.88 correlation, different heroes ≤ 0.50 on the real screens).
 - **Not done yet:** global push-to-talk hotkey (macOS permission), a smaller default chat model
   (needs the benchmark downloads), embedding map/text chunks for "why" follow-ups, advice during
-  the loading screen, cross-checking uncertain hero labels with the portraits.
+  the loading screen.
 

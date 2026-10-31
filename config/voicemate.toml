@@ -119,5 +119,6 @@ poll_s = 2.0            # seconds between light looks while draft mode is on
 game_mode = false       # start every session in draft mode; otherwise the screen is read on request
 proactive = false       # say "Your ban." / "Your pick." when it is your turn
 calibration_file = "data/hots_calibration.toml"   # measured screen layout (other sizes/windows)
+faces_dir = "data/hots_faces"      # hero portraits learned from certain labels; they fix misread ones
 log_dir = "data/game_screens"
 keep = 20               # draft folders kept in the log
