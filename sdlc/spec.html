@@ -194,6 +194,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../architecture.html">How it works</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hots-draft.html">Heroes of the Storm draft help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="intent.html">voicemate — Intent</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">voicemate — Requirements &amp; Design Spec</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -1175,9 +1176,27 @@ follow-up (“why?”) has context.</p></li>
 assistant’s name; other speech is dropped before it is shown, logged, stored or saved.</p></li>
 <li><p><strong>Voice output:</strong> <code class="docutils literal notranslate"><span class="pre">phonon</span></code> (Ollama, 24 kHz, English only; female voice Zoey) is the default English voice; Kokoro
 stays selectable. Hungarian stays on Piper.</p></li>
-<li><p><strong>Not done yet:</strong> global push-to-talk hotkey (macOS permission), reading the draft from a
-screenshot (needs sample screenshots and Screen Recording permission), a smaller default chat
-model (needs the benchmark downloads), embedding map/text chunks for “why” follow-ups.</p></li>
+<li><p><strong>Reading the draft from the screen (2026-10-30):</strong> Adam’s accent made speech recognition miss
+hero names, so Ava reads the draft screen. <code class="docutils literal notranslate"><span class="pre">hots/screen</span></code> has a <code class="docutils literal notranslate"><span class="pre">ScreenReader</span></code> seam (macOS:
+Quartz capture of the game window with a display fallback, Apple Vision text recognition; a
+saved screenshot reader for tests), a pure <code class="docutils literal notranslate"><span class="pre">interpret</span></code> (phase, map, countdown, hero names
+by screen side, “BANNED” announcements), lock detection by label colour (hovered picks stay
+<code class="docutils literal notranslate"><span class="pre">pending</span></code>), ban slots matched to the saved portraits (normalized correlation, cached) and a
+<code class="docutils literal notranslate"><span class="pre">DraftWatcher</span></code>. A rough look takes ~0.16 s, a full read ~0.5 s, a ban-slot match ~0.5 s once
+per new slot. The watcher polls every <code class="docutils literal notranslate"><span class="pre">poll_s</span></code> seconds (slower when no draft ever shows),
+starts a draft when a ban/pick screen appears (the old draft is forgotten), follows it with
+full reads, logs changed screens to <code class="docutils literal notranslate"><span class="pre">data/game_screens/&lt;date_time&gt;/NN.png</span></code> + <code class="docutils literal notranslate"><span class="pre">draft.json</span></code>
+(last 20 drafts) and stops at “MATCH STARTING”. In <em>draft mode</em> answers are terse (“Ban: X,
+Y.”), speech that is not a draft command gets “Say again.” and never reaches the chat model;
+“read the draft”, “read the last screenshot”, “draft mode on/off” and “why” are commands.
+Spoken names resolve by a sound-alike key plus spelling (Kszalatat → Xal’atath), limited to
+heroes still available; two close candidates produce “A or B?” and the settled spelling is
+stored in <code class="docutils literal notranslate"><span class="pre">data/hots_aliases.toml</span></code>. Measured on 24 real calibration screens: every hero label,
+the map, the phase and all six bans read correctly; replaying them through the watcher ends
+with the right teams. Needs the Screen Recording permission for the app that runs Ava.</p></li>
+<li><p><strong>Not done yet:</strong> global push-to-talk hotkey (macOS permission), a smaller default chat model
+(needs the benchmark downloads), embedding map/text chunks for “why” follow-ups, advice during
+the loading screen, cross-checking uncertain hero labels with the portraits.</p></li>
 </ul>
 </section>
 </section>

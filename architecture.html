@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="voicemate — Intent" href="sdlc/intent.html"><link rel="prev" title="voicemate" href="index.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Heroes of the Storm draft help" href="hots-draft.html"><link rel="prev" title="voicemate" href="index.html">
         <link rel="canonical" href="https://fodorad.github.io/voicemate/architecture.html">
 
     <!-- Generated with Sphinx 9.2.0 and Furo 2025.12.19 -->
@@ -194,6 +194,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">How it works</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hots-draft.html">Heroes of the Storm draft help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdlc/intent.html">voicemate — Intent</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdlc/spec.html">voicemate — Requirements &amp; Design Spec</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -375,7 +376,7 @@ language model (see the spec, §10).</p>
 </section>
 <section id="modules-and-seams">
 <h2>Modules and seams<a class="headerlink" href="#modules-and-seams" title="Link to this heading">¶</a></h2>
-<p>Thirteen deep modules keep the rules in one place each. Dashed lines are the seams: the interface
+<p>Fourteen deep modules keep the rules in one place each. Dashed lines are the seams: the interface
 other modules (and the tests) use. Behind each seam sits a real adapter and, in the tests, a
 small hand-written fake.</p>
 <pre  class="mermaid">
@@ -393,6 +394,7 @@ small hand-written fake.</p>
     SESSION -.-&gt; ACT[[Activation&lt;br/&gt;always, or only after &quot;Ava&quot;]]
     SKILLS -.-&gt; HOTS[[HotS draft advisor&lt;br/&gt;knowledge, ranking, commands]]
     HOTS --&gt; PAGES[(saved Icy Veins pages&lt;br/&gt;data/icyveins)]
+    HOTS -.-&gt; SCREEN[[Draft screen&lt;br/&gt;capture, text, portraits, watcher]]
     SESSION -.-&gt; SPEECH[[Speech&lt;br/&gt;async ASR + TTS, one worker each]]
     LISTEN -.-&gt; SPEECH
     CONV -.-&gt; GRAPH[(LangGraph + checkpoint)]
@@ -403,7 +405,7 @@ small hand-written fake.</p>
     RESEARCH --&gt; NET((web, arXiv, pages))
     SPEECH --&gt; MODELS[Parakeet · Piper · Phonon · Kokoro]
     classDef deep fill:#0f172a,color:#f8fafc,stroke:#0f172a;
-    class POLICY,CONV,SPEECH,RESEARCH,PROTO,LISTEN,REPLY,REMIND,RAIL,SKILLS,ACT,HOTS deep;
+    class POLICY,CONV,SPEECH,RESEARCH,PROTO,LISTEN,REPLY,REMIND,RAIL,SKILLS,ACT,HOTS,SCREEN deep;
     </pre><div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -450,7 +452,7 @@ small hand-written fake.</p>
 <td><p>plain events in, views out</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.skills</span></code></p></td>
-<td><p>the skill seam: a skill answers the questions it knows in one sentence (and its language), everything else goes to the agent; the exchange joins the thread once spoken</p></td>
+<td><p>the skill seam: a skill answers the questions it knows in one sentence (and its language), everything else goes to the agent; a skill may also work in the background and speak on its own when the assistant is idle; the exchange joins the thread once spoken</p></td>
 <td><p>a scripted skill</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pipeline.activation</span></code></p></td>
@@ -461,7 +463,11 @@ small hand-written fake.</p>
 <td><p>the Heroes of the Storm draft advisor: page parsers, the SQLite knowledge base with a startup freshness check, the scoring (counters, picks, bans with reasons), spoken commands and the per-session draft. No LLM, no network</p></td>
 <td><p>small hand-written pages in a temp folder</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">audio.protocol</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hots.screen</span></code></p></td>
+<td><p>reading the draft screen: a <code class="docutils literal notranslate"><span class="pre">ScreenReader</span></code> seam (Quartz capture + Apple Vision text, or a saved screenshot), a pure interpreter (phase, map, timer, heroes by side, locked or pending), ban slots matched to portraits, the draft watcher (modes idle, draft, over; polling; screen log)</p></td>
+<td><p>a scripted screen with recorded text boxes and synthetic pictures</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">audio.protocol</span></code></p></td>
 <td><p>the browser to server messages (mic off, playback started and ended, stop)</p></td>
 <td><p>a contract test reads <code class="docutils literal notranslate"><span class="pre">audio.js</span></code> and fails if either side drifts</p></td>
 </tr>
@@ -618,12 +624,12 @@ days, papers after a year.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="sdlc/intent.html">
+          <a class="next-page" href="hots-draft.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">voicemate — Intent</div>
+                <div class="title">Heroes of the Storm draft help</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
