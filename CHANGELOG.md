@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/fodorad/voicemate/compare/voicemate-v1.2.0...voicemate-v1.3.0) (2026-10-31)
+
+
+### Features
+
+* **llm:** default to qwen3:4b, a light model that leaves resources to the game ([#59](https://github.com/fodorad/voicemate/issues/59)) ([d511560](https://github.com/fodorad/voicemate/commit/d5115602e1b61f7f934e792c5cc91610f28bf63c))
+
 ## [1.2.0](https://github.com/fodorad/voicemate/compare/voicemate-v1.1.0...voicemate-v1.2.0) (2026-10-31)
 
 
