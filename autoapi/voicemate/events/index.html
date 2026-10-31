@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html"><link rel="next" title="voicemate.hots" href="../hots/index.html"><link rel="prev" title="voicemate.config" href="../config/index.html">
+<link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html"><link rel="next" title="voicemate.hotkey" href="../hotkey/index.html"><link rel="prev" title="voicemate.config" href="../config/index.html">
         <link rel="canonical" href="https://fodorad.github.io/voicemate/autoapi/voicemate/events/index.html">
 
     <!-- Generated with Sphinx 9.2.0 and Furo 2025.12.19 -->
@@ -241,6 +241,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../config/index.html">voicemate.config</a></li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">voicemate.events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hotkey/index.html">voicemate.hotkey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hotkey_macos/index.html">voicemate.hotkey_macos</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/aliases/index.html">voicemate.hots.aliases</a></li>
@@ -404,13 +406,16 @@ model is per lane rather than a single exclusive state.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.events.HoldEvent" title="voicemate.events.HoldEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HoldEvent</span></code></a></p></td>
 <td><p>The user started or ended &quot;hold until I'm finished&quot;.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.events.NotesChangedEvent" title="voicemate.events.NotesChangedEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NotesChangedEvent</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.events.MicCommandEvent" title="voicemate.events.MicCommandEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MicCommandEvent</span></code></a></p></td>
+<td><p>The global hotkey was pressed or released: the page starts or stops its microphone.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.events.NotesChangedEvent" title="voicemate.events.NotesChangedEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NotesChangedEvent</span></code></a></p></td>
 <td><p>The notes store changed; the UI should refresh its notes panel.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.events.MetricsEvent" title="voicemate.events.MetricsEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MetricsEvent</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.events.MetricsEvent" title="voicemate.events.MetricsEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MetricsEvent</span></code></a></p></td>
 <td><p>Latency metrics of a finished turn.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.events.EventBus" title="voicemate.events.EventBus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventBus</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.events.EventBus" title="voicemate.events.EventBus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventBus</span></code></a></p></td>
 <td><p>Fan-out pub/sub over asyncio queues.</p></td>
 </tr>
 </tbody>
@@ -752,6 +757,22 @@ model is per lane rather than a single exclusive state.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="voicemate.events.MicCommandEvent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.events.</span></span><span class="sig-name descname"><span class="pre">MicCommandEvent</span></span><a class="reference internal" href="../../../_modules/voicemate/events.html#MicCommandEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.events.MicCommandEvent" title="Link to this definition">¶</a></dt>
+<dd><p>The global hotkey was pressed or released: the page starts or stops its microphone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>on</strong> – <code class="docutils literal notranslate"><span class="pre">True</span></code> while the hotkey is held, <code class="docutils literal notranslate"><span class="pre">False</span></code> once it is released.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.events.MicCommandEvent.on">
+<span class="sig-name descname"><span class="pre">on</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#voicemate.events.MicCommandEvent.on" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="voicemate.events.NotesChangedEvent">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.events.</span></span><span class="sig-name descname"><span class="pre">NotesChangedEvent</span></span><a class="reference internal" href="../../../_modules/voicemate/events.html#NotesChangedEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.events.NotesChangedEvent" title="Link to this definition">¶</a></dt>
 <dd><p>The notes store changed; the UI should refresh its notes panel.</p>
@@ -816,12 +837,12 @@ model is per lane rather than a single exclusive state.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../hots/index.html">
+          <a class="next-page" href="../hotkey/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">voicemate.hots</div>
+                <div class="title">voicemate.hotkey</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -940,6 +961,10 @@ model is per lane rather than a single exclusive state.</p>
 </li>
 <li><a class="reference internal" href="#voicemate.events.HoldEvent"><code class="docutils literal notranslate"><span class="pre">HoldEvent</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.events.HoldEvent.holding"><code class="docutils literal notranslate"><span class="pre">HoldEvent.holding</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#voicemate.events.MicCommandEvent"><code class="docutils literal notranslate"><span class="pre">MicCommandEvent</span></code></a><ul>
+<li><a class="reference internal" href="#voicemate.events.MicCommandEvent.on"><code class="docutils literal notranslate"><span class="pre">MicCommandEvent.on</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.events.NotesChangedEvent"><code class="docutils literal notranslate"><span class="pre">NotesChangedEvent</span></code></a></li>

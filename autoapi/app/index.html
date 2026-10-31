@@ -241,6 +241,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../voicemate/config/index.html">voicemate.config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../voicemate/events/index.html">voicemate.events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../voicemate/hotkey/index.html">voicemate.hotkey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../voicemate/hotkey_macos/index.html">voicemate.hotkey_macos</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
@@ -465,7 +467,7 @@ travel over a plain WebSocket so the binary stream stays out of NiceGUI’s own 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="app.ConversationPage">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.</span></span><span class="sig-name descname"><span class="pre">ConversationPage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession" title="voicemate.pipeline.orchestrator.VoiceSession"><span class="pre">voicemate.pipeline.orchestrator.VoiceSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../voicemate/config/index.html#voicemate.config.Config" title="voicemate.config.Config"><span class="pre">voicemate.config.Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_new_conversation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.ConversationPage" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.</span></span><span class="sig-name descname"><span class="pre">ConversationPage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../voicemate/pipeline/orchestrator/index.html#voicemate.pipeline.orchestrator.VoiceSession" title="voicemate.pipeline.orchestrator.VoiceSession"><span class="pre">voicemate.pipeline.orchestrator.VoiceSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../voicemate/config/index.html#voicemate.config.Config" title="voicemate.config.Config"><span class="pre">voicemate.config.Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_new_conversation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">click_mic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.ConversationPage" title="Link to this definition">¶</a></dt>
 <dd><p>Widgets of one browser tab and the event pump that updates them.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -473,6 +475,8 @@ travel over a plain WebSocket so the binary stream stays out of NiceGUI’s own 
 <li><p><strong>session</strong> – The tab’s voice session.</p></li>
 <li><p><strong>config</strong> – Application configuration.</p></li>
 <li><p><strong>on_new_conversation</strong> – Starts a fresh conversation thread (the page then reloads).</p></li>
+<li><p><strong>click_mic</strong> – Presses the microphone button (what the global hotkey does; the button
+itself when omitted).</p></li>
 </ul>
 </dd>
 </dl>
@@ -623,6 +627,18 @@ travel over a plain WebSocket so the binary stream stays out of NiceGUI’s own 
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="app.Server.press_to_talk">
+<span class="sig-name descname"><span class="pre">press_to_talk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app.Server.press_to_talk" title="Link to this definition">¶</a></dt>
+<dd><p>The global hotkey went down or up: the newest open page starts or stops listening.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.Server.start_hotkey">
+<span class="sig-name descname"><span class="pre">start_hotkey</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app.Server.start_hotkey" title="Link to this definition">¶</a></dt>
+<dd><p>Listen for the global hold-to-talk key (off, with a log line, when that fails).</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="app.Server.startup">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">startup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app.Server.startup" title="Link to this definition">¶</a></dt>
 <dd><p>Load every model before the first page is served.</p>
@@ -760,6 +776,8 @@ travel over a plain WebSocket so the binary stream stays out of NiceGUI’s own 
 <li><a class="reference internal" href="#app.Server.announce_reminder"><code class="docutils literal notranslate"><span class="pre">Server.announce_reminder()</span></code></a></li>
 <li><a class="reference internal" href="#app.Server.make_reminders"><code class="docutils literal notranslate"><span class="pre">Server.make_reminders()</span></code></a></li>
 <li><a class="reference internal" href="#app.Server.start_reminders"><code class="docutils literal notranslate"><span class="pre">Server.start_reminders()</span></code></a></li>
+<li><a class="reference internal" href="#app.Server.press_to_talk"><code class="docutils literal notranslate"><span class="pre">Server.press_to_talk()</span></code></a></li>
+<li><a class="reference internal" href="#app.Server.start_hotkey"><code class="docutils literal notranslate"><span class="pre">Server.start_hotkey()</span></code></a></li>
 <li><a class="reference internal" href="#app.Server.startup"><code class="docutils literal notranslate"><span class="pre">Server.startup()</span></code></a></li>
 <li><a class="reference internal" href="#app.Server.shutdown"><code class="docutils literal notranslate"><span class="pre">Server.shutdown()</span></code></a></li>
 <li><a class="reference internal" href="#app.Server.fake_mic_name"><code class="docutils literal notranslate"><span class="pre">Server.fake_mic_name()</span></code></a></li>

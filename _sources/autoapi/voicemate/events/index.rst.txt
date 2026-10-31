@@ -40,6 +40,7 @@ Classes
    voicemate.events.ReminderEvent
    voicemate.events.ConfirmEvent
    voicemate.events.HoldEvent
+   voicemate.events.MicCommandEvent
    voicemate.events.NotesChangedEvent
    voicemate.events.MetricsEvent
    voicemate.events.EventBus
@@ -326,6 +327,18 @@ Module Contents
 
 
    .. py:attribute:: holding
+      :type:  bool
+
+
+.. py:class:: MicCommandEvent
+
+   The global hotkey was pressed or released: the page starts or stops its microphone.
+
+   :ivar on: ``True`` while the hotkey is held, ``False`` once it is released.
+
+
+
+   .. py:attribute:: on
       :type:  bool
 
 

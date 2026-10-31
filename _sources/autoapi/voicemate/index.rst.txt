@@ -21,6 +21,8 @@ Submodules
    /autoapi/voicemate/bench/index
    /autoapi/voicemate/config/index
    /autoapi/voicemate/events/index
+   /autoapi/voicemate/hotkey/index
+   /autoapi/voicemate/hotkey_macos/index
    /autoapi/voicemate/hots/index
    /autoapi/voicemate/memory/index
    /autoapi/voicemate/models/index

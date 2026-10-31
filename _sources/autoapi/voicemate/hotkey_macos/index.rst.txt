@@ -1,0 +1,72 @@
+voicemate.hotkey_macos
+======================
+
+.. py:module:: voicemate.hotkey_macos
+
+.. autoapi-nested-parse::
+
+   The macOS hotkey adapter: a listen-only keyboard event tap on a background thread.
+
+   Needs *Input Monitoring* for the app that runs Ava (System Settings → Privacy & Security).
+   The tap only listens, so the keys still reach the focused app. Key codes are the physical keys
+   of an ANSI keyboard.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hotkey_macos.logger
+   voicemate.hotkey_macos.PERMISSION_HINT
+   voicemate.hotkey_macos.KEY_CODES
+   voicemate.hotkey_macos.START_TIMEOUT_S
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hotkey_macos.MacHotkeyListener
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: PERMISSION_HINT
+   :value: 'Allow Input Monitoring for the app that runs Ava (System Settings → Privacy & Security → Input...
+
+
+.. py:data:: KEY_CODES
+   :type:  dict[str, int]
+
+.. py:data:: START_TIMEOUT_S
+   :value: 3.0
+
+
+.. py:class:: MacHotkeyListener(combo: voicemate.hotkey.Combo)
+
+   Listens for one combination with a Quartz event tap.
+
+   :param combo: The combination to hold.
+
+
+   .. py:attribute:: combo
+
+
+   .. py:method:: start(on_hold: collections.abc.Callable[[bool], None]) -> None
+
+      Start the tap thread and wait until it is listening.
+
+
+
+   .. py:method:: stop() -> None
+
+      Stop the tap thread.
+
+
+

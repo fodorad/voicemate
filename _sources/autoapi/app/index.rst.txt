@@ -91,13 +91,15 @@ Module Contents
    Bridge one browser's audio WebSocket and its session until it disconnects.
 
 
-.. py:class:: ConversationPage(session: voicemate.pipeline.orchestrator.VoiceSession, config: voicemate.config.Config, on_new_conversation: collections.abc.Callable[[], object] | None = None)
+.. py:class:: ConversationPage(session: voicemate.pipeline.orchestrator.VoiceSession, config: voicemate.config.Config, on_new_conversation: collections.abc.Callable[[], object] | None = None, click_mic: collections.abc.Callable[[], object] | None = None)
 
    Widgets of one browser tab and the event pump that updates them.
 
    :param session: The tab's voice session.
    :param config: Application configuration.
    :param on_new_conversation: Starts a fresh conversation thread (the page then reloads).
+   :param click_mic: Presses the microphone button (what the global hotkey does; the button
+                     itself when omitted).
 
 
    .. py:attribute:: session
@@ -237,6 +239,18 @@ Module Contents
    .. py:method:: start_reminders() -> None
 
       Start the one reminder watcher of this server (a no-op when it already runs).
+
+
+
+   .. py:method:: press_to_talk(on: bool) -> None
+
+      The global hotkey went down or up: the newest open page starts or stops listening.
+
+
+
+   .. py:method:: start_hotkey() -> None
+
+      Listen for the global hold-to-talk key (off, with a log line, when that fails).
 
 
 

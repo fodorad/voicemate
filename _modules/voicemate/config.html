@@ -240,6 +240,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../autoapi/voicemate/config/index.html">voicemate.config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../autoapi/voicemate/events/index.html">voicemate.events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/voicemate/hotkey/index.html">voicemate.hotkey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/voicemate/hotkey_macos/index.html">voicemate.hotkey_macos</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/voicemate/hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../autoapi/voicemate/hots/aliases/index.html">voicemate.hots.aliases</a></li>
@@ -704,6 +706,23 @@
 
 
 
+<div class="viewcode-block" id="HotkeyConfig">
+<a class="viewcode-back" href="../../autoapi/voicemate/config/index.html#voicemate.config.HotkeyConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HotkeyConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The global hold-to-talk key (macOS; needs Input Monitoring for the app running Ava).</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        enabled: Listen for the key.</span>
+<span class="sd">        combo: Modifiers and one key, for example ``"cmd+alt+a"``: hold it to speak (the</span>
+<span class="sd">            microphone of the newest open page is on while it is held), release to be answered.</span>
+<span class="sd">    """</span>
+
+    <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">combo</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"cmd+alt+a"</span></div>
+
+
+
 <div class="viewcode-block" id="UIConfig">
 <a class="viewcode-back" href="../../autoapi/voicemate/config/index.html#voicemate.config.UIConfig">[docs]</a>
 <span class="nd">@dataclass</span>
@@ -750,6 +769,7 @@
     <span class="n">files</span><span class="p">:</span> <span class="n">FilesConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FilesConfig</span><span class="p">)</span>
     <span class="n">hots</span><span class="p">:</span> <span class="n">HotsConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">HotsConfig</span><span class="p">)</span>
     <span class="n">activation</span><span class="p">:</span> <span class="n">ActivationConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ActivationConfig</span><span class="p">)</span>
+    <span class="n">hotkey</span><span class="p">:</span> <span class="n">HotkeyConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">HotkeyConfig</span><span class="p">)</span>
     <span class="n">ui</span><span class="p">:</span> <span class="n">UIConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">UIConfig</span><span class="p">)</span>
 
     <span class="nd">@property</span>

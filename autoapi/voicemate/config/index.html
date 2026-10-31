@@ -241,6 +241,8 @@
 </li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">voicemate.config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../events/index.html">voicemate.events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hotkey/index.html">voicemate.hotkey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hotkey_macos/index.html">voicemate.hotkey_macos</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../hots/index.html">voicemate.hots</a><input aria-label="Toggle navigation of voicemate.hots" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../hots/advisor/index.html">voicemate.hots.advisor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../hots/aliases/index.html">voicemate.hots.aliases</a></li>
@@ -406,10 +408,13 @@ the dataclass defaults; unknown keys raise <code class="xref py py-class docutil
 <tr class="row-even"><td><p><a class="reference internal" href="#voicemate.config.ActivationConfig" title="voicemate.config.ActivationConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ActivationConfig</span></code></a></p></td>
 <td><p>When spoken input counts as a command.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.config.UIConfig" title="voicemate.config.UIConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UIConfig</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.config.HotkeyConfig" title="voicemate.config.HotkeyConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HotkeyConfig</span></code></a></p></td>
+<td><p>The global hold-to-talk key (macOS; needs Input Monitoring for the app running Ava).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.config.UIConfig" title="voicemate.config.UIConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UIConfig</span></code></a></p></td>
 <td><p>Web UI server.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.config.Config" title="voicemate.config.Config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.config.Config" title="voicemate.config.Config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code></a></p></td>
 <td><p>Root configuration.</p></td>
 </tr>
 </tbody>
@@ -1010,6 +1015,31 @@ that starts with the assistant’s name; all other speech is dropped unseen).</p
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="voicemate.config.HotkeyConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.config.</span></span><span class="sig-name descname"><span class="pre">HotkeyConfig</span></span><a class="reference internal" href="../../../_modules/voicemate/config.html#HotkeyConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.config.HotkeyConfig" title="Link to this definition">¶</a></dt>
+<dd><p>The global hold-to-talk key (macOS; needs Input Monitoring for the app running Ava).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>enabled</strong> – Listen for the key.</p></li>
+<li><p><strong>combo</strong> – Modifiers and one key, for example <code class="docutils literal notranslate"><span class="pre">&quot;cmd+alt+a&quot;</span></code>: hold it to speak (the
+microphone of the newest open page is on while it is held), release to be answered.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.config.HotkeyConfig.enabled">
+<span class="sig-name descname"><span class="pre">enabled</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#voicemate.config.HotkeyConfig.enabled" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.config.HotkeyConfig.combo">
+<span class="sig-name descname"><span class="pre">combo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmd+alt+a'</span></span><a class="headerlink" href="#voicemate.config.HotkeyConfig.combo" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="voicemate.config.UIConfig">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.config.</span></span><span class="sig-name descname"><span class="pre">UIConfig</span></span><a class="reference internal" href="../../../_modules/voicemate/config.html#UIConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.config.UIConfig" title="Link to this definition">¶</a></dt>
 <dd><p>Web UI server.</p>
@@ -1122,6 +1152,11 @@ were spoken (for automated end-to-end tests only).</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="voicemate.config.Config.activation">
 <span class="sig-name descname"><span class="pre">activation</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#voicemate.config.ActivationConfig" title="voicemate.config.ActivationConfig"><span class="pre">ActivationConfig</span></a></span><a class="headerlink" href="#voicemate.config.Config.activation" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.config.Config.hotkey">
+<span class="sig-name descname"><span class="pre">hotkey</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#voicemate.config.HotkeyConfig" title="voicemate.config.HotkeyConfig"><span class="pre">HotkeyConfig</span></a></span><a class="headerlink" href="#voicemate.config.Config.hotkey" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1339,6 +1374,11 @@ defaults apply.</p></li>
 <li><a class="reference internal" href="#voicemate.config.ActivationConfig.variants"><code class="docutils literal notranslate"><span class="pre">ActivationConfig.variants</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#voicemate.config.HotkeyConfig"><code class="docutils literal notranslate"><span class="pre">HotkeyConfig</span></code></a><ul>
+<li><a class="reference internal" href="#voicemate.config.HotkeyConfig.enabled"><code class="docutils literal notranslate"><span class="pre">HotkeyConfig.enabled</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.config.HotkeyConfig.combo"><code class="docutils literal notranslate"><span class="pre">HotkeyConfig.combo</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#voicemate.config.UIConfig"><code class="docutils literal notranslate"><span class="pre">UIConfig</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.config.UIConfig.host"><code class="docutils literal notranslate"><span class="pre">UIConfig.host</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.UIConfig.port"><code class="docutils literal notranslate"><span class="pre">UIConfig.port</span></code></a></li>
@@ -1360,6 +1400,7 @@ defaults apply.</p></li>
 <li><a class="reference internal" href="#voicemate.config.Config.files"><code class="docutils literal notranslate"><span class="pre">Config.files</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.Config.hots"><code class="docutils literal notranslate"><span class="pre">Config.hots</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.Config.activation"><code class="docutils literal notranslate"><span class="pre">Config.activation</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.config.Config.hotkey"><code class="docutils literal notranslate"><span class="pre">Config.hotkey</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.Config.ui"><code class="docutils literal notranslate"><span class="pre">Config.ui</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.Config.data_path"><code class="docutils literal notranslate"><span class="pre">Config.data_path</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.config.Config.hots_database_path"><code class="docutils literal notranslate"><span class="pre">Config.hots_database_path</span></code></a></li>

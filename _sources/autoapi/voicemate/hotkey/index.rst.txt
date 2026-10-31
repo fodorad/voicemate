@@ -1,0 +1,146 @@
+voicemate.hotkey
+================
+
+.. py:module:: voicemate.hotkey
+
+.. autoapi-nested-parse::
+
+   A global hold-to-talk key: hold a key combination anywhere on the computer to speak.
+
+   Everything that does not touch the operating system lives here: reading a combination such as
+   ``cmd+alt+a`` and turning raw key events into "the hold started" and "the hold ended"
+   (:class:`HoldDetector`). Listening to the keyboard is an adapter behind
+   :class:`HotkeyListener`; the macOS one is in :mod:`voicemate.hotkey_macos`.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   voicemate.hotkey.MODIFIERS
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   voicemate.hotkey.HotkeyError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   voicemate.hotkey.Combo
+   voicemate.hotkey.HoldDetector
+   voicemate.hotkey.HotkeyListener
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   voicemate.hotkey.parse_combo
+
+
+Module Contents
+---------------
+
+.. py:data:: MODIFIERS
+   :type:  frozenset[str]
+
+.. py:exception:: HotkeyError
+
+   Bases: :py:obj:`RuntimeError`
+
+
+   The hotkey cannot be set up; the message says what to fix.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:class:: Combo
+
+   A key combination.
+
+   :ivar modifiers: The modifier keys that must be down (``cmd``, ``alt``, ``ctrl``, ``shift``).
+   :ivar key: The one other key: a letter, a digit or ``space``.
+
+
+
+   .. py:attribute:: modifiers
+      :type:  frozenset[str]
+
+
+   .. py:attribute:: key
+      :type:  str
+
+
+.. py:function:: parse_combo(text: str) -> Combo
+
+   Read a combination such as ``"cmd+alt+a"`` (``option`` and ``command`` work too).
+
+   :raises HotkeyError: If it has no modifier, no key, or an unknown part.
+
+
+.. py:class:: HoldDetector(combo: Combo)
+
+   Turns key events into the start and the end of a hold of one combination.
+
+   A key held down repeats its key-down event; only the first one starts the hold. The hold
+   ends when the key is released or when a modifier of the combination is let go.
+
+   :param combo: The combination to watch.
+
+
+   .. py:attribute:: combo
+
+
+   .. py:attribute:: holding
+      :value: False
+
+
+
+   .. py:method:: key(key: str, down: bool, modifiers: collections.abc.Collection[str]) -> bool | None
+
+      A key went down or up while ``modifiers`` were held.
+
+      :returns: ``True`` when the hold starts, ``False`` when it ends, otherwise ``None``.
+
+
+
+   .. py:method:: modifiers_changed(modifiers: collections.abc.Collection[str]) -> bool | None
+
+      The held modifier keys changed; ``False`` when that ends the hold.
+
+
+
+.. py:class:: HotkeyListener
+
+   Bases: :py:obj:`Protocol`
+
+
+   Listens to the keyboard for one combination, wherever the focus is.
+
+
+   .. py:method:: start(on_hold: collections.abc.Callable[[bool], None]) -> None
+
+      Start listening; ``on_hold(True)`` when the hold starts, ``on_hold(False)`` when it ends.
+
+      ``on_hold`` is called from the listener's own thread.
+
+      :raises HotkeyError: If the keyboard cannot be listened to (a missing permission).
+
+
+
+   .. py:method:: stop() -> None
+
+      Stop listening.
+
+
+

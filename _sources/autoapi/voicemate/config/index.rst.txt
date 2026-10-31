@@ -40,6 +40,7 @@ Classes
    voicemate.config.ScreenConfig
    voicemate.config.HotsConfig
    voicemate.config.ActivationConfig
+   voicemate.config.HotkeyConfig
    voicemate.config.UIConfig
    voicemate.config.Config
 
@@ -626,6 +627,28 @@ Module Contents
 
 
 
+.. py:class:: HotkeyConfig
+
+   The global hold-to-talk key (macOS; needs Input Monitoring for the app running Ava).
+
+   :ivar enabled: Listen for the key.
+   :ivar combo: Modifiers and one key, for example ``"cmd+alt+a"``: hold it to speak (the
+                microphone of the newest open page is on while it is held), release to be answered.
+
+
+
+   .. py:attribute:: enabled
+      :type:  bool
+      :value: True
+
+
+
+   .. py:attribute:: combo
+      :type:  str
+      :value: 'cmd+alt+a'
+
+
+
 .. py:class:: UIConfig
 
    Web UI server.
@@ -726,6 +749,10 @@ Module Contents
 
    .. py:attribute:: activation
       :type:  ActivationConfig
+
+
+   .. py:attribute:: hotkey
+      :type:  HotkeyConfig
 
 
    .. py:attribute:: ui
