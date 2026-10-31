@@ -10,6 +10,7 @@ answered from a cache.
 from __future__ import annotations
 
 import logging
+from collections import OrderedDict
 from pathlib import Path
 
 import numpy as np
@@ -37,6 +38,8 @@ MIN_SCORE: float = 0.65
 MIN_MARGIN: float = 0.06
 #: The file name start of the saved Icy Veins hero portraits.
 FILE_PREFIX: str = "img_hero-portraits_"
+#: How many slot pictures are remembered (a slot fades in over a few looks).
+REMEMBER: int = 256
 
 
 def _normalized(windows: np.ndarray) -> np.ndarray:
@@ -50,9 +53,10 @@ class Portraits:
 
     Args:
         images: ``slug → portrait`` (any size; RGB).
+        remember: How many slot pictures to keep the answer for.
     """
 
-    def __init__(self, images: dict[str, Image.Image]) -> None:
+    def __init__(self, images: dict[str, Image.Image], remember: int = REMEMBER) -> None:
         self.slugs = list(images)
         self._scaled = {
             scale: np.stack(
@@ -65,7 +69,8 @@ class Portraits:
             ).astype(np.float32)
             for scale in SCALES
         }
-        self._seen: dict[bytes, str | None] = {}
+        self._remember = remember
+        self._seen: OrderedDict[bytes, str | None] = OrderedDict()
 
     @classmethod
     def from_folder(cls, folder: Path) -> Portraits:
@@ -95,8 +100,12 @@ class Portraits:
 
     def _identify(self, patch: np.ndarray) -> str | None:
         key = (patch // 16).astype(np.uint8).tobytes()
-        if key not in self._seen:
+        if key in self._seen:
+            self._seen.move_to_end(key)
+        else:
             self._seen[key] = self._best(patch)
+            if len(self._seen) > self._remember:
+                self._seen.popitem(last=False)
         return self._seen[key]
 
     def _best(self, patch: np.ndarray) -> str | None:

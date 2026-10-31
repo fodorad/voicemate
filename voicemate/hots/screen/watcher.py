@@ -98,7 +98,11 @@ class DraftWatcher:
         """Watch until cancelled; ``say`` is used for the optional proactive cues."""
         self._say = say
         while True:
-            await self.poll()
+            try:
+                await self.poll()
+            except Exception as exc:  # a bug or odd screen must not end the watching
+                logger.exception("Draft look failed")
+                self._fail(f"{type(exc).__name__}: {exc}")
             await self._sleep(self._interval())
 
     def _interval(self) -> float:

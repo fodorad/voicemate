@@ -51,6 +51,12 @@ class TestPortraits(unittest.TestCase):
         image = screen({2: self.faces["zeratul"]})
         self.assertEqual(self.library.bans(image), self.library.bans(image))
 
+    def test_a_tiny_memory_changes_no_answers(self):
+        forgetful = Portraits(self.faces, remember=1)
+        first, second = screen({0: self.faces["qhira"]}), screen({0: self.faces["abathur"]})
+        for image, expected in [(first, "qhira"), (second, "abathur"), (first, "qhira")]:
+            self.assertEqual(forgetful.bans(image), (expected,))
+
     def test_the_picture_size_does_not_matter(self):
         small = np.asarray(Image.fromarray(screen({4: self.faces["qhira"]})).resize((480, 270)))
         self.assertEqual(self.library.bans(small), ("qhira",))

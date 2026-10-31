@@ -42,5 +42,4 @@ Every screen where the draft changed is saved to `data/game_screens/<date_time>/
 
 ## Settings
 
-`[hots.screen]` in `config/voicemate.toml`: `enabled`, `window` (app or window name of the
-game), `poll_s`, `proactive` (say "Your ban." when it is your turn), `log_dir`, `keep`.
+`[hots.screen]` in `config/voicemate.toml`: `enabled`, `window` (app name of the game), `poll_s`, `proactive` (say "Your ban." when it is your turn), `log_dir`, `keep`.
