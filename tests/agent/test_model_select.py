@@ -72,6 +72,9 @@ class TestHelpers(unittest.TestCase):
         config = llm(profile="fast")
         self.assertEqual(config.model, "gemma4:e4b")
 
+    def test_the_default_model_is_the_light_one(self):
+        self.assertEqual(LLMConfig().model, "qwen3:4b")
+
 
 if __name__ == "__main__":
     unittest.main()

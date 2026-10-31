@@ -63,7 +63,7 @@ spoken turn, interruptions and the research memory.
 
 <img src="https://raw.githubusercontent.com/fodorad/voicemate/main/docs/ui/early-look.png" alt="voicemate in the browser" width="100%"/>
 
-*A real session with the `fast` profile (gemma4:e4b): a tool-backed question about the date and
+*A real session with the `fast` profile (gemma4:e4b, the default then): a tool-backed question about the date and
 weather, then a trip-planning request that was interrupted mid-answer with a follow-up. The
 left rail shows each pipeline stage with its timing, the right panel shows what was
 recalled from memory, and the status shows the microphone is live.*
@@ -127,7 +127,7 @@ Everything lives in [`config/voicemate.toml`](config/voicemate.toml) (or the fil
 
 | Setting | Default | Notes |
 |---|---|---|
-| `llm.profile` | `fast` | one model for everything: `fast` (gemma4:e4b, ~11 GB), `gemma` (gemma4:26b-mlx, ~24 GB, best answers), `qwen` (qwen3.8:27b-mlx, ~27 GB, slowest). Try one with `make run PROFILE=gemma`; a startup memory check falls back to `fast` if it would not fit |
+| `llm.profile` | `fast` | one model for everything: `fast` (qwen3:4b, ~5 GB), `gemma` (gemma4:26b-mlx, ~24 GB, best answers), `qwen` (qwen3.8:27b-mlx, ~27 GB, slowest). Try one with `make run PROFILE=gemma`; a startup memory check falls back to `fast` if it would not fit |
 | `assistant.name` | `Ava` | persona name, plus per-language pronunciation hints |
 | `assistant.default_language` | `en` | language before your language is detected, and the fallback voice |
 | `tts.hu.voice` | `hu_HU-anna-medium` | other Piper voices: `hu_HU-berta-medium`, `hu_HU-imre-medium` |

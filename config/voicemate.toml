@@ -21,7 +21,7 @@ longitude = 19.9281
 
 [llm]
 # One model does everything; pick a profile, or override per run: `make run PROFILE=gemma`.
-#   fast   gemma4:e4b       ~11 GB loaded, first token ~0.9 s, 16 tok/s   (default)
+#   fast   qwen3:4b         ~5 GB loaded, first token ~0.5 s, 14/14 tools  (default)
 #   gemma  gemma4:26b-mlx   ~24 GB loaded, first token ~1.0 s, 31 tok/s   (MoE, best quality/speed)
 #   qwen   qwen3.8:27b-mlx  ~27 GB loaded, first token ~2.9 s, 11 tok/s   (dense, slowest)
 # At startup the memory guard checks that the model fits next to the speech stack; if it does
@@ -29,7 +29,7 @@ longitude = 19.9281
 # gets paged out and replies take 15+ s (docs/sdlc/spec.md §10).
 profile = "fast"
 fallback_profile = "fast"
-profiles = { fast = "gemma4:e4b", gemma = "gemma4:26b-mlx", qwen = "qwen3.8:27b-mlx" }
+profiles = { fast = "qwen3:4b", gemma = "gemma4:26b-mlx", qwen = "qwen3.8:27b-mlx" }
 memory_guard = true
 # GB kept free for ASR/TTS/embeddings (~3 GB), the UI process and the OS.
 reserve_gb = 5.0

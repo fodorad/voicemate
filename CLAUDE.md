@@ -46,7 +46,8 @@ their slice of memory; tools never touch stored documents or the address guard d
 - **GPU is for the LLM:** keep ASR (`asr.device`) and embeddings (`memory.embed_device`)
   on the CPU. Embeddings never go through Ollama (it evicts the chat model).
 - **RAM:** qwen3.6:35b (22 GB) swaps on the 32 GB Mac with normal apps open; the default is
-  gemma4:e4b. Check `sysctl vm.swapusage` before blaming code for slowness.
+  qwen3:4b (~5 GB loaded, first token ~0.5 s), light enough to run beside a game. Check
+  `sysctl vm.swapusage` before blaming code for slowness.
 - **HotS pages are saved by hand** into `data/icyveins/raw` (Cloudflare blocks scripts); Ava only
   parses them, never fetches, and the folder is gitignored. Tests use hand-written pages.
 - **Numbers stay digits** in replies; espeak reads them correctly, LLM spelling does not.
