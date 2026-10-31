@@ -37,6 +37,7 @@ Functions
 .. autoapisummary::
 
    voicemate.hots.screen.macos.recognize
+   voicemate.hots.screen.macos.pick_window
    voicemate.hots.screen.macos.capture
 
 
@@ -54,9 +55,17 @@ Module Contents
    Recognize the text inside ``region`` of an RGB picture with Apple Vision.
 
 
+.. py:function:: pick_window(windows: list[dict[str, Any]], app: str) -> int | None
+
+   The number of the biggest window of the app named ``app`` (part of its name).
+
+   Only the app's name counts, never a window title: a browser tab about the game must not be
+   mistaken for the game.
+
+
 .. py:function:: capture(window: str) -> numpy.ndarray
 
-   The picture of the ``window`` app's window, or of the whole screen when it is not open.
+   The picture of the ``window`` app's biggest window (the whole screen when it has none).
 
    :raises ScreenError: If macOS returns nothing or a blank picture (permission missing).
 
@@ -65,7 +74,7 @@ Module Contents
 
    Reads the live screen (the game window when it is open, otherwise the whole display).
 
-   :param window: Part of the game's app or window name (``"Heroes"``).
+   :param window: Part of the game's app name (``"Heroes"``).
 
 
    .. py:attribute:: window

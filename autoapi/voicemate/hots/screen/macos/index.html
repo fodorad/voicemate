@@ -380,8 +380,11 @@ that launched Ava (System Settings → Privacy &amp; Security → Screen &amp; S
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.macos.recognize" title="voicemate.hots.screen.macos.recognize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recognize</span></code></a>(image[, region, fast]) → tuple[voicemate.hots.screen.reader.TextBox, ...]</p></td>
 <td><p>Recognize the text inside <code class="docutils literal notranslate"><span class="pre">region</span></code> of an RGB picture with Apple Vision.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.macos.capture" title="voicemate.hots.screen.macos.capture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capture</span></code></a>(window) → numpy.ndarray</p></td>
-<td><p>The picture of the <code class="docutils literal notranslate"><span class="pre">window</span></code> app's window, or of the whole screen when it is not open.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.hots.screen.macos.pick_window" title="voicemate.hots.screen.macos.pick_window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick_window</span></code></a>(windows, app) → int | None</p></td>
+<td><p>The number of the biggest window of the app named <code class="docutils literal notranslate"><span class="pre">app</span></code> (part of its name).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.hots.screen.macos.capture" title="voicemate.hots.screen.macos.capture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capture</span></code></a>(window) → numpy.ndarray</p></td>
+<td><p>The picture of the <code class="docutils literal notranslate"><span class="pre">window</span></code> app's biggest window (the whole screen when it has none).</p></td>
 </tr>
 </tbody>
 </table>
@@ -406,9 +409,17 @@ that launched Ava (System Settings → Privacy &amp; Security → Screen &amp; S
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="voicemate.hots.screen.macos.pick_window">
+<span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.macos.</span></span><span class="sig-name descname"><span class="pre">pick_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">windows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/macos.html#pick_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.macos.pick_window" title="Link to this definition">¶</a></dt>
+<dd><p>The number of the biggest window of the app named <code class="docutils literal notranslate"><span class="pre">app</span></code> (part of its name).</p>
+<p>Only the app’s name counts, never a window title: a browser tab about the game must not be
+mistaken for the game.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="voicemate.hots.screen.macos.capture">
 <span class="sig-prename descclassname"><span class="pre">voicemate.hots.screen.macos.</span></span><span class="sig-name descname"><span class="pre">capture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../../../_modules/voicemate/hots/screen/macos.html#capture"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.hots.screen.macos.capture" title="Link to this definition">¶</a></dt>
-<dd><p>The picture of the <code class="docutils literal notranslate"><span class="pre">window</span></code> app’s window, or of the whole screen when it is not open.</p>
+<dd><p>The picture of the <code class="docutils literal notranslate"><span class="pre">window</span></code> app’s biggest window (the whole screen when it has none).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="../reader/index.html#voicemate.hots.screen.reader.ScreenError" title="voicemate.hots.screen.reader.ScreenError"><strong>ScreenError</strong></a> – If macOS returns nothing or a blank picture (permission missing).</p>
@@ -422,7 +433,7 @@ that launched Ava (System Settings → Privacy &amp; Security → Screen &amp; S
 <dd><p>Reads the live screen (the game window when it is open, otherwise the whole display).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>window</strong> – Part of the game’s app or window name (<code class="docutils literal notranslate"><span class="pre">&quot;Heroes&quot;</span></code>).</p>
+<dd class="field-odd"><p><strong>window</strong> – Part of the game’s app name (<code class="docutils literal notranslate"><span class="pre">&quot;Heroes&quot;</span></code>).</p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -531,6 +542,7 @@ that launched Ava (System Settings → Privacy &amp; Security → Screen &amp; S
 <li><a class="reference internal" href="#voicemate.hots.screen.macos.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.macos.PERMISSION_HINT"><code class="docutils literal notranslate"><span class="pre">PERMISSION_HINT</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.macos.recognize"><code class="docutils literal notranslate"><span class="pre">recognize()</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.hots.screen.macos.pick_window"><code class="docutils literal notranslate"><span class="pre">pick_window()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.macos.capture"><code class="docutils literal notranslate"><span class="pre">capture()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.hots.screen.macos.MacScreenReader"><code class="docutils literal notranslate"><span class="pre">MacScreenReader</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.hots.screen.macos.MacScreenReader.window"><code class="docutils literal notranslate"><span class="pre">MacScreenReader.window</span></code></a></li>

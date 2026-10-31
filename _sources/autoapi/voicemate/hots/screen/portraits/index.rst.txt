@@ -31,6 +31,7 @@ Attributes
    voicemate.hots.screen.portraits.MIN_SCORE
    voicemate.hots.screen.portraits.MIN_MARGIN
    voicemate.hots.screen.portraits.FILE_PREFIX
+   voicemate.hots.screen.portraits.REMEMBER
 
 
 Classes
@@ -96,11 +97,17 @@ Module Contents
    :value: 'img_hero-portraits_'
 
 
-.. py:class:: Portraits(images: dict[str, PIL.Image.Image])
+.. py:data:: REMEMBER
+   :type:  int
+   :value: 256
+
+
+.. py:class:: Portraits(images: dict[str, PIL.Image.Image], remember: int = REMEMBER)
 
    The hero portraits and the ban-slot matcher.
 
    :param images: ``slug → portrait`` (any size; RGB).
+   :param remember: How many slot pictures to keep the answer for.
 
 
    .. py:attribute:: slugs

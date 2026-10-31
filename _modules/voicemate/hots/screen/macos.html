@@ -342,6 +342,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -398,28 +399,38 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">pixels</span><span class="p">[:,</span> <span class="p">:</span><span class="n">width</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>  <span class="c1"># BGRA → RGB</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_window_id</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""The biggest on-screen window whose app or title contains ``name``."""</span>
+<div class="viewcode-block" id="pick_window">
+<a class="viewcode-back" href="../../../../autoapi/voicemate/hots/screen/macos/index.html#voicemate.hots.screen.macos.pick_window">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pick_window</span><span class="p">(</span><span class="n">windows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">app</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The number of the biggest window of the app named ``app`` (part of its name).</span>
+
+<span class="sd">    Only the app's name counts, never a window title: a browser tab about the game must not be</span>
+<span class="sd">    mistaken for the game.</span>
+<span class="sd">    """</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">best</span><span class="p">,</span> <span class="n">area</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">:</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"kCGWindowBounds"</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">bounds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Width"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">bounds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Height"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wanted</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"kCGWindowOwnerName"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="n">area</span><span class="p">:</span>
+            <span class="n">best</span><span class="p">,</span> <span class="n">area</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="s2">"kCGWindowNumber"</span><span class="p">]),</span> <span class="n">size</span>
+    <span class="k">return</span> <span class="n">best</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_window_id</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">Quartz</span>
 
     <span class="n">windows</span> <span class="o">=</span> <span class="n">Quartz</span><span class="o">.</span><span class="n">CGWindowListCopyWindowInfo</span><span class="p">(</span>
         <span class="n">Quartz</span><span class="o">.</span><span class="n">kCGWindowListOptionOnScreenOnly</span><span class="p">,</span> <span class="n">Quartz</span><span class="o">.</span><span class="n">kCGNullWindowID</span>
     <span class="p">)</span>
-    <span class="n">wanted</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="n">best</span><span class="p">,</span> <span class="n">area</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">0.0</span>
-    <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">:</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'kCGWindowOwnerName'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'kCGWindowName'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
-        <span class="n">bounds</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"kCGWindowBounds"</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">size</span> <span class="o">=</span> <span class="n">bounds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Width"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">bounds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Height"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">wanted</span> <span class="ow">in</span> <span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="n">area</span><span class="p">:</span>
-            <span class="n">best</span><span class="p">,</span> <span class="n">area</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="s2">"kCGWindowNumber"</span><span class="p">]),</span> <span class="n">size</span>
-    <span class="k">return</span> <span class="n">best</span>
+    <span class="k">return</span> <span class="n">pick_window</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">windows</span><span class="p">),</span> <span class="n">app</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="capture">
 <a class="viewcode-back" href="../../../../autoapi/voicemate/hots/screen/macos/index.html#voicemate.hots.screen.macos.capture">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">capture</span><span class="p">(</span><span class="n">window</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""The picture of the ``window`` app's window, or of the whole screen when it is not open.</span>
+<span class="w">    </span><span class="sd">"""The picture of the ``window`` app's biggest window (the whole screen when it has none).</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ScreenError: If macOS returns nothing or a blank picture (permission missing).</span>
@@ -456,7 +467,7 @@
 <span class="w">    </span><span class="sd">"""Reads the live screen (the game window when it is open, otherwise the whole display).</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        window: Part of the game's app or window name (``"Heroes"``).</span>
+<span class="sd">        window: Part of the game's app name (``"Heroes"``).</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Heroes"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
