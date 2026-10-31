@@ -1,10 +1,12 @@
 """Draft mode: watches the screen and keeps the draft up to date.
 
-The watcher is idle while no draft is on screen (a quick, rough look every few seconds). When a
-ban or pick screen appears it starts a draft: the draft state is reset, a screen log folder is
-opened and from then on every look is a full read that adds what the screen shows (locked
-heroes, bans, the map) to the :class:`~voicemate.hots.draft.Draft`. "MATCH STARTING" ends the
-draft; the watcher then stays quiet until the next draft screen shows up.
+The watcher looks at the screen only while Adam has switched game mode on (:meth:`start`); a
+command that asks for a read is the only other time the screen is captured. While no draft is
+on screen it takes a quick, rough look every few seconds. When a ban or pick screen appears it
+starts a draft: the draft state is reset, a screen log folder is opened and from then on every
+look is a full read that adds what the screen shows (locked heroes, bans, the map) to the
+:class:`~voicemate.hots.draft.Draft`. "MATCH STARTING" ends the draft; the watcher then stays
+quiet until the next draft screen shows up.
 """
 
 from __future__ import annotations
@@ -39,6 +41,8 @@ SLOW_FACTOR: int = 5
 PROBLEM_RETRY_S: float = 15.0
 #: A full read this recent is reused by a command instead of reading again.
 FRESH_S: float = 2.0
+#: Without the watcher a draft read this long ago no longer counts as the draft in progress.
+STALE_S: float = 600.0
 
 
 class DraftWatcher:
@@ -86,8 +90,11 @@ class DraftWatcher:
         self.screen: DraftScreen | None = None
         #: What went wrong with the last look (``None`` when it worked).
         self.problem: str | None = None
+        #: Whether game mode is on (the screen is watched; otherwise it is read on request only).
+        self.watching = False
         self._read_at = float("-inf")
         self._lock = asyncio.Lock()
+        self._woken = asyncio.Event()
         self._missed = 0
         self._idle_looks = 0
         self._logged: dict[str, Any] | None = None
@@ -98,12 +105,24 @@ class DraftWatcher:
         """Watch until cancelled; ``say`` is used for the optional proactive cues."""
         self._say = say
         while True:
+            await self._woken.wait()
             try:
                 await self.poll()
             except Exception as exc:  # a bug or odd screen must not end the watching
                 logger.exception("Draft look failed")
                 self._fail(f"{type(exc).__name__}: {exc}")
             await self._sleep(self._interval())
+
+    def start(self) -> None:
+        """Switch game mode on: look at the screen every few seconds."""
+        self.watching = True
+        self._woken.set()
+
+    def stop(self) -> None:
+        """Switch game mode off: the screen is read only when asked."""
+        self.watching = False
+        self._woken.clear()
+        self.end()
 
     def _interval(self) -> float:
         if self.problem:
@@ -151,13 +170,12 @@ class DraftWatcher:
             ScreenError: If the screen cannot be read.
         """
         async with self._lock:
-            if (
-                reader is None
-                and self.screen is not None
-                and self.mode == DRAFT
-                and self._monotonic() - self._read_at < FRESH_S
-            ):
-                return self.screen
+            age = self._monotonic() - self._read_at
+            if reader is None and self.screen is not None and self.mode == DRAFT:
+                if age < FRESH_S:
+                    return self.screen
+                if not self.watching and age > STALE_S:
+                    self.mode = IDLE
             frame = await self._capture(fast=False, reader=reader)
             screen = interpret(frame, self.roster, self.maps, self.portraits)
             if self.mode != DRAFT and screen.is_draft:

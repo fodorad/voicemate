@@ -18,7 +18,7 @@ from voicemate.hots.screen.interpreter import DraftScreen
 from voicemate.hots.screen.log import ScreenLog
 from voicemate.hots.screen.portraits import Portraits
 from voicemate.hots.screen.reader import ScreenError, ScreenReader
-from voicemate.hots.screen.watcher import DRAFT, OVER, DraftWatcher
+from voicemate.hots.screen.watcher import OVER, DraftWatcher
 from voicemate.pipeline.skills import Skill, SkillAnswer
 
 logger = logging.getLogger(__name__)
@@ -49,14 +49,16 @@ class ScreenKit:
 class HotsSkill:
     """One session's draft commands (a :class:`~voicemate.pipeline.skills.Skill`).
 
-    While a draft is on screen (or after "draft mode on") the skill is in *draft mode*: answers
-    are as short as possible and speech that is not a draft command gets "Say again." instead
-    of going to the chat model.
+    After "draft mode on" (or "game mode on") the skill is in *draft mode*: the screen is
+    watched, answers are as short as possible and speech that is not a draft command gets
+    "Say again." instead of going to the chat model. The match starting pauses the focus until
+    the next draft or loading screen. Outside draft mode the screen is read only on request.
 
     Args:
         intents: The session's draft and command rules.
         watcher: Follows the draft on screen (``None`` when the screen cannot be read).
         saved: Reads the newest saved screenshot.
+        on: Start in draft mode.
     """
 
     def __init__(
@@ -64,18 +66,24 @@ class HotsSkill:
         intents: Intents,
         watcher: DraftWatcher | None = None,
         saved: ScreenReader | None = None,
+        on: bool = False,
     ) -> None:
         self.intents = intents
         self.watcher = watcher
         self.saved = saved
-        self._manual = False
+        self._on = False
+        if on:
+            self._switch(True)
 
     @property
     def draft_mode(self) -> bool:
         """Whether answers are terse and only draft speech is handled."""
-        if self.watcher is not None and self.watcher.mode == OVER:
-            self._manual = False
-        return self._manual or (self.watcher is not None and self.watcher.mode == DRAFT)
+        return self._on and (self.watcher is None or self.watcher.mode != OVER)
+
+    def _switch(self, on: bool) -> None:
+        self._on = on
+        if self.watcher is not None:
+            self.watcher.start() if on else self.watcher.stop()
 
     async def run(self, say: Callable[[SkillAnswer], Awaitable[None]]) -> None:
         """Watch the screen for drafts while the session is open (a ``Background`` skill)."""
@@ -100,14 +108,9 @@ class HotsSkill:
     # ── commands ─────────────────────────────────────────────────────────────
 
     async def _command(self, command: Command) -> str:
-        if command.kind == "on":
-            self._manual = True
-            return "Draft mode on."
-        if command.kind == "off":
-            self._manual = False
-            if self.watcher is not None:
-                self.watcher.end()
-            return "Draft mode off."
+        if command.kind in ("on", "off"):
+            self._switch(command.kind == "on")
+            return f"Draft mode {command.kind}."
         if self.watcher is None:
             return "I can't read the screen here."
         reader = self.saved if command.kind == "last" else None
@@ -209,7 +212,7 @@ class Hots:
             poll_s=settings.poll_s,
             proactive=settings.proactive,
         )
-        return HotsSkill(intents, watcher, self.screen.saved)
+        return HotsSkill(intents, watcher, self.screen.saved, on=settings.game_mode)
 
     def session_skills(self) -> list[Skill]:
         """The skills of one new session (what :attr:`Runtime.skills` calls)."""

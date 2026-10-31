@@ -13,10 +13,12 @@ _READ = re.compile(
     r"^(?:(?:read|scan|check|look at|watch)(?: the| my| this)? (?:draft|screen|picks|bans|game)\b|"
     r"(?:read|scan)$|what do you see\b)"
 )
-_ON = re.compile(r"^(?:(?:start|enter|begin|turn on|switch to) )?draft mode(?: on)?$|^start draft$")
+_ON = re.compile(
+    r"^(?:(?:start|enter|begin|turn on|switch to) )?(?:draft|game) mode(?: on)?$|^start draft$"
+)
 _OFF = re.compile(
-    r"^(?:(?:end|stop|leave|exit|finish|cancel|turn off) (?:the )?draft(?: mode)?|"
-    r"draft mode off|(?:the )?draft is over)$"
+    r"^(?:(?:end|stop|leave|exit|finish|cancel|turn off) (?:the )?(?:draft|game)(?: mode)?|"
+    r"(?:draft|game) mode off|(?:the )?draft is over)$"
 )
 
 

@@ -20,6 +20,7 @@ from voicemate.hots.screen.watcher import (
     PROBLEM_RETRY_S,
     SLOW_AFTER,
     SLOW_FACTOR,
+    STALE_S,
     DraftWatcher,
 )
 
@@ -199,6 +200,15 @@ class TestProblems(WatcherCase):
         self.assertIsNone(watcher.problem)
         self.assertEqual(watcher.mode, DRAFT)
 
+    async def test_a_read_on_request_is_not_the_draft_in_progress_for_long(self):
+        watcher = self.watch(shown("team_picking"), shown("ban_mine"))
+        await watcher.look()
+        self.assertEqual(watcher.mode, DRAFT)
+        self.clock.now += STALE_S + 1
+        screen = await watcher.look()
+        self.assertEqual(screen.phase.kind, "ban")
+        self.assertEqual(len(list(self.folder.iterdir())), 2)  # it started a new draft log
+
     async def test_the_loop_waits_between_looks_and_longer_after_a_problem(self):
         waits: list[float] = []
 
@@ -209,9 +219,25 @@ class TestProblems(WatcherCase):
 
         watcher = self.watch(shown("loading"), ScreenError("blocked"), ScreenError("blocked"))
         watcher._sleep = sleep
+        watcher.start()
         with self.assertRaises(asyncio.CancelledError):
             await watcher.run(self.say)
         self.assertEqual(waits, [watcher.poll_s, PROBLEM_RETRY_S, PROBLEM_RETRY_S])
+
+    async def test_the_screen_is_not_looked_at_until_game_mode_starts(self):
+        watcher = self.watch(shown("ban_mine"))
+        task = asyncio.create_task(watcher.run(self.say))
+        await asyncio.sleep(0.01)
+        self.assertEqual(self.screen.reads, [])
+        watcher.start()
+        await asyncio.sleep(0.01)
+        self.assertTrue(self.screen.reads)
+        reads = len(self.screen.reads)
+        watcher.stop()
+        self.assertFalse(watcher.watching)
+        await asyncio.sleep(0.01)
+        self.assertEqual(len(self.screen.reads), reads)
+        task.cancel()
 
     async def test_an_unexpected_failure_does_not_end_the_watching(self):
         waits: list[float] = []
@@ -224,6 +250,7 @@ class TestProblems(WatcherCase):
         watcher = self.watch(shown("ban_mine"))
         watcher.reader = BrokenOnce(self.screen)
         watcher._sleep = sleep
+        watcher.start()
         with self.assertLogs("voicemate.hots.screen.watcher", "ERROR"):
             with self.assertRaises(asyncio.CancelledError):
                 await watcher.run(self.say)

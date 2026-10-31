@@ -13,9 +13,10 @@ Apple's text recognition reads the screen, no model is loaded.
 
 ## During a draft
 
-Ava notices the draft by herself (the map name and a ban or pick phase on screen) and goes into
-**draft mode**: answers are a few words, and speech that is not a draft command gets
-"Say again." instead of going to the chat model. Say:
+Say "draft mode on" (or "game mode on"). Ava then watches the screen, notices a draft by herself
+(the map name and a ban or pick phase on screen) and answers in a few words; speech that is
+not a draft command gets "Say again." instead of going to the chat model. Outside draft mode
+Ava never looks at the screen unless you ask her to read it. Say:
 
 | You say | Ava does |
 |---|---|
@@ -25,15 +26,15 @@ Ava notices the draft by herself (the map name and a ban or pick phase on screen
 | "what is good against Zul'jin" | the best counters |
 | "why" | the reasons of the last advice |
 | "read the last screenshot" | reads the newest saved screen instead of the live one |
-| "draft mode on" / "end draft" | switch the mode by hand |
+| "draft mode on" / "draft mode off" | switch the mode (`game_mode = true` starts every session in it) |
 
-When the match starts the draft ends and Ava stays quiet until the next draft screen.
+When the match starts Ava stays quiet until the next draft screen, and draft mode stays on.
 
 ## Names that are said badly
 
 Names are matched by sound as well as by spelling ("Kszalatat" finds Xal'atath), limited to
-heroes still available. When two heroes fit, Ava asks "Thrall or Tyrael?"; answer with the
-name, "first" or "second". The spelling is remembered in `data/hots_aliases.toml`.
+heroes still available. When two heroes fit, Ava asks "One Thrall or two Tyrael?"; answer with
+the number (or the name), so a name she misheard once is not needed again. The spelling is remembered in `data/hots_aliases.toml`.
 
 ## What is saved
 
@@ -42,4 +43,4 @@ Every screen where the draft changed is saved to `data/game_screens/<date_time>/
 
 ## Settings
 
-`[hots.screen]` in `config/voicemate.toml`: `enabled`, `window` (app name of the game), `poll_s`, `proactive` (say "Your ban." when it is your turn), `log_dir`, `keep`.
+`[hots.screen]` in `config/voicemate.toml`: `enabled`, `window` (app name of the game), `poll_s`, `game_mode`, `proactive` (say "Your ban." when it is your turn), `log_dir`, `keep`.
