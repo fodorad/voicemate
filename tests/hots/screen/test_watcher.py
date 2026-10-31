@@ -38,6 +38,20 @@ class Clock:
         return self.now
 
 
+class BrokenOnce:
+    """A screen that fails with an unexpected error on the first read, then works."""
+
+    def __init__(self, screen) -> None:
+        self.screen = screen
+        self.failed = False
+
+    def read(self, region=FULL, fast=False):
+        if not self.failed:
+            self.failed = True
+            raise RuntimeError("odd screen")
+        return self.screen.read(region, fast)
+
+
 class WatcherCase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
@@ -198,6 +212,23 @@ class TestProblems(WatcherCase):
         with self.assertRaises(asyncio.CancelledError):
             await watcher.run(self.say)
         self.assertEqual(waits, [watcher.poll_s, PROBLEM_RETRY_S, PROBLEM_RETRY_S])
+
+    async def test_an_unexpected_failure_does_not_end_the_watching(self):
+        waits: list[float] = []
+
+        async def sleep(seconds: float) -> None:
+            waits.append(seconds)
+            if len(waits) == 2:
+                raise asyncio.CancelledError
+
+        watcher = self.watch(shown("ban_mine"))
+        watcher.reader = BrokenOnce(self.screen)
+        watcher._sleep = sleep
+        with self.assertLogs("voicemate.hots.screen.watcher", "ERROR"):
+            with self.assertRaises(asyncio.CancelledError):
+                await watcher.run(self.say)
+        self.assertEqual(waits[0], PROBLEM_RETRY_S)  # the first look failed, the loop went on
+        self.assertEqual(watcher.mode, DRAFT)  # the second look worked
 
     async def test_the_watcher_slows_down_when_no_draft_ever_shows(self):
         watcher = self.watch(shown("loading"))

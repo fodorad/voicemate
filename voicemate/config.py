@@ -237,8 +237,8 @@ class ScreenConfig:
 
     Attributes:
         enabled: Read the game screen (macOS only; needs the Screen Recording permission).
-        window: Part of the game's app or window name; the whole display is read when no
-            such window is open.
+        window: Part of the game's app name (not a window title); the whole display is read
+            when that app has no window open.
         poll_s: Seconds between light looks at the screen while watching for a draft.
         proactive: Say "Your ban." / "Your pick." when it becomes your turn.
         log_dir: Folder for the log of captured screens, one subfolder per draft.

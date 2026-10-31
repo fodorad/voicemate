@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -63,26 +64,33 @@ def _to_array(image) -> np.ndarray:
     return np.ascontiguousarray(pixels[:, :width, [2, 1, 0]])  # BGRA → RGB
 
 
-def _window_id(name: str) -> int | None:
-    """The biggest on-screen window whose app or title contains ``name``."""
+def pick_window(windows: list[dict[str, Any]], app: str) -> int | None:
+    """The number of the biggest window of the app named ``app`` (part of its name).
+
+    Only the app's name counts, never a window title: a browser tab about the game must not be
+    mistaken for the game.
+    """
+    wanted = app.lower()
+    best, area = None, 0.0
+    for window in windows:
+        bounds = window.get("kCGWindowBounds", {})
+        size = bounds.get("Width", 0) * bounds.get("Height", 0)
+        if wanted in str(window.get("kCGWindowOwnerName", "")).lower() and size > area:
+            best, area = int(window["kCGWindowNumber"]), size
+    return best
+
+
+def _window_id(app: str) -> int | None:
     import Quartz
 
     windows = Quartz.CGWindowListCopyWindowInfo(
         Quartz.kCGWindowListOptionOnScreenOnly, Quartz.kCGNullWindowID
     )
-    wanted = name.lower()
-    best, area = None, 0.0
-    for window in windows:
-        label = f"{window.get('kCGWindowOwnerName', '')} {window.get('kCGWindowName', '')}"
-        bounds = window.get("kCGWindowBounds", {})
-        size = bounds.get("Width", 0) * bounds.get("Height", 0)
-        if wanted in label.lower() and size > area:
-            best, area = int(window["kCGWindowNumber"]), size
-    return best
+    return pick_window(list(windows), app)
 
 
 def capture(window: str) -> np.ndarray:
-    """The picture of the ``window`` app's window, or of the whole screen when it is not open.
+    """The picture of the ``window`` app's biggest window (the whole screen when it has none).
 
     Raises:
         ScreenError: If macOS returns nothing or a blank picture (permission missing).
@@ -116,7 +124,7 @@ class MacScreenReader:
     """Reads the live screen (the game window when it is open, otherwise the whole display).
 
     Args:
-        window: Part of the game's app or window name (``"Heroes"``).
+        window: Part of the game's app name (``"Heroes"``).
     """
 
     def __init__(self, window: str = "Heroes") -> None:

@@ -114,7 +114,7 @@ aliases_file = "data/hots_aliases.toml"
 # Reading the draft from the screen (macOS: allow Screen Recording for the app running Ava).
 [hots.screen]
 enabled = true
-window = "Heroes"       # app or window name of the game; the whole display when it is not open
+window = "Heroes"       # app name of the game; the whole display when it has no window open
 poll_s = 2.0            # seconds between light looks while waiting for a draft
 proactive = false       # say "Your ban." / "Your pick." when it is your turn
 log_dir = "data/game_screens"
