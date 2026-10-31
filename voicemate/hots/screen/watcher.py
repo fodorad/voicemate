@@ -20,6 +20,7 @@ from typing import Any
 from voicemate.hots.draft import Draft
 from voicemate.hots.roster import Roster
 from voicemate.hots.screen.interpreter import BanReader, DraftScreen, interpret
+from voicemate.hots.screen.layout import Calibration
 from voicemate.hots.screen.log import ScreenLog
 from voicemate.hots.screen.reader import FULL, Frame, ScreenError, ScreenReader
 from voicemate.pipeline.skills import SkillAnswer
@@ -54,6 +55,8 @@ class DraftWatcher:
         maps: ``slug → name`` of the maps.
         draft: The session's draft, kept current while a draft is on screen.
         portraits: Reads the ban slots.
+        calibration: Maps each capture onto the reference draft screen, whatever the machine's
+            screen size or window position (the capture is read as it is when omitted).
         log: Where captured screens are saved (not saved when omitted).
         poll_s: Seconds between looks.
         proactive: Say "Your ban." / "Your pick." when it becomes Adam's turn.
@@ -68,6 +71,7 @@ class DraftWatcher:
         maps: Mapping[str, str],
         draft: Draft,
         portraits: BanReader | None = None,
+        calibration: Calibration | None = None,
         log: ScreenLog | None = None,
         poll_s: float = 2.0,
         proactive: bool = False,
@@ -79,6 +83,7 @@ class DraftWatcher:
         self.maps = maps
         self.draft = draft
         self.portraits = portraits
+        self.calibration = calibration
         self.log = log
         self.poll_s = poll_s
         self.proactive = proactive
@@ -140,7 +145,7 @@ class DraftWatcher:
                 self._fail(str(exc))
                 return
             self.problem = None
-            screen = interpret(frame, self.roster, self.maps, self.portraits)
+            screen = self._see(frame)
             if self.mode != DRAFT:
                 if not screen.is_draft:
                     self._idle_looks += 1
@@ -151,7 +156,7 @@ class DraftWatcher:
                 except ScreenError as exc:
                     self._fail(str(exc))
                     return
-                screen = interpret(frame, self.roster, self.maps, self.portraits)
+                screen = self._see(frame)
             await self._update(frame, screen)
 
     def end(self) -> None:
@@ -177,7 +182,7 @@ class DraftWatcher:
                 if not self.watching and age > STALE_S:
                     self.mode = IDLE
             frame = await self._capture(fast=False, reader=reader)
-            screen = interpret(frame, self.roster, self.maps, self.portraits)
+            screen = self._see(frame)
             if self.mode != DRAFT and screen.is_draft:
                 self._begin()
             if self.mode == DRAFT:
@@ -188,6 +193,12 @@ class DraftWatcher:
 
     async def _capture(self, fast: bool, reader: ScreenReader | None = None) -> Frame:
         return await asyncio.to_thread((reader or self.reader).read, FULL, fast)
+
+    def _see(self, frame: Frame) -> DraftScreen:
+        """What the draft screen in ``frame`` shows."""
+        if self.calibration is not None:
+            frame = self.calibration.canonical(frame, self.maps)
+        return interpret(frame, self.roster, self.maps, self.portraits)
 
     def _fail(self, message: str) -> None:
         if message != self.problem:
