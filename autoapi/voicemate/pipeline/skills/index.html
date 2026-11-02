@@ -348,7 +348,8 @@
 answers them in one sentence; everything else returns <code class="docutils literal notranslate"><span class="pre">None</span></code> and goes to the agent. The
 session asks its skills before every ordinary turn and speaks the answer through the usual
 pipeline (text-to-speech, UI, metrics), so a skill only has to produce text. A skill may also
-run in the background for the life of a session and speak on its own (<a class="reference internal" href="#voicemate.pipeline.skills.Background" title="voicemate.pipeline.skills.Background"><code class="xref py py-class docutils literal notranslate"><span class="pre">Background</span></code></a>).</p>
+run in the background for the life of a session and speak on its own (<a class="reference internal" href="#voicemate.pipeline.skills.Background" title="voicemate.pipeline.skills.Background"><code class="xref py py-class docutils literal notranslate"><span class="pre">Background</span></code></a>), and
+offer a focused mode the user switches on and off (<a class="reference internal" href="#voicemate.pipeline.skills.Focusable" title="voicemate.pipeline.skills.Focusable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Focusable</span></code></a>).</p>
 <section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper autosummary longtable docutils container">
@@ -362,6 +363,9 @@ run in the background for the life of a session and speak on its own (<a class="
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#voicemate.pipeline.skills.Background" title="voicemate.pipeline.skills.Background"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Background</span></code></a></p></td>
 <td><p>A skill that keeps working while the session is open and may speak on its own.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#voicemate.pipeline.skills.Focusable" title="voicemate.pipeline.skills.Focusable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Focusable</span></code></a></p></td>
+<td><p>A skill the user can switch into a focused mode (a toggle in the UI, or by command).</p></td>
 </tr>
 </tbody>
 </table>
@@ -428,6 +432,30 @@ run in the background for the life of a session and speak on its own (<a class="
 <dt class="sig sig-object py" id="voicemate.pipeline.skills.Background.run">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">say</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#voicemate.pipeline.skills.SkillAnswer" title="voicemate.pipeline.skills.SkillAnswer"><span class="pre">SkillAnswer</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Awaitable</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/skills.html#Background.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.skills.Background.run" title="Link to this definition">¶</a></dt>
 <dd><p>Work until cancelled; <code class="docutils literal notranslate"><span class="pre">say</span></code> shows and (when the assistant is idle) speaks.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="voicemate.pipeline.skills.Focusable">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">voicemate.pipeline.skills.</span></span><span class="sig-name descname"><span class="pre">Focusable</span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/skills.html#Focusable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.skills.Focusable" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>A skill the user can switch into a focused mode (a toggle in the UI, or by command).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voicemate.pipeline.skills.Focusable.focus_label">
+<span class="sig-name descname"><span class="pre">focus_label</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#voicemate.pipeline.skills.Focusable.focus_label" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="voicemate.pipeline.skills.Focusable.focused">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">focused</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#voicemate.pipeline.skills.Focusable.focused" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the skill is in its focused mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.pipeline.skills.Focusable.set_focus">
+<span class="sig-name descname"><span class="pre">set_focus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/skills.html#Focusable.set_focus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.skills.Focusable.set_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Switch the focused mode on or off.</p>
 </dd></dl>
 
 </dd></dl>
@@ -511,6 +539,12 @@ run in the background for the life of a session and speak on its own (<a class="
 </li>
 <li><a class="reference internal" href="#voicemate.pipeline.skills.Background"><code class="docutils literal notranslate"><span class="pre">Background</span></code></a><ul>
 <li><a class="reference internal" href="#voicemate.pipeline.skills.Background.run"><code class="docutils literal notranslate"><span class="pre">Background.run()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#voicemate.pipeline.skills.Focusable"><code class="docutils literal notranslate"><span class="pre">Focusable</span></code></a><ul>
+<li><a class="reference internal" href="#voicemate.pipeline.skills.Focusable.focus_label"><code class="docutils literal notranslate"><span class="pre">Focusable.focus_label</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.skills.Focusable.focused"><code class="docutils literal notranslate"><span class="pre">Focusable.focused</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.skills.Focusable.set_focus"><code class="docutils literal notranslate"><span class="pre">Focusable.set_focus()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#voicemate.pipeline.skills.first_answer"><code class="docutils literal notranslate"><span class="pre">first_answer()</span></code></a></li>

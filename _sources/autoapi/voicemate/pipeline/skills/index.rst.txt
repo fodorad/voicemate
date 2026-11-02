@@ -11,7 +11,8 @@ voicemate.pipeline.skills
    answers them in one sentence; everything else returns ``None`` and goes to the agent. The
    session asks its skills before every ordinary turn and speaks the answer through the usual
    pipeline (text-to-speech, UI, metrics), so a skill only has to produce text. A skill may also
-   run in the background for the life of a session and speak on its own (:class:`Background`).
+   run in the background for the life of a session and speak on its own (:class:`Background`), and
+   offer a focused mode the user switches on and off (:class:`Focusable`).
 
 
 
@@ -23,6 +24,7 @@ Classes
    voicemate.pipeline.skills.SkillAnswer
    voicemate.pipeline.skills.Skill
    voicemate.pipeline.skills.Background
+   voicemate.pipeline.skills.Focusable
 
 
 Functions
@@ -84,6 +86,31 @@ Module Contents
 
 
       Work until cancelled; ``say`` shows and (when the assistant is idle) speaks.
+
+
+
+.. py:class:: Focusable
+
+   Bases: :py:obj:`Protocol`
+
+
+   A skill the user can switch into a focused mode (a toggle in the UI, or by command).
+
+
+   .. py:attribute:: focus_label
+      :type:  str
+
+
+   .. py:property:: focused
+      :type: bool
+
+
+      Whether the skill is in its focused mode.
+
+
+   .. py:method:: set_focus(on: bool) -> None
+
+      Switch the focused mode on or off.
 
 
 

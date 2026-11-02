@@ -1225,6 +1225,11 @@ is unreliable; tool choice and first-token order are not. A small model leaves m
 to the game running beside Ava.</p></li>
 <li><p><strong>Not done yet:</strong> embedding map/text chunks for “why” follow-ups, free-text map tips on the
 loading screen.</p></li>
+<li><p><strong>HotS toggle (2026-11-02):</strong> a header button switches draft mode like the spoken command. The
+session knows any skill with a focused mode (<code class="docutils literal notranslate"><span class="pre">Focusable</span></code>: label, <code class="docutils literal notranslate"><span class="pre">focused</span></code>, <code class="docutils literal notranslate"><span class="pre">set_focus</span></code>) and
+publishes a <code class="docutils literal notranslate"><span class="pre">FocusEvent</span></code> whenever it changes, by button or by voice, so the page never
+imports <code class="docutils literal notranslate"><span class="pre">hots</span></code>. The button shows the user’s switch; the temporary pause during a match is not
+shown.</p></li>
 </ul>
 </section>
 </section>

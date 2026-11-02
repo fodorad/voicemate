@@ -119,6 +119,25 @@ Module Contents
 
 
 
+   .. py:attribute:: focus_label
+      :type:  str
+      :value: 'HotS'
+
+
+
+   .. py:property:: focused
+      :type: bool
+
+
+      Whether draft mode is switched on.
+
+
+   .. py:method:: set_focus(on: bool) -> None
+
+      Switch draft mode on or off (the UI toggle).
+
+
+
    .. py:property:: draft_mode
       :type: bool
 

@@ -548,4 +548,8 @@ the memory and the CPU. The skill answers from a local knowledge base, not from 
   to the game running beside Ava.
 - **Not done yet:** embedding map/text chunks for "why" follow-ups, free-text map tips on the
   loading screen.
-
+- **HotS toggle (2026-11-02):** a header button switches draft mode like the spoken command. The
+  session knows any skill with a focused mode (`Focusable`: label, `focused`, `set_focus`) and
+  publishes a `FocusEvent` whenever it changes, by button or by voice, so the page never
+  imports `hots`. The button shows the user's switch; the temporary pause during a match is not
+  shown.

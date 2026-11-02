@@ -492,6 +492,24 @@ the user can pause to think without the assistant jumping in.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.VoiceSession.focus_skill">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">focus_skill</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../skills/index.html#voicemate.pipeline.skills.Focusable" title="voicemate.pipeline.skills.Focusable"><span class="pre">voicemate.pipeline.skills.Focusable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.VoiceSession.focus_skill" title="Link to this definition">¶</a></dt>
+<dd><p>The skill with a focused mode the user can switch (<code class="docutils literal notranslate"><span class="pre">None</span></code> when there is none).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.VoiceSession.focused">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">focused</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.VoiceSession.focused" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the focus skill is in its focused mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.VoiceSession.set_focus">
+<span class="sig-name descname"><span class="pre">set_focus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/voicemate/pipeline/orchestrator.html#VoiceSession.set_focus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voicemate.pipeline.orchestrator.VoiceSession.set_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Switch the focus skill’s mode (the UI toggle); the change is published once.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="voicemate.pipeline.orchestrator.VoiceSession.busy">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">busy</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#voicemate.pipeline.orchestrator.VoiceSession.busy" title="Link to this definition">¶</a></dt>
 <dd><p>True while a turn is being processed or its audio is playing.</p>
@@ -660,6 +678,9 @@ the microphone off means “I’m done talking”.</p>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.wait_idle"><code class="docutils literal notranslate"><span class="pre">VoiceSession.wait_idle()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.thread_id"><code class="docutils literal notranslate"><span class="pre">VoiceSession.thread_id</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.holding"><code class="docutils literal notranslate"><span class="pre">VoiceSession.holding</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.focus_skill"><code class="docutils literal notranslate"><span class="pre">VoiceSession.focus_skill</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.focused"><code class="docutils literal notranslate"><span class="pre">VoiceSession.focused</span></code></a></li>
+<li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.set_focus"><code class="docutils literal notranslate"><span class="pre">VoiceSession.set_focus()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.busy"><code class="docutils literal notranslate"><span class="pre">VoiceSession.busy</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.emit"><code class="docutils literal notranslate"><span class="pre">VoiceSession.emit()</span></code></a></li>
 <li><a class="reference internal" href="#voicemate.pipeline.orchestrator.VoiceSession.feed_audio"><code class="docutils literal notranslate"><span class="pre">VoiceSession.feed_audio()</span></code></a></li>

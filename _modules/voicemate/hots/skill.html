@@ -427,6 +427,21 @@
         <span class="k">if</span> <span class="n">on</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_switch</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
+    <span class="c1">#: Short name shown on the UI toggle (:class:`~voicemate.pipeline.skills.Focusable`).</span>
+    <span class="n">focus_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"HotS"</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">focused</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether draft mode is switched on."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on</span>
+
+<div class="viewcode-block" id="HotsSkill.set_focus">
+<a class="viewcode-back" href="../../../autoapi/voicemate/hots/skill/index.html#voicemate.hots.skill.HotsSkill.set_focus">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_focus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Switch draft mode on or off (the UI toggle)."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_switch</span><span class="p">(</span><span class="n">on</span><span class="p">)</span></div>
+
+
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">draft_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Whether answers are terse and only draft speech is handled."""</span>

@@ -40,6 +40,7 @@ Classes
    voicemate.events.ReminderEvent
    voicemate.events.ConfirmEvent
    voicemate.events.HoldEvent
+   voicemate.events.FocusEvent
    voicemate.events.MicCommandEvent
    voicemate.events.NotesChangedEvent
    voicemate.events.MetricsEvent
@@ -327,6 +328,18 @@ Module Contents
 
 
    .. py:attribute:: holding
+      :type:  bool
+
+
+.. py:class:: FocusEvent
+
+   A skill's focused mode was switched on or off (by the toggle or by a spoken command).
+
+   :ivar on: ``True`` while the skill is focused.
+
+
+
+   .. py:attribute:: on
       :type:  bool
 
 

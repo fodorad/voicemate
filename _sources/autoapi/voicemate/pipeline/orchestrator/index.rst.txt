@@ -126,6 +126,26 @@ Module Contents
       :type: True while the user holds
 
 
+   .. py:property:: focus_skill
+      :type: voicemate.pipeline.skills.Focusable | None
+
+
+      The skill with a focused mode the user can switch (``None`` when there is none).
+
+
+   .. py:property:: focused
+      :type: bool
+
+
+      Whether the focus skill is in its focused mode.
+
+
+   .. py:method:: set_focus(on: bool) -> None
+
+      Switch the focus skill's mode (the UI toggle); the change is published once.
+
+
+
    .. py:property:: busy
       :type: bool
 

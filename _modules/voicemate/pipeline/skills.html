@@ -341,7 +341,8 @@
 <span class="sd">answers them in one sentence; everything else returns ``None`` and goes to the agent. The</span>
 <span class="sd">session asks its skills before every ordinary turn and speaks the answer through the usual</span>
 <span class="sd">pipeline (text-to-speech, UI, metrics), so a skill only has to produce text. A skill may also</span>
-<span class="sd">run in the background for the life of a session and speak on its own (:class:`Background`).</span>
+<span class="sd">run in the background for the life of a session and speak on its own (:class:`Background`), and</span>
+<span class="sd">offer a focused mode the user switches on and off (:class:`Focusable`).</span>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -394,6 +395,29 @@
 <a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/skills/index.html#voicemate.pipeline.skills.Background.run">[docs]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">say</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SkillAnswer</span><span class="p">],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Work until cancelled; ``say`` shows and (when the assistant is idle) speaks."""</span>
+        <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Focusable">
+<a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/skills/index.html#voicemate.pipeline.skills.Focusable">[docs]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Focusable</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A skill the user can switch into a focused mode (a toggle in the UI, or by command)."""</span>
+
+    <span class="c1">#: Short name shown on the toggle.</span>
+    <span class="n">focus_label</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">focused</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether the skill is in its focused mode."""</span>
+        <span class="o">...</span>
+
+<div class="viewcode-block" id="Focusable.set_focus">
+<a class="viewcode-back" href="../../../autoapi/voicemate/pipeline/skills/index.html#voicemate.pipeline.skills.Focusable.set_focus">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_focus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Switch the focused mode on or off."""</span>
         <span class="o">...</span></div>
 </div>
 

@@ -25,6 +25,7 @@ Attributes
    app.BADGES
    app.MIC_SHORTCUT
    app.HOLD_SHORTCUT
+   app.FOCUS_ICON
 
 
 Classes
@@ -70,6 +71,11 @@ Module Contents
 .. py:data:: HOLD_SHORTCUT
    :type:  str
    :value: 'Ctrl+H'
+
+
+.. py:data:: FOCUS_ICON
+   :type:  str
+   :value: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"...
 
 
 .. py:function:: asset_version() -> str

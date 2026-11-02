@@ -560,6 +560,20 @@
 
 
 
+<div class="viewcode-block" id="FocusEvent">
+<a class="viewcode-back" href="../../autoapi/voicemate/events/index.html#voicemate.events.FocusEvent">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FocusEvent</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A skill's focused mode was switched on or off (by the toggle or by a spoken command).</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        on: ``True`` while the skill is focused.</span>
+<span class="sd">    """</span>
+
+    <span class="n">on</span><span class="p">:</span> <span class="nb">bool</span></div>
+
+
+
 <div class="viewcode-block" id="MicCommandEvent">
 <a class="viewcode-back" href="../../autoapi/voicemate/events/index.html#voicemate.events.MicCommandEvent">[docs]</a>
 <span class="nd">@dataclass</span>
@@ -609,6 +623,7 @@
     <span class="o">|</span> <span class="n">ReminderEvent</span>
     <span class="o">|</span> <span class="n">ConfirmEvent</span>
     <span class="o">|</span> <span class="n">HoldEvent</span>
+    <span class="o">|</span> <span class="n">FocusEvent</span>
     <span class="o">|</span> <span class="n">MicCommandEvent</span>
     <span class="o">|</span> <span class="n">NotesChangedEvent</span>
     <span class="o">|</span> <span class="n">MetricsEvent</span>
