@@ -185,6 +185,17 @@ class HoldEvent:
 
 
 @dataclass
+class FocusEvent:
+    """A skill's focused mode was switched on or off (by the toggle or by a spoken command).
+
+    Attributes:
+        on: ``True`` while the skill is focused.
+    """
+
+    on: bool
+
+
+@dataclass
 class MicCommandEvent:
     """The global hotkey was pressed or released: the page starts or stops its microphone.
 
@@ -224,6 +235,7 @@ Event = (
     | ReminderEvent
     | ConfirmEvent
     | HoldEvent
+    | FocusEvent
     | MicCommandEvent
     | NotesChangedEvent
     | MetricsEvent

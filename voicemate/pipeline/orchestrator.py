@@ -39,6 +39,7 @@ from voicemate.events import (
     ErrorEvent,
     Event,
     EventBus,
+    FocusEvent,
     HoldEvent,
     InterruptEvent,
     Lane,
@@ -60,7 +61,7 @@ from voicemate.pipeline.conversation import (
 from voicemate.pipeline.listener import Listener, ListenerCallbacks, Utterance
 from voicemate.pipeline.reminders import spoken_text
 from voicemate.pipeline.reply import Reply
-from voicemate.pipeline.skills import Background, SkillAnswer, first_answer
+from voicemate.pipeline.skills import Background, Focusable, SkillAnswer, first_answer
 from voicemate.pipeline.turn_taking import Begin, Collect, Decision, Interrupt, TurnTaking
 from voicemate.runtime import Runtime
 
@@ -99,6 +100,7 @@ class VoiceSession:
             audio_dir=self._audio_dir(),
         )
         self.skills = list(runtime.skills())
+        self._focus_shown = self.focused
         self.lang = self.config.assistant.default_language
         #: The rules for what user input means (hold, merge, confirmation).
         self.policy = TurnTaking()
@@ -152,6 +154,29 @@ class VoiceSession:
     def holding(self) -> bool:
         """True while the user holds: pauses do not end their turn (see :meth:`hold`)."""
         return self.policy.holding
+
+    @property
+    def focus_skill(self) -> Focusable | None:
+        """The skill with a focused mode the user can switch (``None`` when there is none)."""
+        return next((s for s in self.skills if isinstance(s, Focusable)), None)
+
+    @property
+    def focused(self) -> bool:
+        """Whether the focus skill is in its focused mode."""
+        skill = self.focus_skill
+        return skill is not None and skill.focused
+
+    def set_focus(self, on: bool) -> None:
+        """Switch the focus skill's mode (the UI toggle); the change is published once."""
+        skill = self.focus_skill
+        if skill is not None:
+            skill.set_focus(on)
+            self._publish_focus()
+
+    def _publish_focus(self) -> None:
+        if self.focused != self._focus_shown:
+            self._focus_shown = self.focused
+            self.bus.publish(FocusEvent(self._focus_shown))
 
     @property
     def _turn_running(self) -> bool:
@@ -362,6 +387,7 @@ class VoiceSession:
     ) -> None:
         """Stream one agent run into speech; ``resume`` answers a pending confirmation."""
         skill_answer = await first_answer(self.skills, text) if resume is None else None
+        self._publish_focus()  # a spoken "draft mode on" moves the toggle too
         if skill_answer is not None:
             lang = skill_answer.lang
         reply = Reply(lang, ended_at)

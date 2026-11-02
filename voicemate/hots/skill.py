@@ -85,6 +85,18 @@ class HotsSkill:
         if on:
             self._switch(True)
 
+    #: Short name shown on the UI toggle (:class:`~voicemate.pipeline.skills.Focusable`).
+    focus_label: str = "HotS"
+
+    @property
+    def focused(self) -> bool:
+        """Whether draft mode is switched on."""
+        return self._on
+
+    def set_focus(self, on: bool) -> None:
+        """Switch draft mode on or off (the UI toggle)."""
+        self._switch(on)
+
     @property
     def draft_mode(self) -> bool:
         """Whether answers are terse and only draft speech is handled."""

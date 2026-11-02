@@ -133,6 +133,35 @@ class ScriptedSkill:
         return None if found is None else SkillAnswer(found, self.lang)
 
 
+class ScriptedFocus(ScriptedSkill):
+    """A skill with a focused mode that "mode on" and "mode off" switch (a real implementation
+    of :class:`~voicemate.pipeline.skills.Focusable`)."""
+
+    focus_label = "Scripted"
+
+    def __init__(self, on: bool = False) -> None:
+        super().__init__({})
+        self._on = on
+
+    @property
+    def focused(self) -> bool:
+        """Whether the mode is on."""
+        return self._on
+
+    def set_focus(self, on: bool) -> None:
+        """Switch the mode."""
+        self._on = on
+
+    async def answer(self, text: str):
+        """Switch the mode on the spoken words, like a real skill's command."""
+        from voicemate.pipeline.skills import SkillAnswer
+
+        if text in ("mode on", "mode off"):
+            self._on = text == "mode on"
+            return SkillAnswer(f"Mode {text[5:]}.", "en")
+        return await super().answer(text)
+
+
 class ScriptedAnnouncer(ScriptedSkill):
     """A skill that also works in the background: it says the scripted lines once, then idles.
 

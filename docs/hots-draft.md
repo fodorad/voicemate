@@ -13,7 +13,9 @@ Apple's text recognition reads the screen, no model is loaded.
 
 ## During a draft
 
-Say "draft mode on" (or "game mode on"). Ava then watches the screen, notices a draft by herself
+Press the **HotS** button in the header (a hexagon with an H; it lights up while the mode is
+on), or say "draft mode on" (or "game mode on"); the button follows the spoken commands too.
+Ava then watches the screen, notices a draft by herself
 (the map name and a ban or pick phase on screen) and answers in a few words; speech that is
 not a draft command gets "Say again." instead of going to the chat model. Outside draft mode
 Ava never looks at the screen unless you ask her to read it. Say:

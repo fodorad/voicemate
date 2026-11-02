@@ -67,6 +67,7 @@ body { font-family: var(--font-ui); }
 .vm-btn:focus-visible, .vm-input:focus-visible { outline: 2px solid var(--think); outline-offset: 2px; }
 .vm-btn.q-btn, .vm-btn.q-btn .q-btn__content { color: var(--ink) !important; text-transform: none; }
 .vm-btn.q-btn.is-on .q-btn__content { color: #fff !important; }
+.vm-focus .q-btn__content { flex-wrap: nowrap; gap: 0.4rem; }
 .vm-btn.is-on, .vm-btn.q-btn.is-on { background: var(--listen); border-color: var(--listen); color: #fff !important; }
 
 /* ── the pipeline rail: ear → mouth ─────────────────────────────────────── */
