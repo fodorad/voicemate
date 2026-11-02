@@ -146,6 +146,25 @@ class TestDraftMode(DraftModeCase):
         await skill.watcher.poll()
         self.assertTrue(skill.draft_mode)
 
+    async def test_the_toggle_switches_draft_mode_like_the_command(self):
+        skill = self.skill(shown("loading"))
+        self.assertEqual((skill.focus_label, skill.focused), ("HotS", False))
+        skill.set_focus(True)
+        self.assertTrue(skill.focused)
+        self.assertTrue(skill.watcher.watching)
+        self.assertEqual(await self.ask("what time is it"), SAY_AGAIN)
+        skill.set_focus(False)
+        self.assertFalse(skill.focused)
+        self.assertFalse(skill.watcher.watching)
+
+    async def test_the_toggle_stays_on_while_the_match_pauses_the_focus(self):
+        skill = self.skill(shown("starting"))
+        skill.set_focus(True)
+        skill.watcher.mode = DRAFT
+        await skill.watcher.poll()
+        self.assertFalse(skill.draft_mode)
+        self.assertTrue(skill.focused)
+
     async def test_a_session_can_start_in_draft_mode(self):
         self.skill(shown("loading"))
         self.hots.screen.settings.game_mode = True

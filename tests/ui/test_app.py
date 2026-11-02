@@ -16,6 +16,7 @@ from nicegui.page import page as nicegui_page
 
 from tests.helpers import (
     EnergyVAD,
+    ScriptedFocus,
     ScriptedRecognizer,
     ToneSynthesizer,
     make_scripted_chat_model,
@@ -72,7 +73,7 @@ class UITestCase(unittest.IsolatedAsyncioTestCase):
         self.ctx.notes.close()
         self.tmp.cleanup()
 
-    def runtime(self, responses=(), choice=None):
+    def runtime(self, responses=(), choice=None, skills=()):
         voice = ToneSynthesizer(24000)
         graph = build_graph(
             make_scripted_chat_model(list(responses)),
@@ -91,12 +92,13 @@ class UITestCase(unittest.IsolatedAsyncioTestCase):
             memory=self.ctx.memory,
             notes=self.ctx.notes,
             model_choice=choice,
+            skills=lambda: list(skills),
         )
 
     def open_page(
-        self, responses=(), choice=None, on_new_conversation=None, click_mic=None
+        self, responses=(), choice=None, on_new_conversation=None, click_mic=None, skills=()
     ) -> ConversationPage:
-        self.session = VoiceSession(self.runtime(responses, choice))
+        self.session = VoiceSession(self.runtime(responses, choice, skills))
         self.client = Client(nicegui_page("/"))
         with self.client:
             page = ConversationPage(self.session, self.ctx.config, on_new_conversation, click_mic)
@@ -127,6 +129,40 @@ class TestLayout(UITestCase):
         self.assertEqual(buttons(self.client)[:3], ["New conversation", "Hold", "Start microphone"])
         self.assertIn("vm-mic", page.mic.classes)  # the Ctrl+M shortcut clicks this button
         self.assertIn("vm-hold", page.hold.classes)  # and Ctrl+H this one
+
+    async def test_a_session_without_a_focus_skill_has_no_toggle(self):
+        page = self.open_page()
+        self.assertIsNone(page.focus)
+        self.assertNotIn("HotS", texts(self.client))
+
+    async def test_the_toggle_switches_the_skill(self):
+        skill = ScriptedFocus()
+        page = self.open_page(skills=[skill])
+        self.assertIn("vm-focus", page.focus.classes)
+        self.assertIn("Scripted", texts(self.client))
+        self.assertEqual(page.focus.props["aria-pressed"], "false")
+        with page.root:
+            page._toggle_focus()
+        await asyncio.sleep(0.05)  # the page follows the session's FocusEvent
+        self.assertTrue(skill.focused)
+        self.assertIn("is-on", page.focus.classes)
+        self.assertEqual(page.focus.props["aria-pressed"], "true")
+        with page.root:
+            page._toggle_focus()
+        await asyncio.sleep(0.05)
+        self.assertFalse(skill.focused)
+        self.assertNotIn("is-on", page.focus.classes)
+
+    async def test_a_spoken_command_moves_the_toggle(self):
+        page = self.open_page(skills=[ScriptedFocus()])
+        await self.session.submit_text("mode on")
+        await self.settle()
+        self.assertIn("is-on", page.focus.classes)
+
+    async def test_a_page_opened_while_focused_shows_it(self):
+        page = self.open_page(skills=[ScriptedFocus(on=True)])
+        self.assertIn("is-on", page.focus.classes)
+        self.assertEqual(page.focus.props["aria-pressed"], "true")
 
     async def test_hold_until_finished(self):
         page = self.open_page(["Got all of it."])

@@ -11,6 +11,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 from tests.helpers import (
     EnergyVAD,
     ScriptedAnnouncer,
+    ScriptedFocus,
     ScriptedRecognizer,
     ScriptedSkill,
     ToneSynthesizer,
@@ -25,6 +26,7 @@ from voicemate.events import (
     AudioEvent,
     ConfirmEvent,
     ErrorEvent,
+    FocusEvent,
     InterruptEvent,
     Lane,
     LaneState,
@@ -220,6 +222,45 @@ class TestTextTurns(SessionTestCase):
             await self.settle()
         errors = [e for e in self.drain() if isinstance(e, ErrorEvent)]
         self.assertIn("timed out", errors[0].message)
+
+
+class TestFocus(SessionTestCase):
+    def focus_events(self):
+        return [e.on for e in self.drain() if isinstance(e, FocusEvent)]
+
+    async def test_without_a_focusable_skill_there_is_nothing_to_switch(self):
+        self.make_session(["x"], skills=[ScriptedSkill({})])
+        self.assertIsNone(self.session.focus_skill)
+        self.assertFalse(self.session.focused)
+        self.session.set_focus(True)
+        self.assertEqual(self.focus_events(), [])
+
+    async def test_the_toggle_switches_the_skill_and_tells_the_page_once(self):
+        skill = ScriptedFocus()
+        self.make_session(["x"], skills=[skill])
+        self.session.set_focus(True)
+        self.session.set_focus(True)
+        self.assertTrue(skill.focused)
+        self.assertTrue(self.session.focused)
+        self.session.set_focus(False)
+        self.assertEqual(self.focus_events(), [True, False])
+
+    async def test_a_spoken_command_moves_the_toggle_too(self):
+        skill = ScriptedFocus()
+        self.make_session(["never used"], skills=[skill])
+        await self.session.submit_text("mode on")
+        await self.settle()
+        self.assertTrue(skill.focused)
+        self.assertEqual(self.focus_events(), [True])
+        await self.session.submit_text("mode off")
+        await self.settle()
+        self.assertEqual(self.focus_events(), [False])
+
+    async def test_a_skill_that_starts_focused_is_not_announced(self):
+        self.make_session(["x"], skills=[ScriptedFocus(on=True)])
+        self.assertTrue(self.session.focused)
+        self.session.set_focus(True)
+        self.assertEqual(self.focus_events(), [])
 
 
 class TestSkills(SessionTestCase):

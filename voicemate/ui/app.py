@@ -33,6 +33,7 @@ from voicemate.events import (
     ConfirmEvent,
     ErrorEvent,
     Event,
+    FocusEvent,
     HoldEvent,
     InterruptEvent,
     Lane,
@@ -79,6 +80,13 @@ BADGES: dict[str, str] = {"web": "sent to web", "memory": "from memory", "local"
 #: Cmd+M would be the Mac habit, but Chrome minimizes the window before the page sees it.
 MIC_SHORTCUT: str = "Ctrl+M"
 HOLD_SHORTCUT: str = "Ctrl+H"
+#: A hexagon with an H, drawn in the text colour (an original mark, like the hero portraits' shape).
+FOCUS_ICON: str = (
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" '
+    'stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">'
+    '<path d="M12 2.5 20.5 7.25v9.5L12 21.5 3.5 16.75v-9.5z"/>'
+    '<path d="M9 8.5v7M15 8.5v7M9 12h6"/></svg>'
+)
 
 #: Test audio file names accepted by ``?fake_mic=`` (no paths, no URLs).
 _FAKE_MIC_NAME = re.compile(r"^[\w-]+\.wav$")
@@ -180,6 +188,7 @@ class ConversationPage:
             MetricsEvent: self._metrics,
             ConfirmEvent: self._confirm,
             HoldEvent: self._hold_changed,
+            FocusEvent: self._focus_changed,
             MicCommandEvent: self._mic_command,
         }
         self._build()
@@ -214,6 +223,7 @@ class ConversationPage:
             new = ui.button("New conversation", on_click=self._new_conversation)
             new.classes("vm-btn").props("flat no-caps")
             new.tooltip("Forget this conversation's history; long-term memory stays")
+            self._build_focus_toggle()
             self.hold = ui.button("Hold", on_click=self._toggle_hold)
             self.hold.classes("vm-btn vm-hold").props("flat no-caps")
             self.hold.tooltip(
@@ -228,6 +238,22 @@ class ConversationPage:
                 self._mic_toggled,
                 js_handler="async () => emit(await window.voicemate.toggleMic())",
             )
+
+    def _build_focus_toggle(self) -> None:
+        """The switch of the focused skill (a hexagon like a hero portrait, plus its name)."""
+        skill = self.session.focus_skill
+        self.focus: ui.button | None = None
+        if skill is None:
+            return
+        self.focus = ui.button(on_click=self._toggle_focus).classes("vm-btn vm-focus")
+        self.focus.props("flat no-caps")
+        with self.focus:
+            ui.html(FOCUS_ICON, sanitize=False)
+            ui.label(skill.focus_label)
+        self.focus.tooltip(
+            f"{skill.focus_label} mode: watch the screen and answer in as few words as possible"
+        )
+        self._show_focus(self.session.focused)
 
     def _build_rail(self) -> None:
         rail = (
@@ -321,6 +347,22 @@ class ConversationPage:
             self.hold.classes(add="is-on")
         else:
             self.hold.classes(remove="is-on")
+
+    def _toggle_focus(self) -> None:
+        self.session.set_focus(not self.session.focused)
+
+    def _focus_changed(self, event: FocusEvent) -> None:
+        """Follow the session, which also changes when a spoken command switches the mode."""
+        self._show_focus(event.on)
+
+    def _show_focus(self, on: bool) -> None:
+        if self.focus is None:
+            return
+        self.focus.props(f'aria-pressed="{str(on).lower()}"')
+        if on:
+            self.focus.classes(add="is-on")
+        else:
+            self.focus.classes(remove="is-on")
 
     def _new_conversation(self) -> None:
         if self.on_new_conversation is not None:

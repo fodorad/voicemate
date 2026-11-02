@@ -4,7 +4,8 @@ A skill recognizes the questions it can answer exactly (from local data, in mill
 answers them in one sentence; everything else returns ``None`` and goes to the agent. The
 session asks its skills before every ordinary turn and speaks the answer through the usual
 pipeline (text-to-speech, UI, metrics), so a skill only has to produce text. A skill may also
-run in the background for the life of a session and speak on its own (:class:`Background`).
+run in the background for the life of a session and speak on its own (:class:`Background`), and
+offer a focused mode the user switches on and off (:class:`Focusable`).
 """
 
 from __future__ import annotations
@@ -44,6 +45,23 @@ class Background(Protocol):
 
     async def run(self, say: Callable[[SkillAnswer], Awaitable[None]]) -> None:
         """Work until cancelled; ``say`` shows and (when the assistant is idle) speaks."""
+        ...
+
+
+@runtime_checkable
+class Focusable(Protocol):
+    """A skill the user can switch into a focused mode (a toggle in the UI, or by command)."""
+
+    #: Short name shown on the toggle.
+    focus_label: str
+
+    @property
+    def focused(self) -> bool:
+        """Whether the skill is in its focused mode."""
+        ...
+
+    def set_focus(self, on: bool) -> None:
+        """Switch the focused mode on or off."""
         ...
 
 
